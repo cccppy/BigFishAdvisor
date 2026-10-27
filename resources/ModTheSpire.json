@@ -1,0 +1,10 @@
+{
+  "modid": "bigfishadvisor",
+  "name": "大肥鱼助手 Big Fish Advisor",
+  "version": "1.0.0",
+  "author_list": ["BigFishAdvisor contributors"],
+  "description": "大肥鱼在游戏里陪你爬塔：地图路线高亮、选牌拿/跳过、Neow 与问号事件选项、战斗出牌推荐与思路。按 F8 随时开关。A cute in-game coach for Slay the Spire: route planning, card reward pick/skip, Neow/event choices, and combat suggestions with explanations. Press F8 to toggle.",
+  "mts_version": "3.6.0",
+  "sts_version": "12-18-2022",
+  "dependencies": []
+}

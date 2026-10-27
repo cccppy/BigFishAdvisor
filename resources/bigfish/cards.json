@@ -1,0 +1,2815 @@
+{
+ "cards": {
+  "Bash": {
+   "s": 7.0,
+   "n": "前期核心：伤害附带易伤，让后续攻击多打 50%，优先升级。",
+   "t": [
+    "vuln",
+    "attack"
+   ],
+   "tier": "C"
+  },
+  "Anger": {
+   "s": 6.1,
+   "n": "0 费攻击，复制品会回弃牌堆；前期补伤害不错，后期容易卡手。",
+   "t": [
+    "zero",
+    "attack"
+   ],
+   "tier": "C"
+  },
+  "Armaments": {
+   "s": 6.4,
+   "n": "格挡同时升级手牌，升级后全手牌升级，长战很赚。",
+   "t": [
+    "block",
+    "upgrade"
+   ],
+   "tier": "C"
+  },
+  "Body Slam": {
+   "s": 7.3,
+   "n": "伤害等于当前格挡，防战核心输出；没有格挡体系时别早拿。",
+   "t": [
+    "block",
+    "attack"
+   ],
+   "tier": "B"
+  },
+  "Clash": {
+   "s": 3.5,
+   "n": "只有手牌全是攻击才能打，条件苛刻，新手容易卡手。",
+   "t": [
+    "attack"
+   ],
+   "tier": "D"
+  },
+  "Cleave": {
+   "s": 6.3,
+   "n": "低费群体伤害，第一层清小怪很实用。",
+   "t": [
+    "aoe",
+    "attack"
+   ],
+   "tier": "C"
+  },
+  "Clothesline": {
+   "s": 7.3,
+   "n": "伤害加虚弱，能直接削减敌人下回合输出。",
+   "t": [
+    "weak",
+    "attack"
+   ],
+   "tier": "B"
+  },
+  "Flex": {
+   "s": 4.6,
+   "n": "0 费临时力量，配合多段攻击才强；单独拿收益低。",
+   "t": [
+    "zero",
+    "str"
+   ],
+   "tier": "D"
+  },
+  "Havoc": {
+   "s": 5.5,
+   "n": "随机打出抽牌堆顶牌，不可控；没有消耗/观星体系慎拿。",
+   "t": [
+    "exhaust"
+   ],
+   "tier": "C"
+  },
+  "Headbutt": {
+   "s": 6.3,
+   "n": "把弃牌堆的牌拿回手，配合关键牌反复使用。",
+   "t": [
+    "attack"
+   ],
+   "tier": "C"
+  },
+  "Heavy Blade": {
+   "s": 6.4,
+   "n": "力量加成翻倍，力量战主要输出；没力量时很普通。",
+   "t": [
+    "str",
+    "attack"
+   ],
+   "tier": "C"
+  },
+  "Iron Wave": {
+   "s": 6.0,
+   "n": "攻防一体，前期稳但上限一般。",
+   "t": [
+    "block",
+    "attack"
+   ],
+   "tier": "C"
+  },
+  "Perfected Strike": {
+   "s": 6.2,
+   "n": "名字带 Strike 的牌越多越强；基础牌多时前期好用。",
+   "t": [
+    "attack"
+   ],
+   "tier": "C"
+  },
+  "Pommel Strike": {
+   "s": 6.6,
+   "n": "伤害加抽牌，低费过牌，前期最舒服的攻击之一。",
+   "t": [
+    "draw",
+    "attack"
+   ],
+   "tier": "C"
+  },
+  "Shrug It Off": {
+   "s": 8.8,
+   "n": "格挡加抽牌，不亏牌，防御牌里的标杆。",
+   "t": [
+    "block",
+    "draw"
+   ],
+   "tier": "A"
+  },
+  "Sword Boomerang": {
+   "s": 6.1,
+   "n": "随机打三下，适合触发力量/易伤，但不稳定。",
+   "t": [
+    "aoe",
+    "attack"
+   ],
+   "tier": "C"
+  },
+  "Thunderclap": {
+   "s": 6.2,
+   "n": "群体伤害并上易伤，配合群体攻击很舒服。",
+   "t": [
+    "aoe",
+    "vuln",
+    "attack"
+   ],
+   "tier": "C"
+  },
+  "True Grit": {
+   "s": 5.9,
+   "n": "格挡并消耗一张随机牌；升级后可控，能压缩牌组。",
+   "t": [
+    "block",
+    "exhaust"
+   ],
+   "tier": "C"
+  },
+  "Twin Strike": {
+   "s": 6.1,
+   "n": "两段伤害，吃力量加成；没有力量时一般。",
+   "t": [
+    "attack"
+   ],
+   "tier": "C"
+  },
+  "Warcry": {
+   "s": 6.9,
+   "n": "抽牌并把手牌放回牌堆顶，适合调整顺序，但需要理解牌序。",
+   "t": [
+    "draw"
+   ],
+   "tier": "B"
+  },
+  "Wild Strike": {
+   "s": 5.8,
+   "n": "伤害不错，但会塞一张伤口，牌组会越来越脏。",
+   "t": [
+    "attack"
+   ],
+   "tier": "C"
+  },
+  "Battle Trance": {
+   "s": 8.4,
+   "n": "0 费抽 3，爆发找关键牌；不能抽更多牌是代价。",
+   "t": [
+    "zero",
+    "draw"
+   ],
+   "tier": "A"
+  },
+  "Blood for Blood": {
+   "s": 5.1,
+   "n": "受伤后降费，长战很高效；前期可能要等。",
+   "t": [
+    "attack"
+   ],
+   "tier": "D"
+  },
+  "Bloodletting": {
+   "s": 7.4,
+   "n": "0 费换能量，能打更长的连招；注意别把自己卖死。",
+   "t": [
+    "zero",
+    "energy",
+    "selfdmg"
+   ],
+   "tier": "B"
+  },
+  "Burning Pact": {
+   "s": 5.0,
+   "n": "消耗一张牌抽牌，压缩牌组并找关键牌。",
+   "t": [
+    "exhaust",
+    "draw"
+   ],
+   "tier": "D"
+  },
+  "Carnage": {
+   "s": 7.3,
+   "n": "2 费高伤害，虚无要求你尽快打出；前期很实在。",
+   "t": [
+    "attack"
+   ],
+   "tier": "B"
+  },
+  "Combust": {
+   "s": 6.3,
+   "n": "每回合对全体造成伤害，长战清场；会自伤，血量低时慎用。",
+   "t": [
+    "aoe",
+    "selfdmg",
+    "power"
+   ],
+   "tier": "C"
+  },
+  "Dark Embrace": {
+   "s": 5.5,
+   "n": "消耗牌时抽牌，消耗流核心引擎。",
+   "t": [
+    "exhaust",
+    "draw",
+    "power"
+   ],
+   "tier": "D"
+  },
+  "Disarm": {
+   "s": 8.3,
+   "n": "永久减敌人力量，对多段攻击和 Boss 都很好。",
+   "t": [
+    "weak"
+   ],
+   "tier": "A"
+  },
+  "Dropkick": {
+   "s": 4.9,
+   "n": "敌人有易伤时回能量并抽牌，易伤体系里的发动机。",
+   "t": [
+    "energy",
+    "draw",
+    "attack"
+   ],
+   "tier": "D"
+  },
+  "Dual Wield": {
+   "s": 4.7,
+   "n": "复制攻击/能力牌，配合关键 power 很强，但需要已有核心。",
+   "t": [
+    "power"
+   ],
+   "tier": "D"
+  },
+  "Entrench": {
+   "s": 5.0,
+   "n": "格挡翻倍，防战核心；没有稳定格挡时别早拿。",
+   "t": [
+    "block"
+   ],
+   "tier": "D"
+  },
+  "Evolve": {
+   "s": 6.6,
+   "n": "抽到状态牌时抽牌，克制塞牌敌人和自伤塞牌。",
+   "t": [
+    "draw",
+    "power"
+   ],
+   "tier": "C"
+  },
+  "Feel No Pain": {
+   "s": 5.5,
+   "n": "消耗牌时获得格挡，消耗流防御核心。",
+   "t": [
+    "exhaust",
+    "block",
+    "power"
+   ],
+   "tier": "D"
+  },
+  "Fire Breathing": {
+   "s": 6.1,
+   "n": "抽到状态/诅咒时造成群体伤害，针对塞牌敌人。",
+   "t": [
+    "aoe",
+    "power"
+   ],
+   "tier": "C"
+  },
+  "Flame Barrier": {
+   "s": 7.4,
+   "n": "高格挡并反伤，打多段敌人很赚。",
+   "t": [
+    "block"
+   ],
+   "tier": "B"
+  },
+  "Ghostly Armor": {
+   "s": 7.0,
+   "n": "低费格挡，虚无；需要当回合用掉。",
+   "t": [
+    "block"
+   ],
+   "tier": "B"
+  },
+  "Hemokinesis": {
+   "s": 5.9,
+   "n": "1 费高伤害但自伤，血量安全时是优秀输出。",
+   "t": [
+    "selfdmg",
+    "attack"
+   ],
+   "tier": "C"
+  },
+  "Infernal Blade": {
+   "s": 5.9,
+   "n": "随机给一张攻击牌，娱乐性强但不可控。",
+   "t": [
+    "exhaust"
+   ],
+   "tier": "C"
+  },
+  "Inflame": {
+   "s": 7.8,
+   "n": "2 费永久 +2 力量，力量战启动牌，越早越赚。",
+   "t": [
+    "str",
+    "power"
+   ],
+   "tier": "B"
+  },
+  "Intimidate": {
+   "s": 5.9,
+   "n": "群体虚弱，面对多敌人时能显著减伤；消耗。",
+   "t": [
+    "weak",
+    "aoe"
+   ],
+   "tier": "C"
+  },
+  "Metallicize": {
+   "s": 6.3,
+   "n": "每回合结束获得格挡，长战稳定防御。",
+   "t": [
+    "block",
+    "power"
+   ],
+   "tier": "C"
+  },
+  "Power Through": {
+   "s": 6.6,
+   "n": "高格挡但塞两张伤口，配合进化/消耗很强。",
+   "t": [
+    "block",
+    "status"
+   ],
+   "tier": "C"
+  },
+  "Pummel": {
+   "s": 6.2,
+   "n": "四段伤害，吃力量；易伤时爆发高。",
+   "t": [
+    "attack"
+   ],
+   "tier": "C"
+  },
+  "Rage": {
+   "s": 4.8,
+   "n": "打出攻击牌时获得格挡，适合多攻击回合。",
+   "t": [
+    "block"
+   ],
+   "tier": "D"
+  },
+  "Rampage": {
+   "s": 6.2,
+   "n": "每次打出永久增伤，长战越打越疼。",
+   "t": [
+    "attack"
+   ],
+   "tier": "C"
+  },
+  "Reckless Charge": {
+   "s": 6.9,
+   "n": "0 费高伤害但塞晕眩，牌组会变脏。",
+   "t": [
+    "zero",
+    "attack",
+    "status"
+   ],
+   "tier": "B"
+  },
+  "Rupture": {
+   "s": 5.0,
+   "n": "自伤时获得力量，配合放血/自燃/御血术。",
+   "t": [
+    "str",
+    "selfdmg",
+    "power"
+   ],
+   "tier": "D"
+  },
+  "Searing Blow": {
+   "s": 4.2,
+   "n": "需要反复升级才强，新手和短局不推荐早拿。",
+   "t": [
+    "attack"
+   ],
+   "tier": "D"
+  },
+  "Second Wind": {
+   "s": 4.9,
+   "n": "消耗所有非攻击牌并叠格挡，消耗流防御。",
+   "t": [
+    "exhaust",
+    "block"
+   ],
+   "tier": "D"
+  },
+  "Seeing Red": {
+   "s": 7.3,
+   "n": "0 费获得 2 能量，爆发回合的关键；消耗。",
+   "t": [
+    "zero",
+    "energy",
+    "exhaust"
+   ],
+   "tier": "B"
+  },
+  "Sentinel": {
+   "s": 6.8,
+   "n": "格挡；被消耗时给能量，消耗流组件。",
+   "t": [
+    "block",
+    "energy",
+    "exhaust"
+   ]
+  },
+  "Sever Soul": {
+   "s": 5.9,
+   "n": "消耗所有非攻击牌并造成高伤害，适合清理状态。",
+   "t": [
+    "exhaust",
+    "attack"
+   ],
+   "tier": "C"
+  },
+  "Shockwave": {
+   "s": 7.9,
+   "n": "群体易伤+虚弱，打 Boss/群怪都极强，消耗。",
+   "t": [
+    "aoe",
+    "vuln",
+    "weak",
+    "exhaust"
+   ],
+   "tier": "B"
+  },
+  "Spot Weakness": {
+   "s": 7.5,
+   "n": "敌人攻击意图时获得力量，需要看意图使用。",
+   "t": [
+    "str"
+   ],
+   "tier": "B"
+  },
+  "Uppercut": {
+   "s": 8.6,
+   "n": "伤害+易伤+虚弱，攻防一体的优质攻击。",
+   "t": [
+    "vuln",
+    "weak",
+    "attack"
+   ],
+   "tier": "A"
+  },
+  "Whirlwind": {
+   "s": 7.6,
+   "n": "X 费群体多段，吃力量；配合易伤清场。",
+   "t": [
+    "aoe",
+    "xcost",
+    "str",
+    "attack"
+   ],
+   "tier": "B"
+  },
+  "Barricade": {
+   "s": 5.2,
+   "n": "格挡不再消失，防战终极核心；高费，前期慎拿。",
+   "t": [
+    "block",
+    "power"
+   ],
+   "tier": "D"
+  },
+  "Berserk": {
+   "s": 7.4,
+   "n": "用持续自伤换能量，风险高，新手不推荐。",
+   "t": [
+    "energy",
+    "selfdmg",
+    "power"
+   ],
+   "tier": "A"
+  },
+  "Bludgeon": {
+   "s": 7.5,
+   "n": "3 费高单发伤害，简单粗暴；配合易伤/力量更佳。",
+   "t": [
+    "attack"
+   ],
+   "tier": "B"
+  },
+  "Brutality": {
+   "s": 7.7,
+   "n": "每回合抽牌并自伤，抽牌引擎；需要血量支撑。",
+   "t": [
+    "draw",
+    "selfdmg",
+    "power"
+   ],
+   "tier": "B"
+  },
+  "Corruption": {
+   "s": 9.0,
+   "n": "技能牌 0 费但消耗，消耗流最强引擎之一。",
+   "t": [
+    "exhaust",
+    "power"
+   ],
+   "tier": "A"
+  },
+  "Demon Form": {
+   "s": 8.9,
+   "n": "每回合叠力量，长战胜利保障；高费，早期注意节奏。",
+   "t": [
+    "str",
+    "power"
+   ],
+   "tier": "A"
+  },
+  "Double Tap": {
+   "s": 7.3,
+   "n": "本回合下一张攻击打出两次，配合高伤攻击爆发。",
+   "t": [
+    "attack"
+   ],
+   "tier": "B"
+  },
+  "Exhume": {
+   "s": 6.3,
+   "n": "拿回一张消耗牌，配合关键牌重复使用。",
+   "t": [
+    "exhaust"
+   ],
+   "tier": "C"
+  },
+  "Feed": {
+   "s": 9.2,
+   "n": "斩杀获得最大生命，越早拿越赚；需要留斩杀。",
+   "t": [
+    "attack",
+    "heal"
+   ],
+   "tier": "S"
+  },
+  "Fiend Fire": {
+   "s": 7.7,
+   "n": "消耗整手牌造成多段伤害，爆发/清场；吃手牌数量。",
+   "t": [
+    "exhaust",
+    "attack"
+   ],
+   "tier": "B"
+  },
+  "Immolate": {
+   "s": 9.2,
+   "n": "高群体伤害但塞一张灼伤，清场效率极高。",
+   "t": [
+    "aoe",
+    "attack",
+    "status"
+   ],
+   "tier": "S"
+  },
+  "Impervious": {
+   "s": 7.9,
+   "n": "2 费 30 格挡，保命神卡；消耗。",
+   "t": [
+    "block",
+    "exhaust"
+   ],
+   "tier": "B"
+  },
+  "Juggernaut": {
+   "s": 6.4,
+   "n": "每次获得格挡造成伤害，防战输出核心。",
+   "t": [
+    "block",
+    "power"
+   ],
+   "tier": "C"
+  },
+  "Limit Break": {
+   "s": 5.5,
+   "n": "力量翻倍，力量战爆发核心；没有力量时别拿。",
+   "t": [
+    "str"
+   ],
+   "tier": "D"
+  },
+  "Offering": {
+   "s": 9.0,
+   "n": "0 费抽 5 给能量，代价是失去 6 生命；爆发找关键牌。",
+   "t": [
+    "zero",
+    "draw",
+    "energy",
+    "selfdmg"
+   ],
+   "tier": "A"
+  },
+  "Reaper": {
+   "s": 8.9,
+   "n": "群体伤害并回血，长战/群怪的神卡。",
+   "t": [
+    "aoe",
+    "heal",
+    "attack"
+   ],
+   "tier": "A"
+  },
+  "Neutralize": {
+   "s": 7.6,
+   "n": "0 费伤害+虚弱，前期防御和补刀都好用。",
+   "t": [
+    "zero",
+    "weak",
+    "attack"
+   ],
+   "tier": "B"
+  },
+  "Survivor": {
+   "s": 7.7,
+   "n": "格挡并弃一张牌，弃牌体系起点；防御效率高。",
+   "t": [
+    "block",
+    "discard"
+   ],
+   "tier": "B"
+  },
+  "Backflip": {
+   "s": 8.6,
+   "n": "格挡+抽 2，防御和过牌一体，非常稳。",
+   "t": [
+    "block",
+    "draw"
+   ],
+   "tier": "A"
+  },
+  "Prepared": {
+   "s": 5.7,
+   "n": "抽牌并弃牌，升级后才不亏牌；需要弃牌配合。",
+   "t": [
+    "draw",
+    "discard"
+   ],
+   "tier": "C"
+  },
+  "Acrobatics": {
+   "s": 7.5,
+   "n": "抽 3 弃 1，弃牌/过牌体系核心。",
+   "t": [
+    "draw",
+    "discard"
+   ],
+   "tier": "B"
+  },
+  "Bane": {
+   "s": 5.9,
+   "n": "对中毒敌人双倍伤害，毒体系里的输出。",
+   "t": [
+    "poison",
+    "attack"
+   ],
+   "tier": "C"
+  },
+  "Blade Dance": {
+   "s": 6.4,
+   "n": "生成 3 张小刀，小刀体系起爆点。",
+   "t": [
+    "shiv",
+    "attack"
+   ],
+   "tier": "C"
+  },
+  "Cloak And Dagger": {
+   "s": 7.4,
+   "n": "格挡+小刀，小刀体系攻防一体。",
+   "t": [
+    "shiv",
+    "block"
+   ],
+   "tier": "B"
+  },
+  "Dagger Spray": {
+   "s": 7.3,
+   "n": "两段群体伤害，前期清小怪。",
+   "t": [
+    "aoe",
+    "attack"
+   ],
+   "tier": "B"
+  },
+  "Dagger Throw": {
+   "s": 7.3,
+   "n": "伤害+抽牌+弃牌，弃牌体系优质过渡。",
+   "t": [
+    "draw",
+    "discard",
+    "attack"
+   ],
+   "tier": "B"
+  },
+  "Deadly Poison": {
+   "s": 6.2,
+   "n": "高效单体毒，毒体系基础。",
+   "t": [
+    "poison"
+   ],
+   "tier": "C"
+  },
+  "Deflect": {
+   "s": 5.9,
+   "n": "0 费格挡，前期保命/触发余像。",
+   "t": [
+    "zero",
+    "block"
+   ],
+   "tier": "C"
+  },
+  "Dodge and Roll": {
+   "s": 7.2,
+   "n": "格挡并留下回合格挡，防御稳定。",
+   "t": [
+    "block"
+   ],
+   "tier": "B"
+  },
+  "Endless Agony": {
+   "s": 6.2,
+   "n": "0 费伤害，复制品会回手；多次触发小刀/余像。",
+   "t": [
+    "zero",
+    "attack"
+   ],
+   "tier": "C"
+  },
+  "Escape Plan": {
+   "s": 6.1,
+   "n": "0 费抽牌，若抽到技能则格挡；灵活。",
+   "t": [
+    "zero",
+    "draw",
+    "block"
+   ],
+   "tier": "C"
+  },
+  "Eviscerate": {
+   "s": 7.5,
+   "n": "弃牌后降费，弃牌体系的高伤攻击。",
+   "t": [
+    "discard",
+    "attack"
+   ]
+  },
+  "Expertise": {
+   "s": 6.1,
+   "n": "抽到手牌上限，手牌少时效率高。",
+   "t": [
+    "draw"
+   ],
+   "tier": "C"
+  },
+  "Flying Knee": {
+   "s": 7.0,
+   "n": "伤害+下回合能量，节奏牌。",
+   "t": [
+    "energy",
+    "attack"
+   ],
+   "tier": "B"
+  },
+  "Outmaneuver": {
+   "s": 4.7,
+   "n": "下回合额外能量，需要预判。",
+   "t": [
+    "energy"
+   ],
+   "tier": "D"
+  },
+  "Piercing Wail": {
+   "s": 8.7,
+   "n": "群体减力量，面对多段/Boss 极强；消耗。",
+   "t": [
+    "weak",
+    "aoe",
+    "exhaust"
+   ],
+   "tier": "A"
+  },
+  "Poisoned Stab": {
+   "s": 7.2,
+   "n": "伤害+毒，毒体系过渡。",
+   "t": [
+    "poison",
+    "attack"
+   ],
+   "tier": "B"
+  },
+  "Predator": {
+   "s": 7.5,
+   "n": "高伤害+下回合抽牌，节奏很好。",
+   "t": [
+    "draw",
+    "attack"
+   ],
+   "tier": "B"
+  },
+  "Quick Slash": {
+   "s": 7.3,
+   "n": "伤害+抽 1，低费过牌。",
+   "t": [
+    "draw",
+    "attack"
+   ],
+   "tier": "B"
+  },
+  "Reflex": {
+   "s": 5.5,
+   "n": "被弃时抽牌，弃牌体系组件；需要主动弃牌。",
+   "t": [
+    "discard",
+    "draw"
+   ]
+  },
+  "Riddle With Holes": {
+   "s": 6.0,
+   "n": "五段伤害，吃力量；易伤时爆发。",
+   "t": [
+    "attack"
+   ],
+   "tier": "C"
+  },
+  "Setup": {
+   "s": 3.8,
+   "n": "把一张牌变成 0 费，需要配合，新手很难用。",
+   "t": [
+    "discard"
+   ],
+   "tier": "D"
+  },
+  "Skewer": {
+   "s": 7.3,
+   "n": "X 费多段伤害，吃力量/易伤。",
+   "t": [
+    "xcost",
+    "attack"
+   ],
+   "tier": "B"
+  },
+  "Slice": {
+   "s": 6.6,
+   "n": "0 费 6 伤，效率一般，只适合补刀。",
+   "t": [
+    "zero",
+    "attack"
+   ],
+   "tier": "B"
+  },
+  "Sucker Punch": {
+   "s": 7.0,
+   "n": "伤害+虚弱，前期防御型攻击。",
+   "t": [
+    "weak",
+    "attack"
+   ],
+   "tier": "B"
+  },
+  "Terror": {
+   "s": 7.7,
+   "n": "上易伤，消耗；本身不造成伤害，节奏偏慢。",
+   "t": [
+    "vuln",
+    "exhaust"
+   ],
+   "tier": "A"
+  },
+  "Well Laid Plans": {
+   "s": 9.0,
+   "n": "每回合保留一张牌，提升稳定性；需要规划。",
+   "t": [
+    "retain",
+    "power"
+   ],
+   "tier": "S"
+  },
+  "Calculated Gamble": {
+   "s": 7.3,
+   "n": "弃掉手牌再抽等量，弃牌体系/找关键牌。",
+   "t": [
+    "discard",
+    "draw"
+   ],
+   "tier": "B"
+  },
+  "Concentrate": {
+   "s": 5.8,
+   "n": "弃 3 张牌换能量，手牌多时爆发。",
+   "t": [
+    "discard",
+    "energy"
+   ]
+  },
+  "Bouncing Flask": {
+   "s": 7.4,
+   "n": "随机上毒，毒体系群体上毒。",
+   "t": [
+    "poison",
+    "aoe"
+   ],
+   "tier": "B"
+  },
+  "Catalyst": {
+   "s": 8.9,
+   "n": "毒翻倍，毒体系爆发核心；升级后三倍。",
+   "t": [
+    "poison"
+   ],
+   "tier": "A"
+  },
+  "Crippling Poison": {
+   "s": 7.0,
+   "n": "群体中毒+虚弱，攻防一体。",
+   "t": [
+    "poison",
+    "weak",
+    "aoe"
+   ]
+  },
+  "Corpse Explosion": {
+   "s": 8.9,
+   "n": "毒+死亡爆炸，清群怪神卡。",
+   "t": [
+    "poison",
+    "aoe"
+   ],
+   "tier": "A"
+  },
+  "Envenom": {
+   "s": 8.4,
+   "n": "攻击附带毒，小刀/多段攻击体系核心。",
+   "t": [
+    "poison",
+    "shiv",
+    "power"
+   ],
+   "tier": "A"
+  },
+  "Noxious Fumes": {
+   "s": 8.9,
+   "n": "每回合全体上毒，毒体系发动机。",
+   "t": [
+    "poison",
+    "aoe",
+    "power"
+   ],
+   "tier": "A"
+  },
+  "Burst": {
+   "s": 7.7,
+   "n": "下一张技能打出两次，配合关键技能爆发。",
+   "t": [
+    "power"
+   ],
+   "tier": "B"
+  },
+  "Adrenaline": {
+   "s": 9.5,
+   "n": "0 费抽 2 给能量，消耗；无条件强。",
+   "t": [
+    "zero",
+    "draw",
+    "energy",
+    "exhaust"
+   ],
+   "tier": "S"
+  },
+  "After Image": {
+   "s": 8.9,
+   "n": "每打一张牌获得格挡，小刀/低费体系防御核心。",
+   "t": [
+    "block",
+    "shiv",
+    "power"
+   ],
+   "tier": "A"
+  },
+  "A Thousand Cuts": {
+   "s": 7.5,
+   "n": "每打一张牌对全体造成伤害，低费体系输出。",
+   "t": [
+    "aoe",
+    "power"
+   ],
+   "tier": "B"
+  },
+  "Accuracy": {
+   "s": 5.0,
+   "n": "小刀伤害+4，小刀体系核心；没有小刀时别拿。",
+   "t": [
+    "shiv",
+    "power"
+   ],
+   "tier": "D"
+  },
+  "Infinite Blades": {
+   "s": 7.3,
+   "n": "每回合给一张小刀，小刀体系稳定来源。",
+   "t": [
+    "shiv",
+    "power"
+   ],
+   "tier": "B"
+  },
+  "Tools of the Trade": {
+   "s": 7.5,
+   "n": "每回合抽 1 弃 1，弃牌/过牌引擎。",
+   "t": [
+    "draw",
+    "discard",
+    "power"
+   ],
+   "tier": "B"
+  },
+  "Wraith Form": {
+   "s": 9.6,
+   "n": "无敌两回合，代价是敏捷下降；保命/收尾神卡。",
+   "t": [
+    "block",
+    "power"
+   ],
+   "tier": "S"
+  },
+  "Grand Finale": {
+   "s": 5.0,
+   "n": "需要抽牌堆为空才能打出，条件苛刻。",
+   "t": [
+    "aoe",
+    "attack"
+   ]
+  },
+  "Unload": {
+   "s": 7.3,
+   "n": "高伤害并弃掉所有非攻击牌，弃牌体系爆发。",
+   "t": [
+    "discard",
+    "attack"
+   ],
+   "tier": "B"
+  },
+  "Bullet Time": {
+   "s": 7.0,
+   "n": "手牌全部 0 费但不能抽牌，适合大回合。",
+   "t": [
+    "zero"
+   ],
+   "tier": "B"
+  },
+  "Doppelganger": {
+   "s": 4.3,
+   "n": "下回合抽牌/能量等于本回合能量，需要规划。",
+   "t": [
+    "draw",
+    "energy"
+   ],
+   "tier": "D"
+  },
+  "Malaise": {
+   "s": 7.9,
+   "n": "X 费削弱敌人力量/虚弱，防御型。",
+   "t": [
+    "weak",
+    "xcost"
+   ],
+   "tier": "A"
+  },
+  "Night Terror": {
+   "s": 6.5,
+   "n": "选择一张牌，下回合复制两次；需要关键牌。",
+   "t": [
+    "power"
+   ]
+  },
+  "Phantasmal Killer": {
+   "s": 6.5,
+   "n": "下回合攻击双倍伤害，爆发核心。",
+   "t": [
+    "power"
+   ],
+   "tier": "C"
+  },
+  "Storm of Steel": {
+   "s": 7.3,
+   "n": "弃掉手牌生成小刀，小刀/弃牌混合体系。",
+   "t": [
+    "shiv",
+    "discard"
+   ],
+   "tier": "B"
+  },
+  "Footwork": {
+   "s": 8.6,
+   "n": "永久+2 敏捷，防御体系核心。",
+   "t": [
+    "block",
+    "power"
+   ],
+   "tier": "A"
+  },
+  "Backstab": {
+   "s": 8.4,
+   "n": "0 费固有高伤害，消耗；开局爆发。",
+   "t": [
+    "zero",
+    "attack",
+    "exhaust"
+   ],
+   "tier": "A"
+  },
+  "Blur": {
+   "s": 6.2,
+   "n": "格挡保留到下回合，防御节奏好。",
+   "t": [
+    "block"
+   ],
+   "tier": "C"
+  },
+  "Caltrops": {
+   "s": 8.2,
+   "n": "受到攻击时反伤，打多段敌人。",
+   "t": [
+    "power"
+   ],
+   "tier": "A"
+  },
+  "Choke": {
+   "s": 6.1,
+   "n": "每打一张牌造成额外伤害，低费体系输出。",
+   "t": [
+    "attack"
+   ],
+   "tier": "C"
+  },
+  "Dash": {
+   "s": 8.3,
+   "n": "高伤害+格挡，前期优质攻防。",
+   "t": [
+    "block",
+    "attack"
+   ],
+   "tier": "A"
+  },
+  "Finisher": {
+   "s": 5.9,
+   "n": "本回合每张攻击牌造成额外伤害，需要多攻击。",
+   "t": [
+    "attack"
+   ],
+   "tier": "C"
+  },
+  "Heel Hook": {
+   "s": 4.9,
+   "n": "对虚弱敌人回能量抽牌，需要虚弱来源。",
+   "t": [
+    "energy",
+    "draw",
+    "attack"
+   ],
+   "tier": "D"
+  },
+  "Leg Sweep": {
+   "s": 8.7,
+   "n": "高格挡+虚弱，防御神卡。",
+   "t": [
+    "block",
+    "weak"
+   ],
+   "tier": "A"
+  },
+  "Masterful Stab": {
+   "s": 6.9,
+   "n": "每次受伤降费，低血量时高效；有风险。",
+   "t": [
+    "attack"
+   ],
+   "tier": "B"
+  },
+  "Glass Knife": {
+   "s": 8.3,
+   "n": "高伤害但每次使用降低伤害，短期爆发。",
+   "t": [
+    "attack"
+   ],
+   "tier": "A"
+  },
+  "Sneaky Strike": {
+   "s": 7.0,
+   "n": "弃牌后回能量，弃牌体系输出。",
+   "t": [
+    "discard",
+    "energy",
+    "attack"
+   ]
+  },
+  "All Out Attack": {
+   "s": 7.3,
+   "n": "群体伤害并随机弃牌，清场+弃牌。",
+   "t": [
+    "aoe",
+    "discard",
+    "attack"
+   ],
+   "tier": "B"
+  },
+  "Zap": {
+   "s": 6.3,
+   "n": "1 费生成闪电球，充能球体系起点。",
+   "t": [
+    "orb"
+   ],
+   "tier": "C"
+  },
+  "Dualcast": {
+   "s": 7.5,
+   "n": "激发最右侧球两次，配合高价值球爆发。",
+   "t": [
+    "orb"
+   ],
+   "tier": "B"
+  },
+  "Ball Lightning": {
+   "s": 6.6,
+   "n": "伤害+生成闪电球，前期优质攻防。",
+   "t": [
+    "orb",
+    "attack"
+   ],
+   "tier": "C"
+  },
+  "Cold Snap": {
+   "s": 7.4,
+   "n": "伤害+生成冰球，防御型输出。",
+   "t": [
+    "orb",
+    "attack"
+   ],
+   "tier": "B"
+  },
+  "Compile Driver": {
+   "s": 6.3,
+   "n": "每有一种独特充能球抽 1，球体系过牌。",
+   "t": [
+    "orb",
+    "draw",
+    "attack"
+   ],
+   "tier": "C"
+  },
+  "Coolheaded": {
+   "s": 8.7,
+   "n": "生成冰球+抽牌，防御/过牌一体。",
+   "t": [
+    "orb",
+    "draw"
+   ],
+   "tier": "A"
+  },
+  "Glacier": {
+   "s": 7.7,
+   "n": "高格挡+两个冰球，防御核心。",
+   "t": [
+    "orb",
+    "block"
+   ],
+   "tier": "B"
+  },
+  "Sweeping Beam": {
+   "s": 6.4,
+   "n": "群体伤害+抽 1，清场过牌。",
+   "t": [
+    "aoe",
+    "draw",
+    "attack"
+   ],
+   "tier": "C"
+  },
+  "Skim": {
+   "s": 6.4,
+   "n": "抽 3，简单高效的过牌。",
+   "t": [
+    "draw"
+   ],
+   "tier": "C"
+  },
+  "Conserve Battery": {
+   "s": 7.0,
+   "n": "0 费获得格挡和能量，节奏牌。",
+   "t": [
+    "zero",
+    "block",
+    "energy"
+   ]
+  },
+  "Hologram": {
+   "s": 7.7,
+   "n": "格挡并拿回弃牌堆一张牌，反复用关键牌。",
+   "t": [
+    "block"
+   ],
+   "tier": "B"
+  },
+  "Rebound": {
+   "s": 5.9,
+   "n": "伤害并把下一张牌放回牌堆顶，调整顺序。",
+   "t": [
+    "attack"
+   ],
+   "tier": "C"
+  },
+  "Streamline": {
+   "s": 8.2,
+   "n": "本场每次打出降费，长战高效。",
+   "t": [
+    "attack"
+   ],
+   "tier": "A"
+  },
+  "Turbo": {
+   "s": 7.2,
+   "n": "0 费给能量但塞灼伤，爆发/充能。",
+   "t": [
+    "zero",
+    "energy",
+    "status"
+   ],
+   "tier": "B"
+  },
+  "Aggregate": {
+   "s": 5.0,
+   "n": "抽牌堆越大给能量越多，需要大牌组。",
+   "t": [
+    "energy"
+   ],
+   "tier": "D"
+  },
+  "Double Energy": {
+   "s": 6.1,
+   "n": "能量翻倍，需要先攒能量。",
+   "t": [
+    "energy"
+   ],
+   "tier": "C"
+  },
+  "Redo": {
+   "s": 6.5,
+   "n": "重复最右侧球的激发/生成，球体系组件。",
+   "t": [
+    "orb"
+   ]
+  },
+  "Fusion": {
+   "s": 7.2,
+   "n": "生成等离子球，提供能量。",
+   "t": [
+    "orb",
+    "energy"
+   ],
+   "tier": "B"
+  },
+  "Stack": {
+   "s": 5.8,
+   "n": "格挡等于弃牌堆数量，后期防御。",
+   "t": [
+    "block"
+   ],
+   "tier": "C"
+  },
+  "Steam": {
+   "s": 5.5,
+   "n": "格挡+抽牌，但消耗；过渡。",
+   "t": [
+    "block",
+    "draw",
+    "exhaust"
+   ]
+  },
+  "Steam Power": {
+   "s": 5.0,
+   "n": "用一张灼伤换每回合抽牌，牌组脏。",
+   "t": [
+    "draw",
+    "status",
+    "power"
+   ]
+  },
+  "Blizzard": {
+   "s": 6.0,
+   "n": "冰球越多群体伤害越高，冰球体系输出。",
+   "t": [
+    "aoe",
+    "orb",
+    "attack"
+   ]
+  },
+  "Barrage": {
+   "s": 7.0,
+   "n": "每有一个球造成伤害，球体系输出。",
+   "t": [
+    "orb",
+    "attack"
+   ],
+   "tier": "B"
+  },
+  "Beam Cell": {
+   "s": 7.3,
+   "n": "伤害+易伤，低费辅助。",
+   "t": [
+    "vuln",
+    "attack"
+   ],
+   "tier": "B"
+  },
+  "Doom and Gloom": {
+   "s": 6.3,
+   "n": "群体伤害+黑暗球，清场。",
+   "t": [
+    "aoe",
+    "orb",
+    "attack"
+   ],
+   "tier": "C"
+  },
+  "FTL": {
+   "s": 7.3,
+   "n": "本回合打出牌少时抽牌，适合起手。",
+   "t": [
+    "draw",
+    "attack"
+   ],
+   "tier": "B"
+  },
+  "Gash": {
+   "s": 6.5,
+   "n": "永久增伤，长战成长。",
+   "t": [
+    "attack"
+   ]
+  },
+  "Melter": {
+   "s": 6.1,
+   "n": "无视格挡，打有甲敌人。",
+   "t": [
+    "attack"
+   ],
+   "tier": "C"
+  },
+  "Rip and Tear": {
+   "s": 7.2,
+   "n": "随机四段群体伤害，吃力量。",
+   "t": [
+    "aoe",
+    "attack"
+   ],
+   "tier": "B"
+  },
+  "Scrape": {
+   "s": 4.7,
+   "n": "抽 4 并弃掉非 0 费牌，0 费体系。",
+   "t": [
+    "draw",
+    "zero"
+   ],
+   "tier": "D"
+  },
+  "Sunder": {
+   "s": 6.5,
+   "n": "高伤害，击杀回能量；清小怪很强。",
+   "t": [
+    "energy",
+    "attack"
+   ],
+   "tier": "C"
+  },
+  "Auto Shields": {
+   "s": 6.0,
+   "n": "没有格挡时给高格挡，防御补位。",
+   "t": [
+    "block"
+   ],
+   "tier": "C"
+  },
+  "BootSequence": {
+   "s": 8.2,
+   "n": "固有格挡，开局防第一波。",
+   "t": [
+    "block"
+   ],
+   "tier": "A"
+  },
+  "Force Field": {
+   "s": 4.9,
+   "n": "本场每打出能力牌降费，能力流防御。",
+   "t": [
+    "block"
+   ],
+   "tier": "D"
+  },
+  "Leap": {
+   "s": 5.9,
+   "n": "简单格挡，过渡。",
+   "t": [
+    "block"
+   ],
+   "tier": "C"
+  },
+  "Reinforced Body": {
+   "s": 7.3,
+   "n": "X 费多段格挡，防御爆发。",
+   "t": [
+    "block",
+    "xcost"
+   ],
+   "tier": "B"
+  },
+  "Tempest": {
+   "s": 6.2,
+   "n": "X 费生成闪电球，球体系爆发。",
+   "t": [
+    "orb",
+    "xcost"
+   ],
+   "tier": "C"
+  },
+  "White Noise": {
+   "s": 4.9,
+   "n": "随机给能力牌，赌核心。",
+   "t": [
+    "power"
+   ],
+   "tier": "D"
+  },
+  "Chaos": {
+   "s": 5.9,
+   "n": "随机生成球，娱乐/球体系。",
+   "t": [
+    "orb"
+   ],
+   "tier": "C"
+  },
+  "Darkness": {
+   "s": 4.9,
+   "n": "生成黑暗球，配合激发爆发。",
+   "t": [
+    "orb"
+   ],
+   "tier": "D"
+  },
+  "Defragment": {
+   "s": 7.8,
+   "n": "永久+1 集中，球体系核心。",
+   "t": [
+    "focus",
+    "orb",
+    "power"
+   ],
+   "tier": "B"
+  },
+  "Biased Cognition": {
+   "s": 8.8,
+   "n": "大量集中但每回合衰减，短战爆发。",
+   "t": [
+    "focus",
+    "orb",
+    "power"
+   ],
+   "tier": "A"
+  },
+  "Capacitor": {
+   "s": 7.4,
+   "n": "增加球位，球体系基础。",
+   "t": [
+    "orb",
+    "power"
+   ],
+   "tier": "B"
+  },
+  "Consume": {
+   "s": 6.3,
+   "n": "消耗球位换集中，需要球位管理。",
+   "t": [
+    "focus",
+    "orb"
+   ],
+   "tier": "C"
+  },
+  "Loop": {
+   "s": 7.6,
+   "n": "每回合额外触发最右侧球，球体系核心。",
+   "t": [
+    "orb",
+    "power"
+   ],
+   "tier": "B"
+  },
+  "Static Discharge": {
+   "s": 7.3,
+   "n": "受伤时生成闪电球，防御反击。",
+   "t": [
+    "orb",
+    "power"
+   ],
+   "tier": "B"
+  },
+  "Storm": {
+   "s": 6.8,
+   "n": "每打能力牌生成闪电球，能力/球混合。",
+   "t": [
+    "orb",
+    "power"
+   ]
+  },
+  "Creative AI": {
+   "s": 7.8,
+   "n": "每回合随机给能力牌，长战资源引擎。",
+   "t": [
+    "power"
+   ],
+   "tier": "B"
+  },
+  "Echo Form": {
+   "s": 9.0,
+   "n": "每回合第一张牌打出两次，能力流终极核心。",
+   "t": [
+    "power"
+   ],
+   "tier": "A"
+  },
+  "Electrodynamics": {
+   "s": 8.0,
+   "n": "闪电球伤害打全体，群战核心。",
+   "t": [
+    "orb",
+    "aoe",
+    "power"
+   ],
+   "tier": "B"
+  },
+  "Buffer": {
+   "s": 7.7,
+   "n": "抵挡一次伤害，防暴毙。",
+   "t": [
+    "block",
+    "power"
+   ],
+   "tier": "B"
+  },
+  "Core Surge": {
+   "s": 7.7,
+   "n": "高伤害+人工制品，防 debuff。",
+   "t": [
+    "attack"
+   ],
+   "tier": "B"
+  },
+  "Machine Learning": {
+   "s": 7.7,
+   "n": "每回合额外抽 1，稳定过牌。",
+   "t": [
+    "draw",
+    "power"
+   ],
+   "tier": "B"
+  },
+  "Seek": {
+   "s": 9.5,
+   "n": "搜任意牌，稳定找核心。",
+   "t": [
+    "draw"
+   ],
+   "tier": "S"
+  },
+  "Self Repair": {
+   "s": 8.4,
+   "n": "战斗后回血，续航。",
+   "t": [
+    "heal",
+    "power"
+   ],
+   "tier": "A"
+  },
+  "Multi-Cast": {
+   "s": 7.5,
+   "n": "X 费激发最右侧球多次，球体系爆发。",
+   "t": [
+    "orb",
+    "xcost"
+   ],
+   "tier": "B"
+  },
+  "Rainbow": {
+   "s": 7.3,
+   "n": "生成三种球，球体系补位。",
+   "t": [
+    "orb"
+   ],
+   "tier": "B"
+  },
+  "Fission": {
+   "s": 7.7,
+   "n": "移除所有球，按数量给能量/抽牌，球体系爆发。",
+   "t": [
+    "orb",
+    "energy",
+    "draw"
+   ],
+   "tier": "B"
+  },
+  "Amplify": {
+   "s": 5.0,
+   "n": "下一张能力牌打出两次，能力流爆发。",
+   "t": [
+    "power"
+   ],
+   "tier": "D"
+  },
+  "All For One": {
+   "s": 6.5,
+   "n": "高伤害并拿回所有 0 费牌，0 费体系核心。",
+   "t": [
+    "zero",
+    "attack"
+   ],
+   "tier": "C"
+  },
+  "Hyperbeam": {
+   "s": 7.3,
+   "n": "群体高伤害但失去集中，非集中流清场。",
+   "t": [
+    "aoe",
+    "attack"
+   ],
+   "tier": "B"
+  },
+  "Meteor Strike": {
+   "s": 3.8,
+   "n": "高伤害+等离子球，需要能量支持。",
+   "t": [
+    "orb",
+    "attack"
+   ],
+   "tier": "F"
+  },
+  "Thunder Strike": {
+   "s": 4.7,
+   "n": "每张闪电球造成额外伤害，球体系后期。",
+   "t": [
+    "orb",
+    "aoe",
+    "attack"
+   ],
+   "tier": "D"
+  },
+  "Lockon": {
+   "s": 6.0,
+   "n": "目标受到球伤害+50%，球体系辅助。",
+   "t": [
+    "orb"
+   ]
+  },
+  "Undo": {
+   "s": 6.0,
+   "n": "格挡并拿回上一张牌，需要规划。",
+   "t": [
+    "block"
+   ]
+  },
+  "Reprogram": {
+   "s": 4.2,
+   "n": "失去集中换力量/敏捷，偏离球体系。",
+   "t": [
+    "str",
+    "block"
+   ],
+   "tier": "D"
+  },
+  "Heatsinks": {
+   "s": 6.8,
+   "n": "打出能力牌时抽牌，能力流过牌。",
+   "t": [
+    "draw",
+    "power"
+   ]
+  },
+  "Eruption": {
+   "s": 6.6,
+   "n": "进入愤怒姿态，观者基础输出姿态。",
+   "t": [
+    "stance",
+    "attack"
+   ],
+   "tier": "C"
+  },
+  "Vigilance": {
+   "s": 6.6,
+   "n": "进入平静姿态并获得格挡，姿态循环基础。",
+   "t": [
+    "stance",
+    "block"
+   ],
+   "tier": "C"
+  },
+  "CutThroughFate": {
+   "s": 8.3,
+   "n": "占卜+抽牌+伤害，观者优质过渡。",
+   "t": [
+    "scry",
+    "draw",
+    "attack"
+   ],
+   "tier": "A"
+  },
+  "FollowUp": {
+   "s": 6.2,
+   "n": "上一张是攻击时给能量，连招。",
+   "t": [
+    "energy",
+    "attack"
+   ],
+   "tier": "C"
+  },
+  "EmptyFist": {
+   "s": 7.7,
+   "n": "退出姿态并高伤害，姿态循环关键。",
+   "t": [
+    "stance",
+    "attack"
+   ],
+   "tier": "B"
+  },
+  "EmptyBody": {
+   "s": 6.3,
+   "n": "退出姿态并获得格挡。",
+   "t": [
+    "stance",
+    "block"
+   ],
+   "tier": "C"
+  },
+  "EmptyMind": {
+   "s": 7.7,
+   "n": "退出姿态并抽牌，循环关键。",
+   "t": [
+    "stance",
+    "draw"
+   ],
+   "tier": "B"
+  },
+  "FlurryOfBlows": {
+   "s": 7.3,
+   "n": "切换姿态时回手，姿态循环输出。",
+   "t": [
+    "stance",
+    "attack"
+   ],
+   "tier": "B"
+  },
+  "FlyingSleeves": {
+   "s": 6.3,
+   "n": "保留手牌并两段伤害，稳定输出。",
+   "t": [
+    "retain",
+    "attack"
+   ],
+   "tier": "C"
+  },
+  "JustLucky": {
+   "s": 6.1,
+   "n": "占卜+0 费攻击/格挡，灵活。",
+   "t": [
+    "scry",
+    "zero"
+   ],
+   "tier": "C"
+  },
+  "SashWhip": {
+   "s": 7.3,
+   "n": "伤害+虚弱，上一张是攻击时更强。",
+   "t": [
+    "weak",
+    "attack"
+   ],
+   "tier": "B"
+  },
+  "ThirdEye": {
+   "s": 7.3,
+   "n": "格挡+占卜，防御/过滤。",
+   "t": [
+    "block",
+    "scry"
+   ],
+   "tier": "B"
+  },
+  "BowlingBash": {
+   "s": 6.5,
+   "n": "每个敌人一段伤害，群战优秀。",
+   "t": [
+    "aoe",
+    "attack"
+   ],
+   "tier": "C"
+  },
+  "Consecrate": {
+   "s": 7.0,
+   "n": "0 费群体伤害，清小怪。",
+   "t": [
+    "zero",
+    "aoe",
+    "attack"
+   ],
+   "tier": "B"
+  },
+  "Crescendo": {
+   "s": 7.3,
+   "n": "0 费进入愤怒，保留；爆发。",
+   "t": [
+    "zero",
+    "stance",
+    "retain"
+   ],
+   "tier": "B"
+  },
+  "CrushJoints": {
+   "s": 7.3,
+   "n": "伤害+易伤，上一张是攻击时更强。",
+   "t": [
+    "vuln",
+    "attack"
+   ],
+   "tier": "B"
+  },
+  "Halt": {
+   "s": 6.1,
+   "n": "格挡，愤怒姿态时更高。",
+   "t": [
+    "block",
+    "stance"
+   ],
+   "tier": "C"
+  },
+  "Meditate": {
+   "s": 7.3,
+   "n": "进入平静并拿回牌，循环组件。",
+   "t": [
+    "stance",
+    "retain"
+   ],
+   "tier": "B"
+  },
+  "Prostrate": {
+   "s": 5.9,
+   "n": "0 费获得格挡+真言。",
+   "t": [
+    "zero",
+    "block"
+   ],
+   "tier": "C"
+  },
+  "Protect": {
+   "s": 8.1,
+   "n": "保留格挡，防御规划。",
+   "t": [
+    "block",
+    "retain"
+   ],
+   "tier": "A"
+  },
+  "Swivel": {
+   "s": 5.9,
+   "n": "下一张攻击 0 费，爆发。",
+   "t": [
+    "zero"
+   ],
+   "tier": "C"
+  },
+  "Evaluate": {
+   "s": 7.2,
+   "n": "格挡+生成洞见，过牌。",
+   "t": [
+    "block",
+    "draw"
+   ],
+   "tier": "B"
+  },
+  "Collect": {
+   "s": 4.7,
+   "n": "生成奇迹牌，能量/姿态组件。",
+   "t": [
+    "energy"
+   ],
+   "tier": "D"
+  },
+  "DeceiveReality": {
+   "s": 7.2,
+   "n": "格挡+生成奇迹。",
+   "t": [
+    "block",
+    "energy"
+   ],
+   "tier": "B"
+  },
+  "Perseverance": {
+   "s": 4.5,
+   "n": "保留并成长格挡，需要规划。",
+   "t": [
+    "block",
+    "retain"
+   ],
+   "tier": "D"
+  },
+  "Pray": {
+   "s": 4.9,
+   "n": "真言+抽牌，进入神性。",
+   "t": [
+    "draw"
+   ],
+   "tier": "D"
+  },
+  "ReachHeaven": {
+   "s": 7.3,
+   "n": "多段伤害，真言体系。",
+   "t": [
+    "attack"
+   ],
+   "tier": "B"
+  },
+  "Sanctity": {
+   "s": 6.1,
+   "n": "格挡+抽牌，上一张是技能时更强。",
+   "t": [
+    "block",
+    "draw"
+   ],
+   "tier": "C"
+  },
+  "SandsOfTime": {
+   "s": 7.2,
+   "n": "保留并降费，后期高伤。",
+   "t": [
+    "retain",
+    "attack"
+   ],
+   "tier": "B"
+  },
+  "WaveOfTheHand": {
+   "s": 6.2,
+   "n": "给敌人虚弱，配合多段。",
+   "t": [
+    "weak"
+   ],
+   "tier": "C"
+  },
+  "Weave": {
+   "s": 5.8,
+   "n": "占卜后从弃牌堆打出，需要占卜。",
+   "t": [
+    "scry",
+    "attack"
+   ],
+   "tier": "C"
+  },
+  "WheelKick": {
+   "s": 7.3,
+   "n": "抽牌，上一张是攻击时抽 2。",
+   "t": [
+    "draw",
+    "attack"
+   ],
+   "tier": "B"
+  },
+  "WindmillStrike": {
+   "s": 8.1,
+   "n": "保留并成长伤害。",
+   "t": [
+    "retain",
+    "attack"
+   ],
+   "tier": "A"
+  },
+  "Worship": {
+   "s": 6.3,
+   "n": "获得真言，进入神性。",
+   "t": [
+    "retain"
+   ],
+   "tier": "C"
+  },
+  "BattleHymn": {
+   "s": 7.4,
+   "n": "每回合生成惩恶，持续输出。",
+   "t": [
+    "power"
+   ],
+   "tier": "B"
+  },
+  "CarveReality": {
+   "s": 6.3,
+   "n": "伤害+生成惩恶，稳定。",
+   "t": [
+    "attack"
+   ],
+   "tier": "C"
+  },
+  "Wallop": {
+   "s": 7.6,
+   "n": "造成伤害并获得等量格挡，攻防一体。",
+   "t": [
+    "block",
+    "attack"
+   ],
+   "tier": "B"
+  },
+  "TalkToTheHand": {
+   "s": 8.8,
+   "n": "攻击后留下格挡，防御体系核心。",
+   "t": [
+    "block",
+    "attack"
+   ],
+   "tier": "A"
+  },
+  "Tantrum": {
+   "s": 8.5,
+   "n": "多段伤害并放回抽牌堆，循环输出。",
+   "t": [
+    "attack"
+   ],
+   "tier": "A"
+  },
+  "Adaptation": {
+   "s": 8.4,
+   "n": "进入愤怒时抽 2，姿态循环核心。",
+   "t": [
+    "draw",
+    "stance",
+    "power"
+   ]
+  },
+  "Rushdown": {
+   "s": 6.8,
+   "n": "进入愤怒时抽 2，姿态循环核心。",
+   "t": [
+    "draw",
+    "stance",
+    "power"
+   ],
+   "tier": "C"
+  },
+  "MentalFortress": {
+   "s": 7.7,
+   "n": "切换姿态时获得格挡，防御核心。",
+   "t": [
+    "block",
+    "stance",
+    "power"
+   ],
+   "tier": "B"
+  },
+  "InnerPeace": {
+   "s": 7.5,
+   "n": "进入平静并抽牌，循环。",
+   "t": [
+    "stance",
+    "draw"
+   ],
+   "tier": "B"
+  },
+  "FearNoEvil": {
+   "s": 7.6,
+   "n": "敌人攻击时进入平静并造成伤害，防御反击。",
+   "t": [
+    "stance",
+    "block",
+    "attack"
+   ],
+   "tier": "B"
+  },
+  "LessonLearned": {
+   "s": 8.8,
+   "n": "击杀时升级一张牌，长期收益。",
+   "t": [
+    "upgrade",
+    "attack"
+   ],
+   "tier": "S"
+  },
+  "Scrawl": {
+   "s": 8.8,
+   "n": "抽到满手牌，爆发找关键牌。",
+   "t": [
+    "draw"
+   ],
+   "tier": "A"
+  },
+  "Vault": {
+   "s": 8.7,
+   "n": "跳过敌人回合，额外一回合，极强。",
+   "t": [
+    "power"
+   ],
+   "tier": "A"
+  },
+  "Omniscience": {
+   "s": 6.5,
+   "n": "自动打出牌两次，需要关键牌。",
+   "t": [
+    "power"
+   ],
+   "tier": "C"
+  },
+  "Wish": {
+   "s": 7.7,
+   "n": "选择获得力量/格挡/金币，灵活。",
+   "t": [
+    "str",
+    "block"
+   ],
+   "tier": "B"
+  },
+  "Blasphemy": {
+   "s": 8.8,
+   "n": "进入神性，下回合死亡；需要收尾。",
+   "t": [
+    "stance"
+   ],
+   "tier": "S"
+  },
+  "DevaForm": {
+   "s": 6.3,
+   "n": "每回合能量递增，长战。",
+   "t": [
+    "energy",
+    "power"
+   ],
+   "tier": "C"
+  },
+  "Establishment": {
+   "s": 7.9,
+   "n": "保留牌降费，需要保留体系。",
+   "t": [
+    "retain",
+    "power"
+   ],
+   "tier": "A"
+  },
+  "MasterReality": {
+   "s": 7.3,
+   "n": "占卜时升级牌，长期收益。",
+   "t": [
+    "scry",
+    "power"
+   ],
+   "tier": "B"
+  },
+  "SpiritShield": {
+   "s": 8.8,
+   "n": "格挡等于手牌数×3，防御爆发。",
+   "t": [
+    "block"
+   ],
+   "tier": "S"
+  },
+  "Ragnarok": {
+   "s": 8.2,
+   "n": "随机多段伤害，吃力量。",
+   "t": [
+    "aoe",
+    "attack"
+   ],
+   "tier": "A"
+  },
+  "SignatureMove": {
+   "s": 5.0,
+   "n": "手牌只有它时才能打，条件苛刻。",
+   "t": [
+    "attack"
+   ]
+  },
+  "Conclude": {
+   "s": 7.2,
+   "n": "群体高伤害，结束回合；收尾。",
+   "t": [
+    "aoe",
+    "attack"
+   ],
+   "tier": "B"
+  },
+  "Alpha": {
+   "s": 4.3,
+   "n": "需要两回合变成欧米伽，太慢。",
+   "t": [
+    "power"
+   ],
+   "tier": "D"
+  },
+  "Brilliance": {
+   "s": 6.1,
+   "n": "真言越多伤害越高，终端。",
+   "t": [
+    "attack"
+   ],
+   "tier": "C"
+  },
+  "Judgement": {
+   "s": 6.0,
+   "n": "敌人血量低时直接击杀，需要压血。",
+   "t": [
+    "attack"
+   ]
+  },
+  "Nirvana": {
+   "s": 7.3,
+   "n": "占卜时获得格挡，防御。",
+   "t": [
+    "block",
+    "scry",
+    "power"
+   ],
+   "tier": "B"
+  },
+  "Study": {
+   "s": 6.3,
+   "n": "每回合生成洞见，过牌。",
+   "t": [
+    "draw",
+    "power"
+   ],
+   "tier": "C"
+  },
+  "LikeWater": {
+   "s": 7.2,
+   "n": "回合结束在平静时获得格挡。",
+   "t": [
+    "block",
+    "stance",
+    "power"
+   ],
+   "tier": "B"
+  },
+  "Fasting2": {
+   "s": 6.5,
+   "n": "获得力量/敏捷但少能量，节奏需规划。",
+   "t": [
+    "str",
+    "block",
+    "power"
+   ]
+  },
+  "DeusExMachina": {
+   "s": 7.2,
+   "n": "0 费获得能量，消耗；爆发。",
+   "t": [
+    "zero",
+    "energy",
+    "exhaust"
+   ],
+   "tier": "B"
+  },
+  "Apotheosis": {
+   "s": 8.8,
+   "n": "升级所有牌，Boss 战/长战极强；消耗。",
+   "t": [
+    "upgrade",
+    "exhaust"
+   ],
+   "tier": "A"
+  },
+  "Bandage Up": {
+   "s": 8.5,
+   "n": "回血，续航。",
+   "t": [
+    "heal",
+    "exhaust"
+   ],
+   "tier": "S"
+  },
+  "Blind": {
+   "s": 5.9,
+   "n": "群体虚弱，防御。",
+   "t": [
+    "weak",
+    "aoe"
+   ],
+   "tier": "C"
+  },
+  "Dark Shackles": {
+   "s": 8.2,
+   "n": "大幅减敌人力量，防御保命。",
+   "t": [
+    "weak",
+    "exhaust"
+   ],
+   "tier": "A"
+  },
+  "Deep Breath": {
+   "s": 4.7,
+   "n": "抽牌，消耗。",
+   "t": [
+    "draw"
+   ],
+   "tier": "D"
+  },
+  "Discovery": {
+   "s": 7.2,
+   "n": "发现一张牌，灵活。",
+   "t": [
+    "draw"
+   ],
+   "tier": "B"
+  },
+  "Dramatic Entrance": {
+   "s": 7.9,
+   "n": "0 费群体伤害，固有；开局清场。",
+   "t": [
+    "zero",
+    "aoe",
+    "attack"
+   ],
+   "tier": "A"
+  },
+  "Enlightenment": {
+   "s": 4.7,
+   "n": "手牌费用变 1，适合高费牌。",
+   "t": [
+    "zero"
+   ],
+   "tier": "D"
+  },
+  "Finesse": {
+   "s": 5.9,
+   "n": "0 费格挡+抽牌。",
+   "t": [
+    "zero",
+    "block",
+    "draw"
+   ],
+   "tier": "C"
+  },
+  "Flash of Steel": {
+   "s": 5.9,
+   "n": "0 费伤害+抽牌。",
+   "t": [
+    "zero",
+    "draw",
+    "attack"
+   ],
+   "tier": "C"
+  },
+  "Good Instincts": {
+   "s": 5.8,
+   "n": "0 费格挡。",
+   "t": [
+    "zero",
+    "block"
+   ],
+   "tier": "C"
+  },
+  "Impatience": {
+   "s": 5.9,
+   "n": "手牌没有攻击时抽牌。",
+   "t": [
+    "draw"
+   ],
+   "tier": "C"
+  },
+  "Jack Of All Trades": {
+   "s": 5.9,
+   "n": "随机给无色牌。",
+   "t": [
+    "power"
+   ],
+   "tier": "C"
+  },
+  "Madness": {
+   "s": 5.8,
+   "n": "随机一张牌 0 费，消耗。",
+   "t": [
+    "zero",
+    "exhaust"
+   ],
+   "tier": "C"
+  },
+  "Master of Strategy": {
+   "s": 8.2,
+   "n": "0 费抽 3，消耗；优质过牌。",
+   "t": [
+    "zero",
+    "draw",
+    "exhaust"
+   ],
+   "tier": "A"
+  },
+  "Mayhem": {
+   "s": 5.0,
+   "n": "每回合自动打出牌堆顶，随机但强。",
+   "t": [
+    "power"
+   ],
+   "tier": "D"
+  },
+  "Metamorphosis": {
+   "s": 7.3,
+   "n": "随机给攻击牌，消耗。",
+   "t": [
+    "exhaust"
+   ],
+   "tier": "B"
+  },
+  "Panacea": {
+   "s": 7.0,
+   "n": "人工制品，防 debuff。",
+   "t": [
+    "exhaust"
+   ],
+   "tier": "B"
+  },
+  "Panache": {
+   "s": 5.0,
+   "n": "每打 5 张牌造成群体伤害，低费体系。",
+   "t": [
+    "aoe",
+    "power"
+   ],
+   "tier": "D"
+  },
+  "Purity": {
+   "s": 4.7,
+   "n": "消耗手牌，压缩牌组。",
+   "t": [
+    "exhaust"
+   ],
+   "tier": "D"
+  },
+  "Sadistic Nature": {
+   "s": 7.2,
+   "n": "上 debuff 时造成伤害。",
+   "t": [
+    "power"
+   ],
+   "tier": "B"
+  },
+  "Secret Technique": {
+   "s": 7.9,
+   "n": "检索技能牌，消耗。",
+   "t": [
+    "draw"
+   ],
+   "tier": "A"
+  },
+  "Secret Weapon": {
+   "s": 7.9,
+   "n": "检索攻击牌，消耗。",
+   "t": [
+    "draw"
+   ],
+   "tier": "A"
+  },
+  "Swift Strike": {
+   "s": 5.8,
+   "n": "0 费 7 伤，补刀。",
+   "t": [
+    "zero",
+    "attack"
+   ],
+   "tier": "C"
+  },
+  "The Bomb": {
+   "s": 4.9,
+   "n": "三回合后群体 40 伤，清场。",
+   "t": [
+    "aoe"
+   ],
+   "tier": "D"
+  },
+  "Thinking Ahead": {
+   "s": 7.2,
+   "n": "抽牌并放回牌堆顶，规划。",
+   "t": [
+    "draw"
+   ],
+   "tier": "B"
+  },
+  "Transmutation": {
+   "s": 5.9,
+   "n": "X 费随机给无色牌。",
+   "t": [
+    "xcost"
+   ],
+   "tier": "C"
+  },
+  "Violence": {
+   "s": 7.3,
+   "n": "从牌堆检索攻击牌，消耗。",
+   "t": [
+    "draw",
+    "exhaust"
+   ],
+   "tier": "B"
+  },
+  "HandOfGreed": {
+   "s": 7.3,
+   "n": "高伤害，击杀给金币。",
+   "t": [
+    "attack"
+   ],
+   "tier": "B"
+  },
+  "Chrysalis": {
+   "s": 7.3,
+   "n": "给技能牌，消耗。",
+   "t": [
+    "exhaust"
+   ],
+   "tier": "B"
+  },
+  "Forethought": {
+   "s": 5.8,
+   "n": "把一张牌放到牌堆底并变 0 费。",
+   "t": [
+    "zero"
+   ],
+   "tier": "C"
+  },
+  "PanicButton": {
+   "s": 6.3,
+   "n": "高格挡，但下回合不能获得格挡；保命。",
+   "t": [
+    "block",
+    "exhaust"
+   ],
+   "tier": "C"
+  },
+  "RitualDagger": {
+   "s": 6.1,
+   "n": "斩杀永久增伤，成长。",
+   "t": [
+    "attack"
+   ],
+   "tier": "C"
+  },
+  "AscendersBane": {
+   "s": 0.0,
+   "n": "进阶之灾，不能打出，占手牌。",
+   "t": [
+    "curse"
+   ]
+  },
+  "Burn": {
+   "s": 0.0,
+   "n": "灼伤，不能打出。",
+   "t": [
+    "status"
+   ]
+  },
+  "Dazed": {
+   "s": 0.0,
+   "n": "晕眩，不能打出。",
+   "t": [
+    "status"
+   ]
+  },
+  "Wound": {
+   "s": 0.0,
+   "n": "伤口，不能打出。",
+   "t": [
+    "status"
+   ]
+  },
+  "Slimed": {
+   "s": 0.0,
+   "n": "黏液，1 费消耗，通常不打。",
+   "t": [
+    "status"
+   ]
+  },
+  "Void": {
+   "s": 0.0,
+   "n": "虚空，不能打出，失去能量。",
+   "t": [
+    "status"
+   ]
+  },
+  "Clumsy": {
+   "s": 0.0,
+   "n": "笨拙，不能打出。",
+   "t": [
+    "curse"
+   ]
+  },
+  "Decay": {
+   "s": 0.0,
+   "n": "腐朽，回合结束受伤。",
+   "t": [
+    "curse"
+   ]
+  },
+  "Doubt": {
+   "s": 0.0,
+   "n": "疑虑，回合结束虚弱。",
+   "t": [
+    "curse"
+   ]
+  },
+  "Injury": {
+   "s": 0.0,
+   "n": "受伤，不能打出。",
+   "t": [
+    "curse"
+   ]
+  },
+  "Normality": {
+   "s": 0.0,
+   "n": "凡庸，限制出牌。",
+   "t": [
+    "curse"
+   ]
+  },
+  "Pain": {
+   "s": 0.0,
+   "n": "疼痛，受伤。",
+   "t": [
+    "curse"
+   ]
+  },
+  "Parasite": {
+   "s": 0.0,
+   "n": "寄生，不能打出。",
+   "t": [
+    "curse"
+   ]
+  },
+  "Regret": {
+   "s": 0.0,
+   "n": "悔恨，回合结束按手牌受伤。",
+   "t": [
+    "curse"
+   ]
+  },
+  "Shame": {
+   "s": 0.0,
+   "n": "羞耻，回合结束不能获得格挡。",
+   "t": [
+    "curse"
+   ]
+  },
+  "Writhe": {
+   "s": 0.0,
+   "n": "苦恼，不能打出。",
+   "t": [
+    "curse"
+   ]
+  },
+  "Necronomicurse": {
+   "s": 0.0,
+   "n": "死灵诅咒，不能移除。",
+   "t": [
+    "curse"
+   ]
+  }
+ },
+ "version": 1
+}

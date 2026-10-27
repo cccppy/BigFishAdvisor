@@ -1,0 +1,727 @@
+{
+ "deadbranch": {
+  "score": 9.8,
+  "tier": "S",
+  "name": "Dead Branch"
+ },
+ "singingbowl": {
+  "score": 9.8,
+  "tier": "S",
+  "name": "Singing Bowl"
+ },
+ "tungstenrod": {
+  "score": 9.8,
+  "tier": "S",
+  "name": "Tungsten Rod"
+ },
+ "orichalcum": {
+  "score": 8.9,
+  "tier": "A",
+  "name": "Orichalcum"
+ },
+ "vajra": {
+  "score": 8.9,
+  "tier": "A",
+  "name": "Vajra"
+ },
+ "necronomicon": {
+  "score": 8.9,
+  "tier": "A",
+  "name": "Necronomicon"
+ },
+ "bustedcrown": {
+  "score": 8.9,
+  "tier": "A",
+  "name": "Busted Crown"
+ },
+ "markofpain": {
+  "score": 8.9,
+  "tier": "A",
+  "name": "Mark of Pain"
+ },
+ "bagofmarbles": {
+  "score": 8.9,
+  "tier": "A",
+  "name": "Bag of Marbles"
+ },
+ "pennib": {
+  "score": 8.9,
+  "tier": "A",
+  "name": "Pen Nib"
+ },
+ "cursedkey": {
+  "score": 8.9,
+  "tier": "A",
+  "name": "Cursed Key"
+ },
+ "sneckoeye": {
+  "score": 8.9,
+  "tier": "A",
+  "name": "Snecko Eye"
+ },
+ "sozu": {
+  "score": 8.9,
+  "tier": "A",
+  "name": "Sozu"
+ },
+ "velvetchoker": {
+  "score": 8.9,
+  "tier": "A",
+  "name": "Velvet Choker"
+ },
+ "fusionhammer": {
+  "score": 8.9,
+  "tier": "A",
+  "name": "Fusion Hammer"
+ },
+ "incenseburner": {
+  "score": 8.9,
+  "tier": "A",
+  "name": "Incense Burner"
+ },
+ "burningblood": {
+  "score": 8.9,
+  "tier": "A",
+  "name": "Burning Blood"
+ },
+ "paperphrog": {
+  "score": 8.9,
+  "tier": "A",
+  "name": "Paper Phrog"
+ },
+ "regalpillow": {
+  "score": 8.9,
+  "tier": "A",
+  "name": "Regal Pillow"
+ },
+ "meatonthebone": {
+  "score": 8.9,
+  "tier": "A",
+  "name": "Meat on the Bone"
+ },
+ "moltenegg": {
+  "score": 8.9,
+  "tier": "A",
+  "name": "Molten Egg"
+ },
+ "shuriken": {
+  "score": 8.9,
+  "tier": "A",
+  "name": "Shuriken"
+ },
+ "toxicegg": {
+  "score": 8.9,
+  "tier": "A",
+  "name": "Toxic Egg"
+ },
+ "gamblingchip": {
+  "score": 8.9,
+  "tier": "A",
+  "name": "Gambling Chip"
+ },
+ "threadandneedle": {
+  "score": 8.9,
+  "tier": "A",
+  "name": "Thread and Needle"
+ },
+ "ectoplasm": {
+  "score": 8.9,
+  "tier": "A",
+  "name": "Ectoplasm"
+ },
+ "runicpyramid": {
+  "score": 8.9,
+  "tier": "A",
+  "name": "Runic Pyramid"
+ },
+ "girya": {
+  "score": 8.9,
+  "tier": "A",
+  "name": "Girya"
+ },
+ "anchor": {
+  "score": 7.5,
+  "tier": "B",
+  "name": "Anchor"
+ },
+ "lantern": {
+  "score": 7.5,
+  "tier": "B",
+  "name": "Lantern"
+ },
+ "bottledflame": {
+  "score": 7.5,
+  "tier": "B",
+  "name": "Bottled Flame"
+ },
+ "bottledlightning": {
+  "score": 7.5,
+  "tier": "B",
+  "name": "Bottled Lightning"
+ },
+ "bottledtornado": {
+  "score": 7.5,
+  "tier": "B",
+  "name": "Bottled Tornado"
+ },
+ "frozenegg": {
+  "score": 7.5,
+  "tier": "B",
+  "name": "Frozen Egg"
+ },
+ "gremlinhorn": {
+  "score": 7.5,
+  "tier": "B",
+  "name": "Gremlin Horn"
+ },
+ "runicdome": {
+  "score": 7.5,
+  "tier": "B",
+  "name": "Runic Dome"
+ },
+ "strangespoon": {
+  "score": 7.5,
+  "tier": "B",
+  "name": "Strange Spoon"
+ },
+ "coffeedripper": {
+  "score": 7.5,
+  "tier": "B",
+  "name": "Coffee Dripper"
+ },
+ "chemicalx": {
+  "score": 7.5,
+  "tier": "B",
+  "name": "Chemical X"
+ },
+ "runiccube": {
+  "score": 7.5,
+  "tier": "B",
+  "name": "Runic Cube"
+ },
+ "charonsashes": {
+  "score": 7.5,
+  "tier": "B",
+  "name": "Charon's Ashes"
+ },
+ "magicflower": {
+  "score": 7.5,
+  "tier": "B",
+  "name": "Magic Flower"
+ },
+ "horncleat": {
+  "score": 7.5,
+  "tier": "B",
+  "name": "Horn Cleat"
+ },
+ "captainswheel": {
+  "score": 7.5,
+  "tier": "B",
+  "name": "Captain's Wheel"
+ },
+ "fossilizedhelix": {
+  "score": 7.5,
+  "tier": "B",
+  "name": "Fossilized Helix"
+ },
+ "bagofpreparation": {
+  "score": 7.5,
+  "tier": "B",
+  "name": "Bag of Preparation"
+ },
+ "juzubracelet": {
+  "score": 7.5,
+  "tier": "B",
+  "name": "Juzu Bracelet"
+ },
+ "oddlysmoothstone": {
+  "score": 7.5,
+  "tier": "B",
+  "name": "Oddly Smooth Stone"
+ },
+ "centennialpuzzle": {
+  "score": 7.5,
+  "tier": "B",
+  "name": "Centennial Puzzle"
+ },
+ "pear": {
+  "score": 7.5,
+  "tier": "B",
+  "name": "Pear"
+ },
+ "ginger": {
+  "score": 7.5,
+  "tier": "B",
+  "name": "Ginger"
+ },
+ "eternalfeather": {
+  "score": 7.5,
+  "tier": "B",
+  "name": "Eternal Feather"
+ },
+ "lizardtail": {
+  "score": 7.5,
+  "tier": "B",
+  "name": "Lizard Tail"
+ },
+ "philosophersstone": {
+  "score": 7.5,
+  "tier": "B",
+  "name": "Philosopher's Stone"
+ },
+ "whitebeaststatue": {
+  "score": 7.5,
+  "tier": "B",
+  "name": "White Beast Statue"
+ },
+ "nilryscodex": {
+  "score": 7.5,
+  "tier": "B",
+  "name": "Nilry's Codex"
+ },
+ "faceofcleric": {
+  "score": 7.5,
+  "tier": "B",
+  "name": "Face of Cleric"
+ },
+ "clockworksouvenir": {
+  "score": 7.5,
+  "tier": "B",
+  "name": "Clockwork Souvenir"
+ },
+ "sacredbark": {
+  "score": 7.5,
+  "tier": "B",
+  "name": "Sacred Bark"
+ },
+ "mummifiedhand": {
+  "score": 7.5,
+  "tier": "B",
+  "name": "Mummified Hand"
+ },
+ "pantograph": {
+  "score": 7.5,
+  "tier": "B",
+  "name": "Pantograph"
+ },
+ "birdfacedurn": {
+  "score": 7.5,
+  "tier": "B",
+  "name": "Bird-Faced Urn"
+ },
+ "duvudoll": {
+  "score": 7.5,
+  "tier": "B",
+  "name": "Du-Vu Doll"
+ },
+ "icecream": {
+  "score": 7.5,
+  "tier": "B",
+  "name": "Ice Cream"
+ },
+ "mango": {
+  "score": 7.5,
+  "tier": "B",
+  "name": "Mango"
+ },
+ "blackstar": {
+  "score": 7.5,
+  "tier": "B",
+  "name": "Black Star"
+ },
+ "bloodyidol": {
+  "score": 7.5,
+  "tier": "B",
+  "name": "Bloody Idol"
+ },
+ "enchiridion": {
+  "score": 7.5,
+  "tier": "B",
+  "name": "Enchiridion"
+ },
+ "redmask": {
+  "score": 7.5,
+  "tier": "B",
+  "name": "Red Mask"
+ },
+ "medicalkit": {
+  "score": 7.5,
+  "tier": "B",
+  "name": "Medical Kit"
+ },
+ "turnip": {
+  "score": 7.5,
+  "tier": "B",
+  "name": "Turnip"
+ },
+ "nunchaku": {
+  "score": 7.5,
+  "tier": "B",
+  "name": "Nunchaku"
+ },
+ "dollysmirror": {
+  "score": 7.5,
+  "tier": "B",
+  "name": "Dolly's Mirror"
+ },
+ "championbelt": {
+  "score": 7.5,
+  "tier": "B",
+  "name": "Champion Belt"
+ },
+ "slaverscollar": {
+  "score": 7.5,
+  "tier": "B",
+  "name": "Slaver's Collar"
+ },
+ "preservedinsect": {
+  "score": 7.5,
+  "tier": "B",
+  "name": "Preserved Insect"
+ },
+ "whetstone": {
+  "score": 5.9,
+  "tier": "C",
+  "name": "Whetstone"
+ },
+ "kunai": {
+  "score": 5.9,
+  "tier": "C",
+  "name": "Kunai"
+ },
+ "astrolabe": {
+  "score": 5.9,
+  "tier": "C",
+  "name": "Astrolabe"
+ },
+ "callingbell": {
+  "score": 5.9,
+  "tier": "C",
+  "name": "Calling Bell"
+ },
+ "goldenidol": {
+  "score": 5.9,
+  "tier": "C",
+  "name": "Golden Idol"
+ },
+ "handdrill": {
+  "score": 5.9,
+  "tier": "C",
+  "name": "Hand Drill"
+ },
+ "pocketwatch": {
+  "score": 5.9,
+  "tier": "C",
+  "name": "Pocketwatch"
+ },
+ "blackblood": {
+  "score": 5.9,
+  "tier": "C",
+  "name": "Black Blood"
+ },
+ "akabeko": {
+  "score": 5.9,
+  "tier": "C",
+  "name": "Akabeko"
+ },
+ "ancientteaset": {
+  "score": 5.9,
+  "tier": "C",
+  "name": "Ancient Tea Set"
+ },
+ "happyflower": {
+  "score": 5.9,
+  "tier": "C",
+  "name": "Happy Flower"
+ },
+ "strawberry": {
+  "score": 5.9,
+  "tier": "C",
+  "name": "Strawberry"
+ },
+ "tinychest": {
+  "score": 5.9,
+  "tier": "C",
+  "name": "Tiny Chest"
+ },
+ "warpaint": {
+  "score": 5.9,
+  "tier": "C",
+  "name": "War Paint"
+ },
+ "mercuryhourglass": {
+  "score": 5.9,
+  "tier": "C",
+  "name": "Mercury Hourglass"
+ },
+ "frozeneye": {
+  "score": 5.9,
+  "tier": "C",
+  "name": "Frozen Eye"
+ },
+ "peacepipe": {
+  "score": 5.9,
+  "tier": "C",
+  "name": "Peace Pipe"
+ },
+ "orrery": {
+  "score": 5.9,
+  "tier": "C",
+  "name": "Orrery"
+ },
+ "questioncard": {
+  "score": 5.9,
+  "tier": "C",
+  "name": "Question Card"
+ },
+ "potionbelt": {
+  "score": 5.9,
+  "tier": "C",
+  "name": "Potion Belt"
+ },
+ "mealticket": {
+  "score": 5.9,
+  "tier": "C",
+  "name": "Meal Ticket"
+ },
+ "redskull": {
+  "score": 5.9,
+  "tier": "C",
+  "name": "Red Skull"
+ },
+ "bloodvial": {
+  "score": 5.9,
+  "tier": "C",
+  "name": "Blood Vial"
+ },
+ "bluecandle": {
+  "score": 5.9,
+  "tier": "C",
+  "name": "Blue Candle"
+ },
+ "ornamentalfan": {
+  "score": 5.9,
+  "tier": "C",
+  "name": "Ornamental Fan"
+ },
+ "smilingmask": {
+  "score": 5.9,
+  "tier": "C",
+  "name": "Smiling Mask"
+ },
+ "toolbox": {
+  "score": 5.9,
+  "tier": "C",
+  "name": "Toolbox"
+ },
+ "oldcoin": {
+  "score": 5.9,
+  "tier": "C",
+  "name": "Old Coin"
+ },
+ "shovel": {
+  "score": 5.9,
+  "tier": "C",
+  "name": "Shovel"
+ },
+ "torii": {
+  "score": 5.9,
+  "tier": "C",
+  "name": "Torii"
+ },
+ "tinyhouse": {
+  "score": 5.9,
+  "tier": "C",
+  "name": "Tiny House"
+ },
+ "nlothsgift": {
+  "score": 5.9,
+  "tier": "C",
+  "name": "Nloth's Gift"
+ },
+ "oddmushroom": {
+  "score": 5.9,
+  "tier": "C",
+  "name": "Odd Mushroom"
+ },
+ "toyornithopter": {
+  "score": 5.9,
+  "tier": "C",
+  "name": "Toy Ornithopter"
+ },
+ "slingofcourage": {
+  "score": 5.9,
+  "tier": "C",
+  "name": "Sling of Courage"
+ },
+ "bronzescales": {
+  "score": 4.0,
+  "tier": "D",
+  "name": "Bronze Scales"
+ },
+ "prayerwheel": {
+  "score": 4.0,
+  "tier": "D",
+  "name": "Prayer Wheel"
+ },
+ "darkstoneperiapt": {
+  "score": 4.0,
+  "tier": "D",
+  "name": "Darkstone Periapt"
+ },
+ "matryoshka": {
+  "score": 4.0,
+  "tier": "D",
+  "name": "Matryoshka"
+ },
+ "thecourier": {
+  "score": 4.0,
+  "tier": "D",
+  "name": "The Courier"
+ },
+ "sundial": {
+  "score": 4.0,
+  "tier": "D",
+  "name": "Sundial"
+ },
+ "pandorasbox": {
+  "score": 4.0,
+  "tier": "D",
+  "name": "Pandora's Box"
+ },
+ "leeswaffle": {
+  "score": 4.0,
+  "tier": "D",
+  "name": "Lee's Waffle"
+ },
+ "membershipcard": {
+  "score": 4.0,
+  "tier": "D",
+  "name": "Membership Card"
+ },
+ "emptycage": {
+  "score": 4.0,
+  "tier": "D",
+  "name": "Empty Cage"
+ },
+ "ssserpenthead": {
+  "score": 4.0,
+  "tier": "D",
+  "name": "Ssserpent Head"
+ },
+ "theabacus": {
+  "score": 4.0,
+  "tier": "D",
+  "name": "The Abacus"
+ },
+ "selfformingclay": {
+  "score": 4.0,
+  "tier": "D",
+  "name": "Self-Forming Clay"
+ },
+ "brimstone": {
+  "score": 4.0,
+  "tier": "D",
+  "name": "Brimstone"
+ },
+ "strikedummy": {
+  "score": 4.0,
+  "tier": "D",
+  "name": "Strike Dummy"
+ },
+ "artofwar": {
+  "score": 4.0,
+  "tier": "D",
+  "name": "Art of War"
+ },
+ "omamori": {
+  "score": 4.0,
+  "tier": "D",
+  "name": "Omamori"
+ },
+ "letteropener": {
+  "score": 4.0,
+  "tier": "D",
+  "name": "Letter Opener"
+ },
+ "runicdodecahedron": {
+  "score": 4.0,
+  "tier": "D",
+  "name": "Runic Dodecahedron"
+ },
+ "calipers": {
+  "score": 4.0,
+  "tier": "D",
+  "name": "Calipers"
+ },
+ "orangepellets": {
+  "score": 4.0,
+  "tier": "D",
+  "name": "Orange Pellets"
+ },
+ "mawbank": {
+  "score": 4.0,
+  "tier": "D",
+  "name": "Maw Bank"
+ },
+ "stonecalendar": {
+  "score": 4.0,
+  "tier": "D",
+  "name": "Stone Calendar"
+ },
+ "ceramicfish": {
+  "score": 4.0,
+  "tier": "D",
+  "name": "Ceramic Fish"
+ },
+ "inkbottle": {
+  "score": 4.0,
+  "tier": "D",
+  "name": "Ink Bottle"
+ },
+ "dreamcatcher": {
+  "score": 4.0,
+  "tier": "D",
+  "name": "Dream Catcher"
+ },
+ "unceasingtop": {
+  "score": 4.0,
+  "tier": "D",
+  "name": "Unceasing Top"
+ },
+ "neowslament": {
+  "score": 4.0,
+  "tier": "D",
+  "name": "Neow's Lament"
+ },
+ "theboot": {
+  "score": 4.0,
+  "tier": "D",
+  "name": "The Boot"
+ },
+ "spiritpoop": {
+  "score": 2.0,
+  "tier": "F",
+  "name": "Spirit Poop"
+ },
+ "markofthebloom": {
+  "score": 2.0,
+  "tier": "F",
+  "name": "Mark of the Bloom"
+ },
+ "nlothshungryface": {
+  "score": 2.0,
+  "tier": "F",
+  "name": "N'Loth's Hungry Face"
+ },
+ "gremlinvisage": {
+  "score": 2.0,
+  "tier": "F",
+  "name": "Gremlin Visage"
+ },
+ "cultistheadpice": {
+  "score": 2.0,
+  "tier": "F",
+  "name": "Cultist Headpice"
+ }
+}

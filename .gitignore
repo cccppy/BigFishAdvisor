@@ -1,0 +1,12 @@
+build/
+dist/
+release/
+tools/
+logs/
+test/
+mtsdata/
+.idea/
+*.iml
+*.zip
+*.log
+hs_err_pid*
