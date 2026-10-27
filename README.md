@@ -1,6 +1,11 @@
 # 大肥鱼助手 / Big Fish Advisor
 
+[![GitHub release](https://img.shields.io/github/v/release/cccppy/BigFishAdvisor)](https://github.com/cccppy/BigFishAdvisor/releases/latest)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+
 一个给《杀戮尖塔》新手的游戏内助手 Mod：可爱的「大肥鱼」会在你爬塔时冒泡，告诉你下一层走哪条路、这张牌要不要拿、这回合先打哪张，并解释原因。
+
+**下载：[最新 Release](https://github.com/cccppy/BigFishAdvisor/releases/latest)**
 
 > 重要：这是**启发式教练**，不是穷举求解器。它会根据当前血量、金币、牌组、敌人意图和公开社区思路给出推荐，但《杀戮尖塔》没有绝对唯一的最优解。请把建议当成「高手的思考过程」，而不是外挂式自动打牌。
 
