@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.1.0
+
+- Added a deck-building stage model: foundation → find direction → core → refine → finish.
+- Early Act 1 now prioritizes immediately usable damage/block/AOE/draw and warns against "naked" core cards before their enablers exist.
+- Act 1 late / Act 2 now checks whether 2+ enablers exist before recommending a core, and penalizes switching direction without a real pivot.
+- Added character-specific core/enabler recognition for Ironclad, Silent, Defect and Watcher.
+- Card reward and map panels now show the current stage, direction, and a concrete next-step plan.
+- Renamed the in-game mod title to **杀戮尖塔大肥鱼助手** and bumped to 1.1.0.
+
 ## 1.0.0
 
 - First public build.

@@ -270,6 +270,10 @@ public final class MapAdvisor {
             }
         }
         r.lines.add("你的牌组现在：" + DeckSummary.of(p).needs(AbstractDungeon.actNum).get(0));
+        r.lines.add(ArchetypeAdvisor.stageLine(p, DeckSummary.of(p),
+                AbstractDungeon.actNum, AbstractDungeon.floorNum));
+        r.lines.add(ArchetypeAdvisor.planLine(p, DeckSummary.of(p),
+                AbstractDungeon.actNum, AbstractDungeon.floorNum));
         if (!r.path.isEmpty()) {
             StringBuilder plan = new StringBuilder("这条路我会这么走：");
             for (int i = 0; i < r.path.size() && i < 5; i++) {

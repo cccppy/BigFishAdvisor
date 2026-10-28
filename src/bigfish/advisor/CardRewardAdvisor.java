@@ -97,6 +97,7 @@ public final class CardRewardAdvisor {
         double score = entry == null ? genericScore(c) : entry.score;
         score += RelicAdvisor.cardBonus(p, c);
         score += ActAdvisor.cardBonus(p, c);
+        score += ArchetypeAdvisor.cardBonus(p, c, deck, act, floor);
         score += keySynergy(p, c, deck, act);
         if (c.upgraded || c.timesUpgraded > 0) {
             score += 0.15;
@@ -375,6 +376,8 @@ public final class CardRewardAdvisor {
         }
         r.lines.add(r.deck.countsLine());
         r.lines.add("当前需要：" + r.deck.needLine(act));
+        r.lines.add(ArchetypeAdvisor.stageLine(p, r.deck, act, AbstractDungeon.floorNum));
+        r.lines.add(ArchetypeAdvisor.planLine(p, r.deck, act, AbstractDungeon.floorNum));
         r.lines.add(ActAdvisor.bossLine(p));
         r.lines.add(ActAdvisor.eliteLine(p));
         r.lines.add("你的牌组现在：" + (r.deck.archetypeKey().length() == 0
@@ -392,6 +395,10 @@ public final class CardRewardAdvisor {
         String keyFit = keyNote(p, r.top.card, r.deck);
         if (keyFit.length() > 0) {
             r.lines.add("这套牌的关键：" + keyFit + "。");
+        }
+        String stageFit = ArchetypeAdvisor.cardNote(p, r.top.card, r.deck, act, AbstractDungeon.floorNum);
+        if (stageFit.length() > 0) {
+            r.lines.add("阶段判断：" + stageFit + "。");
         }
         r.lines.add("这三张牌，我一张张说：");
         for (Scored s : r.cards) {

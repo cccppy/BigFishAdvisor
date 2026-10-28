@@ -5,7 +5,7 @@ param(
 $ErrorActionPreference = "Stop"
 $Root = Split-Path -Parent $MyInvocation.MyCommand.Path
 if (-not $Version) {
-    $meta = Get-Content (Join-Path $Root "resources\ModTheSpire.json") -Raw | ConvertFrom-Json
+    $meta = Get-Content (Join-Path $Root "resources\ModTheSpire.json") -Raw -Encoding UTF8 | ConvertFrom-Json
     $Version = $meta.version
 }
 $mod = Join-Path $Root "dist\BigFishAdvisor.jar"

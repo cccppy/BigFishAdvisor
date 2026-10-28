@@ -22,6 +22,7 @@ public final class DeckSummary {
     public int zeroCost;
     public String character = "";
     public final Map<String, Integer> tagCounts = new HashMap<String, Integer>();
+    public final List<String> cardIds = new ArrayList<String>();
 
     private DeckSummary() {
     }
@@ -35,6 +36,7 @@ public final class DeckSummary {
         List<AbstractCard> cards = new ArrayList<AbstractCard>(player.masterDeck.group);
         d.size = cards.size();
         for (AbstractCard c : cards) {
+            d.cardIds.add(c.cardID == null ? "" : c.cardID);
             if (c.type == AbstractCard.CardType.ATTACK) {
                 d.attacks++;
             } else if (c.type == AbstractCard.CardType.SKILL) {
@@ -68,6 +70,19 @@ public final class DeckSummary {
     public int tag(String tag) {
         Integer n = tagCounts.get(tag);
         return n == null ? 0 : n;
+    }
+
+    public boolean has(String idPart) {
+        String needle = CardDatabase.norm(idPart == null ? "" : idPart);
+        if (needle.length() == 0) {
+            return false;
+        }
+        for (String id : cardIds) {
+            if (CardDatabase.norm(id).contains(needle)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public String archetypeKey() {

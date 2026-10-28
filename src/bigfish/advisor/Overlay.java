@@ -382,7 +382,7 @@ public final class Overlay {
             lines.add("主人，以后就让我陪您一起爬塔吧。");
             lines.add("进游戏后，我会在地图、选牌、事件、战斗时冒泡。");
             lines.add("点击标题展开理由；拖动标题可移动到任意位置；F8 隐藏。");
-            showAdvice(sb, "大肥鱼助手已启动", "我是大肥鱼", null, lines, null,
+            showAdvice(sb, "杀戮尖塔大肥鱼助手已启动", "我是大肥鱼", null, lines, null,
                     "不是自动打牌 · 只是把思路讲给你听", "大肥鱼已就绪",
                     Settings.WIDTH - 490 * ui.s, 34 * ui.s, 470, 270);
         } catch (Throwable t) {

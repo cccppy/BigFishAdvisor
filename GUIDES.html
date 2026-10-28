@@ -139,14 +139,32 @@ hr { border:0; border-top:1px solid #d8c49a; margin:2em 0; }
 <li>没有专门数据的 Mod 事件，按“删牌/升级/金币/最大生命/诅咒/战斗/离开”等关键词做通用评分；</li>
 <li>即使事件只有一个“继续”选项，也不会导致面板消失。</li>
 </ul>
-<h2>6. 流派取舍：不要拿成杂派</h2>
-<p>参考 <a href="https://www.ludo.guide/guide/slay-the-spire/the-silent/deck-refinement-and-scaling" target="_blank" rel="noopener">LUDO.guide 卡组精炼</a>：</p>
+<h2>6. 流派阶段：过渡牌、核心牌与转型</h2>
+<p>参考 <a href="https://slaythespire.gg/guides/strategy" target="_blank" rel="noopener">SlayTheSpire.gg Strategy Guide</a>、<a href="https://www.ludo.guide/guide/slay-the-spire/the-silent/deck-refinement-and-scaling" target="_blank" rel="noopener">LUDO.guide 卡组精炼</a> 和 <a href="https://jeu.video/en/guide/slay-spire-beginner-deck" target="_blank" rel="noopener">JEU.VIDEO 新手卡组指南</a>：</p>
 <ul>
-<li>第一幕结束前开始偏向一个主流派，第二幕围绕它补强；</li>
-<li>同体系关键牌加分；主流派已经 5 张以上时，跨体系普通牌扣分；</li>
-<li>只有质量明显更高（S/A）或能立刻补命/补斩杀时，才允许少量外挂牌；</li>
-<li>牌组 18 张以上、首选又是跨体系普通牌时，直接建议跳过。</li>
+<li><strong>不要从第一层就锁死流派</strong>。前期先拿能立即用的伤害、格挡、AOE、抽牌，保证能打过第一幕精英和 Boss；</li>
+<li><strong>过渡牌</strong>是“现在就能用”的牌：Strike Plus（单卡附带效果）、Block Plus、AOE、低费抽牌、能补斩杀的前台伤害；</li>
+<li><strong>核心牌</strong>是“需要配合才强”的牌：Catalyst、Barricade、Corruption、Limit Break、Accuracy、Electrodynamics、Rushdown 等；</li>
+<li>核心不是不能早拿，而是要有 <strong>至少 2 个现有配合点</strong>（例如 Catalyst 前已有毒牌，Barricade 前已有格挡和 Body Slam，Corruption 前已有消耗/ Dark Embrace）；</li>
+<li>第一幕中后段开始找方向；第二幕围绕已有方向补 <strong>scaling（伤害成长/防御成长）+ 抽牌/能量</strong>；第三幕只补短板，不再随便换方向；</li>
+<li><strong>转型</strong>只在“新方向已有 2 个以上配合点，且当前方向只有 0-2 张核心”时考虑；否则会把牌组拉成杂派；</li>
+<li>牌组 18-20 张后开始严格：普通过渡牌少拿，优先删基础打击/防御、升级核心、补关键遗物；</li>
+<li>不要为了“流派好看”硬拿裸核心；没有配合的 Barricade/Catalyst/Corruption 很容易卡手。</li>
 </ul>
+<h3>四个角色的方向与配合点</h3>
+<table><thead><tr><th>角色</th><th>方向</th><th>核心例子</th><th>配合点</th></tr></thead><tbody>
+<tr><td>铁甲</td><td>力量</td><td>Limit Break、Demon Form、Inflame</td><td>力量牌、Heavy Blade、多段攻击</td></tr>
+<tr><td>铁甲</td><td>消耗</td><td>Corruption、Dark Embrace、Feel No Pain</td><td>消耗牌、技能牌、Status</td></tr>
+<tr><td>铁甲</td><td>格挡</td><td>Barricade、Juggernaut、Body Slam</td><td>格挡牌、Entrench、Shrug It Off</td></tr>
+<tr><td>猎手</td><td>毒</td><td>Catalyst、Noxious Fumes、Envenom</td><td>毒牌、Corpse Explosion</td></tr>
+<tr><td>猎手</td><td>小刀</td><td>Accuracy、Wraith Form、Tools of the Trade</td><td>小刀生成、Shiv、Wrist Blade</td></tr>
+<tr><td>猎手</td><td>弃牌</td><td>Tools of the Trade、Tactician、Reflex</td><td>弃牌牌、Acrobatics、Hovering Kite</td></tr>
+<tr><td>机器</td><td>集中/冰球</td><td>Defragment、Consume、Capacitor、Loop</td><td>充能球、冰球、Focus</td></tr>
+<tr><td>机器</td><td>充能球</td><td>Electrodynamics、Biased Cognition、Echo Form</td><td>充能球生成、集中</td></tr>
+<tr><td>观者</td><td>姿态</td><td>Rushdown、Mental Fortress、Tantrum</td><td>平静/愤怒切换、退出平静</td></tr>
+<tr><td>观者</td><td>保留/占卜</td><td>Scrawl、Vault、Talk to the Hand</td><td>保留、占卜、抽牌</td></tr>
+</tbody></table>
+<p>代码里的阶段判断是：<code>打基础 → 找方向 → 定核心 → 补强 → 收尾</code>。它会显示当前方向、基础缺口和“下一步该抓什么”，而不是只给一张牌打高分。</p>
 <h2>7. 遗物：Boss 三选一与牌组联动</h2>
 <p>参考 <a href="https://glyphshuffle.com/blog/slay-the-spire-boss-relic-tier-list" target="_blank" rel="noopener">GlyphShuffle Boss Relic Tier List</a>、<a href="https://maybelatergames.co.uk/tools/slaythespire/tierlist/relics/ironclad/" target="_blank" rel="noopener">SpireSpy Relic Tier List</a> 和 Wiki 的遗物页：</p>
 <ul>

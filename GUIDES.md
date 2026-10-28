@@ -124,14 +124,35 @@ Wiki 的关键价格：
 - 没有专门数据的 Mod 事件，按“删牌/升级/金币/最大生命/诅咒/战斗/离开”等关键词做通用评分；
 - 即使事件只有一个“继续”选项，也不会导致面板消失。
 
-## 6. 流派取舍：不要拿成杂派
+## 6. 流派阶段：过渡牌、核心牌与转型
 
-参考 [LUDO.guide 卡组精炼](https://www.ludo.guide/guide/slay-the-spire/the-silent/deck-refinement-and-scaling)：
+参考 [SlayTheSpire.gg Strategy Guide](https://slaythespire.gg/guides/strategy)、[LUDO.guide 卡组精炼](https://www.ludo.guide/guide/slay-the-spire/the-silent/deck-refinement-and-scaling) 和 [JEU.VIDEO 新手卡组指南](https://jeu.video/en/guide/slay-spire-beginner-deck)：
 
-- 第一幕结束前开始偏向一个主流派，第二幕围绕它补强；
-- 同体系关键牌加分；主流派已经 5 张以上时，跨体系普通牌扣分；
-- 只有质量明显更高（S/A）或能立刻补命/补斩杀时，才允许少量外挂牌；
-- 牌组 18 张以上、首选又是跨体系普通牌时，直接建议跳过。
+- **不要从第一层就锁死流派**。前期先拿能立即用的伤害、格挡、AOE、抽牌，保证能打过第一幕精英和 Boss；
+- **过渡牌**是“现在就能用”的牌：Strike Plus（单卡附带效果）、Block Plus、AOE、低费抽牌、能补斩杀的前台伤害；
+- **核心牌**是“需要配合才强”的牌：Catalyst、Barricade、Corruption、Limit Break、Accuracy、Electrodynamics、Rushdown 等；
+- 核心不是不能早拿，而是要有 **至少 2 个现有配合点**（例如 Catalyst 前已有毒牌，Barricade 前已有格挡和 Body Slam，Corruption 前已有消耗/ Dark Embrace）；
+- 第一幕中后段开始找方向；第二幕围绕已有方向补 **scaling（伤害成长/防御成长）+ 抽牌/能量**；第三幕只补短板，不再随便换方向；
+- **转型**只在“新方向已有 2 个以上配合点，且当前方向只有 0-2 张核心”时考虑；否则会把牌组拉成杂派；
+- 牌组 18-20 张后开始严格：普通过渡牌少拿，优先删基础打击/防御、升级核心、补关键遗物；
+- 不要为了“流派好看”硬拿裸核心；没有配合的 Barricade/Catalyst/Corruption 很容易卡手。
+
+### 四个角色的方向与配合点
+
+| 角色 | 方向 | 核心例子 | 配合点 |
+|---|---|---|---|
+| 铁甲 | 力量 | Limit Break、Demon Form、Inflame | 力量牌、Heavy Blade、多段攻击 |
+| 铁甲 | 消耗 | Corruption、Dark Embrace、Feel No Pain | 消耗牌、技能牌、Status |
+| 铁甲 | 格挡 | Barricade、Juggernaut、Body Slam | 格挡牌、Entrench、Shrug It Off |
+| 猎手 | 毒 | Catalyst、Noxious Fumes、Envenom | 毒牌、Corpse Explosion |
+| 猎手 | 小刀 | Accuracy、Wraith Form、Tools of the Trade | 小刀生成、Shiv、Wrist Blade |
+| 猎手 | 弃牌 | Tools of the Trade、Tactician、Reflex | 弃牌牌、Acrobatics、Hovering Kite |
+| 机器 | 集中/冰球 | Defragment、Consume、Capacitor、Loop | 充能球、冰球、Focus |
+| 机器 | 充能球 | Electrodynamics、Biased Cognition、Echo Form | 充能球生成、集中 |
+| 观者 | 姿态 | Rushdown、Mental Fortress、Tantrum | 平静/愤怒切换、退出平静 |
+| 观者 | 保留/占卜 | Scrawl、Vault、Talk to the Hand | 保留、占卜、抽牌 |
+
+代码里的阶段判断是：`打基础 → 找方向 → 定核心 → 补强 → 收尾`。它会显示当前方向、基础缺口和“下一步该抓什么”，而不是只给一张牌打高分。
 
 ## 7. 遗物：Boss 三选一与牌组联动
 
