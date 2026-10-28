@@ -43,7 +43,7 @@ public final class ArchetypeAdvisor {
         String[] dir = bestDirection(p, d);
         r.directionKey = dir[0];
         r.directionName = dir[1];
-        r.directionCount = dir[0].length() == 0 ? 0 : d.tag(dir[0]);
+        r.directionCount = dir[0].length() == 0 ? 0 : directionScore(p, dir[0]);
 
         if (act == 1 && floor <= 7) {
             r.stage = "打基础";
@@ -219,6 +219,7 @@ public final class ArchetypeAdvisor {
         return id.contains("corruption") || id.contains("darkembrace") || id.contains("feelnopain")
                 || id.contains("barricade") || id.contains("limitbreak") || id.contains("demonform")
                 || id.contains("juggernaut") || id.contains("rupture") || id.contains("combust")
+                || id.contains("bodyslam") || id.contains("entrench")
                 || id.contains("catalyst") || id.contains("noxiousfumes") || id.contains("accuracy")
                 || id.contains("wraithform") || id.contains("toolsofthetrade")
                 || id.contains("athousandcuts") || id.contains("envenom")
@@ -270,7 +271,8 @@ public final class ArchetypeAdvisor {
                 n += 2;
             }
         }
-        if (id.contains("barricade") || id.contains("juggernaut")) {
+        if (id.contains("barricade") || id.contains("juggernaut")
+                || id.contains("bodyslam") || id.contains("entrench")) {
             n += Math.min(3, d.blockCards / 2);
             if (hasCard(d, "Body Slam") || hasCard(d, "Entrench")) {
                 n += 2;
@@ -385,7 +387,7 @@ public final class ArchetypeAdvisor {
         String bestName = "";
         int bestScore = 2;
         for (String[] m : directions(d)) {
-            int score = d.tag(m[0]) + relicDirection(p, m[0]);
+            int score = directionScore(p, m[0]) + relicDirection(p, m[0]);
             if (score > bestScore) {
                 bestScore = score;
                 best = m[0];
@@ -418,6 +420,25 @@ public final class ArchetypeAdvisor {
                 {"str", "力量流"}, {"exhaust", "消耗流"},
                 {"block", "防战/格挡"}, {"selfdmg", "自伤流"}
         };
+    }
+
+    private static int directionScore(AbstractPlayer p, String key) {
+        if (p == null || p.masterDeck == null) {
+            return 0;
+        }
+        int n = 0;
+        for (AbstractCard c : p.masterDeck.group) {
+            String id = CardDatabase.norm(c.cardID);
+            // Four starter Defends should not make a deck look like a
+            // "block archetype"; only non-basic support counts.
+            if (id.contains("strike") || id.contains("defend")) {
+                continue;
+            }
+            if (matchesDirection(c, key)) {
+                n += isCore(c) ? 3 : 1;
+            }
+        }
+        return n;
     }
 
     private static int relicDirection(AbstractPlayer p, String key) {
