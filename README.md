@@ -121,6 +121,48 @@
 
 产物在 `dist/BigFishAdvisor.jar`。
 
+## 在 VS Code 里开发
+
+1. 用 VS Code 打开 **项目根目录**（不是 `D:\DSH-Workspace`）：
+   ```powershell
+   code D:\DSH-Workspace\BigFishAdvisor
+   ```
+2. 安装推荐扩展：VS Code 会提示安装 **Extension Pack for Java**、**PowerShell**、**Python**。至少需要 Java 扩展来补全/跳转。
+3. 如果你没有 Java 17/21，只装了项目自带的 JDK 8：Java 扩展本身可能提示需要新 JDK 来启动语言服务器，按提示装一个即可；**编译任务仍然固定用 JDK 8**，不会改变 Mod 的 Java 8 兼容性。
+4. `Ctrl+Shift+B` 运行 **Build BigFishAdvisor**，产物是 `dist/BigFishAdvisor.jar`。
+5. 需要装进游戏时，运行任务 **Install into Slay the Spire**，然后完全退出游戏，用 Steam 的 **Play with Mods** 重开。
+6. 想调试游戏内代码：把游戏目录的 `MTS-debug.cmd` 改成带 JDWP 的启动命令：
+   ```bat
+   "jre\bin\java.exe" -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005 -Xmx1g -jar "ModTheSpire.jar"
+   ```
+   运行它，然后在 VS Code 的 **Run and Debug** 选择 **Attach to Slay the Spire (JDWP 5005)**。
+7. 游戏日志在 `D:\steam\steamapps\common\SlayTheSpire\sendToDevs\logs\SlayTheSpire.log`，改完先看日志有没有异常。
+
+### 常见改动位置
+
+| 想改什么 | 文件 |
+|---|---|
+| 卡牌评分/说明 | `resources/bigfish/cards.json`、`CardDatabase.java` |
+| 选牌/跳过 | `CardRewardAdvisor.java` |
+| 战斗出牌/目标 | `CombatAdvisor.java`、`EnemyAdvisor.java` |
+| 路线/Boss/精英 | `MapAdvisor.java`、`ActAdvisor.java` |
+| 事件/Neow | `EventAdvisor.java` |
+| 药水顺序 | `PotionAdvisor.java` |
+| 遗物/Boss 遗物 | `RelicAdvisor.java`、`RelicDatabase.java` |
+| 面板/交互/拖动 | `Overlay.java`、`Ui.java` |
+| 配置开关 | `Config.java` |
+
+改完中文文案后，务必运行 **Validate cards/font/names**；如果新增了字体里没有的汉字，需要重新生成 `resources/bigfish/font.ttf` 和 `charset.txt`，否则游戏里会显示成方块：
+
+```powershell
+# 需要 pip install fonttools；--font 指向带完整汉字的 TTF
+python scripts/build_font.py --font D:\DSH-Workspace\assets_src\font1.ttf
+```
+
+字体源文件不在仓库里（避免把完整字体重复打包）；换字体时用任意你有权再分发的 TTF，并保留 `OFL.txt` 等授权文件。
+
+本地仓库已经关联 GitHub：`origin` 指向 `https://github.com/cccppy/BigFishAdvisor`。提交前先跑构建和资源校验，避免把 `dist/`、`release/`、`tools/` 提交进去（`.gitignore` 已排除）。
+
 ## 开源协议
 
 代码以 **MIT** 发布，见 [LICENSE](LICENSE)。

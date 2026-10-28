@@ -5,6 +5,7 @@ tools/
 logs/
 test/
 mtsdata/
+.vscode/
 .idea/
 *.iml
 *.zip
