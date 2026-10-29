@@ -1,9 +1,9 @@
 {
   "modid": "bigfishadvisor",
   "name": "杀戮尖塔大肥鱼助手",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "author_list": ["BigFishAdvisor 贡献者"],
-  "description": "杀戮尖塔大肥鱼助手：地图路线、Boss/精英预判、抓牌与流派转型、战斗出牌、Neow 与所有事件、营火、商店、药水顺序和遗物联动。按 F8 随时开关。A cute in-game coach for Slay the Spire with Chinese explanations.",
+  "description": "杀戮尖塔大肥鱼助手｜Slay the Spire 中文新手教练 Mod：地图路线、Boss/精英预判、抓牌与流派转型、战斗出牌、Neow 与所有事件、营火、商店、药水顺序和遗物联动。关键词：杀戮尖塔 Mod、Slay the Spire、中文助手、新手攻略、路线规划、抓牌、流派、卡组、战斗。按 F8 随时开关。A Chinese in-game coach for Slay the Spire: route, card picks, archetypes, combat, events, relics and potions. Press F8.",
   "mts_version": "3.6.0",
   "sts_version": "12-18-2022",
   "dependencies": []

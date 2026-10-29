@@ -51,6 +51,7 @@ public final class Overlay {
     private long lastCombatSeen;
 
     private boolean dragging;
+    private boolean f8WasDown;
     private boolean dragMoved;
     private boolean mouseWasDown;
     private boolean mousePressedPanel;
@@ -102,12 +103,14 @@ public final class Overlay {
             return;
         }
         try {
-            if (Gdx.input.isKeyJustPressed(Input.Keys.F8)) {
+            boolean f8Down = Gdx.input.isKeyPressed(Input.Keys.F8);
+            if (f8Down && !f8WasDown) {
                 BigFishAdvisor.config.enabled = !BigFishAdvisor.config.enabled;
                 dragging = false;
                 fishDragging = false;
                 BigFishAdvisor.config.save();
             }
+            f8WasDown = f8Down;
             handleMouse();
         } catch (Throwable t) {
             logOnce(t);
@@ -243,6 +246,21 @@ public final class Overlay {
         }
     }
 
+    private boolean isNeowRoom() {
+        if (AbstractDungeon.getCurrRoom() == null) {
+            return false;
+        }
+        if (AbstractDungeon.getCurrRoom().getClass().getSimpleName().contains("Neow")) {
+            return true;
+        }
+        return AbstractDungeon.getCurrRoom().event != null
+                && AbstractDungeon.getCurrRoom().event.getClass().getSimpleName().contains("Neow");
+    }
+
+    private boolean isNeowScreen() {
+        return isNeowRoom() && AbstractDungeon.screen == AbstractDungeon.CurrentScreen.NONE;
+    }
+
     private Mode detectMode() {
         if (AbstractDungeon.player == null || AbstractDungeon.getCurrRoom() == null) {
             return Mode.NONE;
@@ -300,7 +318,8 @@ public final class Overlay {
         }
         if (BigFishAdvisor.config.events
                 && AbstractDungeon.screen == AbstractDungeon.CurrentScreen.NONE
-                && AbstractDungeon.getCurrRoom().phase == com.megacrit.cardcrawl.rooms.AbstractRoom.RoomPhase.EVENT
+                && AbstractDungeon.getCurrRoom().phase
+                != com.megacrit.cardcrawl.rooms.AbstractRoom.RoomPhase.COMBAT
                 && AbstractDungeon.getCurrRoom().event != null
                 && EventAdvisor.hasOptions(AbstractDungeon.getCurrRoom().event)) {
             return Mode.EVENT;
@@ -401,6 +420,10 @@ public final class Overlay {
         try {
             if (!BigFishAdvisor.config.enabled) {
                 drawHiddenTab(sb);
+                return;
+            }
+            if (isNeowScreen()) {
+                // Neow is drawn by PatchNeowRender, after its own dialogue.
                 return;
             }
             if (mode == Mode.NONE || (mode == Mode.COMBAT && combat == null)
@@ -593,6 +616,47 @@ public final class Overlay {
                 upgrade ? Settings.WIDTH - 470 * ui.s : 18 * ui.s,
                 upgrade ? Settings.HEIGHT * 0.25f : Settings.HEIGHT * 0.28f,
                 450, upgrade ? 320 : 350);
+    }
+
+    /** Called from NeowRoom.renderAboveTopPanel postfix. */
+    public void renderNeowPanel(SpriteBatch sb) {
+        if (BigFishAdvisor.config == null || !BigFishAdvisor.config.events || !isNeowScreen()) {
+            return;
+        }
+        ensureInit();
+        if (failed || ui == null) {
+            return;
+        }
+        if (!BigFishAdvisor.config.enabled) {
+            drawHiddenTab(sb);
+            return;
+        }
+        try {
+            if (event == null || event.best == null) {
+                event = eventAdvisor.analyze(AbstractDungeon.getCurrRoom().event, AbstractDungeon.player);
+                if (event == null || event.best == null) {
+                    event = eventAdvisor.analyzeNeow(AbstractDungeon.player);
+                }
+                if (event == null || event.best == null) {
+                    event = eventAdvisor.simpleNeow(AbstractDungeon.player);
+                }
+            }
+            if (event == null) {
+                return;
+            }
+            float oldX = BigFishAdvisor.config.panelX;
+            float oldY = BigFishAdvisor.config.panelY;
+            BigFishAdvisor.config.panelX = -1.0f;
+            BigFishAdvisor.config.panelY = -1.0f;
+            try {
+                renderEvent(sb);
+            } finally {
+                BigFishAdvisor.config.panelX = oldX;
+                BigFishAdvisor.config.panelY = oldY;
+            }
+        } catch (Throwable t) {
+            logOnce(t);
+        }
     }
 
     private void renderEvent(SpriteBatch sb) {

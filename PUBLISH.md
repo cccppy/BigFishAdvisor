@@ -1,9 +1,9 @@
 # 发布到 GitHub
 
 已发布：<https://github.com/cccppy/BigFishAdvisor>  
-Release：<https://github.com/cccppy/BigFishAdvisor/releases/tag/v1.1.0>
+Release：<https://github.com/cccppy/BigFishAdvisor/releases/tag/v1.0.0>
 
-这个目录已经是一个可公开的开源仓库结构；`release/BigFishAdvisor-1.1.0-source.zip` 是干净源码包。
+这个目录已经是一个可公开的开源仓库结构；`release/BigFishAdvisor-1.0.0-source.zip` 是干净源码包。
 
 ## 建议步骤
 

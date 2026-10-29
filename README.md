@@ -3,6 +3,8 @@
 [![GitHub release](https://img.shields.io/github/v/release/cccppy/BigFishAdvisor)](https://github.com/cccppy/BigFishAdvisor/releases/latest)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
+**杀戮尖塔 Mod｜Slay the Spire 中文新手教练｜路线规划｜抓牌｜流派｜卡组｜战斗｜事件｜遗物｜药水**
+
 一个给《杀戮尖塔》新手的游戏内助手 Mod：可爱的「大肥鱼」会在你爬塔时冒泡，告诉你下一层走哪条路、这张牌要不要拿、这回合先打哪张，并解释原因。
 
 **下载：[最新 Release](https://github.com/cccppy/BigFishAdvisor/releases/latest)**
@@ -37,7 +39,7 @@
 
 ## 安装（Windows，发布包）
 
-发布包 `BigFishAdvisor-1.1.0.zip` 里已经带好 ModTheSpire 3.6.3（MIT 协议）。
+发布包 `BigFishAdvisor-1.2.0.zip` 里已经带好 ModTheSpire 3.6.3（MIT 协议）。
 
 1. 解压到一个**非中文、非 Program Files** 的普通目录，例如 `D:\BigFishAdvisor`。
 2. 右键 `install.ps1` → **使用 PowerShell 运行**。如果系统禁止脚本，打开 PowerShell 执行：

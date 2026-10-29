@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.2.0
+
+- Neow opening choices: fixed empty option labels and the panel disappearing after the first dialogue.
+- Neow panel is drawn from `NeowRoom.renderAboveTopPanel` so the opening dialogue cannot cover it.
+- Map screen: stop rendering the Neow panel after leaving the room, so route advice and route highlighting are visible again.
+- F8 now toggles reliably: hidden once, pressed again restores the assistant.
+- Search keywords added to the mod metadata and README: 杀戮尖塔、Slay the Spire、Mod、中文助手、新手、路线、抓牌、流派、卡组、战斗.
+
 ## 1.1.0
 
 - Added a deck-building stage model: foundation → find direction → core → refine → finish.

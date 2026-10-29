@@ -208,6 +208,109 @@ public final class EventAdvisor {
         return visible;
     }
 
+    private static List<LargeDialogOptionButton> rawOptions() {
+        List<LargeDialogOptionButton> out = new ArrayList<LargeDialogOptionButton>();
+        try {
+            if (RoomEventDialog.optionList != null) {
+                out.addAll(RoomEventDialog.optionList);
+            }
+        } catch (Throwable ignored) {
+        }
+        return out;
+    }
+
+    public Result analyzeNeow(AbstractPlayer player) {
+        return simpleNeow(player);
+    }
+
+    /** Minimal Neow panel; independent of event phase and animation state. */
+    public Result simpleNeow(AbstractPlayer player) {
+        Result r = new Result();
+        r.title = "开局祝福";
+        r.kicker = "Neow · 先选一个";
+        List<LargeDialogOptionButton> buttons = rawOptions();
+        if (buttons.isEmpty()) {
+            r.lines.add("没有读到 Neow 选项，请先点【对话】把祝福选项展开。");
+            return r;
+        }
+        Option best = null;
+        double bestScore = -1.0;
+        for (int i = 0; i < buttons.size(); i++) {
+            String text = clean(buttons.get(i).msg);
+            if (text.length() == 0) {
+                text = buttons.get(i).msg == null ? "" : buttons.get(i).msg.trim();
+            }
+            Option o = new Option();
+            o.button = buttons.get(i);
+            o.index = i;
+            o.text = text;
+            o.score = simpleNeowScore(text);
+            o.note = simpleNeowNote(text);
+            o.verdict = o.score >= 8.0 ? "稳，优先" : o.score >= 6.5 ? "不错" : "看情况";
+            r.options.add(o);
+            if (o.score > bestScore) {
+                bestScore = o.score;
+                best = o;
+            }
+        }
+        r.best = best;
+        if (best != null) {
+            r.lines.add("大肥鱼建议：先选【" + best.text + "】。");
+            r.lines.add("为什么呢：" + best.note);
+        }
+        for (Option o : r.options) {
+            r.lines.add("选项 " + (o.index + 1) + "「" + o.text + "」："
+                    + o.verdict + " · 评分 " + String.format("%.1f", o.score));
+            r.lines.add("说明：" + o.note);
+        }
+        r.lines.add("先说结论：新手开局优先稳定收益（最大生命、删牌、金币、普通遗物）；"
+                + "诅咒/失去最大生命/高风险 Boss 遗物先别碰。");
+        return r;
+    }
+
+    private double simpleNeowScore(String text) {
+        String t = text.toLowerCase(Locale.ROOT);
+        if (has(t, "最大生命") || has(t, "max hp")) {
+            return has(t, "失去") ? 4.0 : 8.6;
+        }
+        if (has(t, "3 场") || has(t, "三场") || has(t, "1 点生命")) {
+            return 8.0;
+        }
+        if (has(t, "移除") || has(t, "删")) {
+            return 8.4;
+        }
+        if (has(t, "金币") || has(t, "gold")) {
+            return 7.6;
+        }
+        if (has(t, "稀有遗物") || has(t, "rare relic")) {
+            return 8.2;
+        }
+        if (has(t, "诅咒") || has(t, "curse")) {
+            return 4.0;
+        }
+        return 6.2;
+    }
+
+    private String simpleNeowNote(String text) {
+        String t = text.toLowerCase(Locale.ROOT);
+        if (has(t, "最大生命")) {
+            return "永久加最大生命，最稳，不需要操作就能吃到收益。";
+        }
+        if (has(t, "3 场") || has(t, "三场") || has(t, "1 点生命")) {
+            return "前三场战斗几乎白送，能快速拿牌/金币；但不会直接提高后期上限。";
+        }
+        if (has(t, "移除") || has(t, "删")) {
+            return "删基础牌，提高关键牌上手率，长线很强。";
+        }
+        if (has(t, "金币")) {
+            return "金币能去商店买关键牌/遗物，前期很灵活。";
+        }
+        if (has(t, "诅咒")) {
+            return "吃诅咒会卡手，除非后续能删掉，否则新手别选。";
+        }
+        return "按稳定收益判断，别为了短期爆发拿不可逆代价。";
+    }
+
     public Result analyze(AbstractEvent event, AbstractPlayer player) {
         List<LargeDialogOptionButton> buttons = options(event);
         if (buttons.size() < 1 || player == null) {
@@ -489,7 +592,13 @@ public final class EventAdvisor {
         if (s == null) {
             return "";
         }
-        return s.replaceAll("\\[[^\\]]*\\]", "").replace("\n", " ").trim();
+        // Only strip color codes/tags. Neow option labels can contain normal
+        // bracketed text; removing every [...] left the recommendation empty.
+        return s.replaceAll("\\[#[0-9a-fA-F]{6,8}\\]", "")
+                .replaceAll("\\[/?[a-zA-Z]+\\]", "")
+                .replace("[]", "")
+                .replace("\n", " ")
+                .trim();
     }
 
     private static boolean has(String haystack, String needle) {
