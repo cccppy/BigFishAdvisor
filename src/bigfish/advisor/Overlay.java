@@ -759,11 +759,12 @@ public final class Overlay {
             String room = AbstractDungeon.getCurrRoom().getClass().getSimpleName();
             boolean eliteOrBoss = room.contains("Elite") || room.contains("Boss");
             int incoming = combat == null ? 0 : combat.incoming;
+            AbstractCard recommended = combat == null || combat.best == null ? null : combat.best.card;
             List<String> potionLines = PotionAdvisor.lines(AbstractDungeon.player, true,
-                    incoming, eliteOrBoss);
+                    incoming, eliteOrBoss, recommended);
             allLines.addAll(potionLines);
             quickPotion = PotionAdvisor.quickUse(AbstractDungeon.player, true,
-                    incoming, eliteOrBoss, combat == null || combat.best == null ? null : combat.best.card);
+                    incoming, eliteOrBoss, recommended);
         }
         if (mode != Mode.NONE && !allLines.isEmpty()) {
             allLines.add(0, personaOpening());
@@ -779,7 +780,14 @@ public final class Overlay {
         } else {
             String compact = compactText == null ? title : compactText;
             if (quickPotion.length() > 0) {
-                if (quickPotion.contains("再打")) {
+                if (compact.startsWith("先【") && quickPotion.contains("再打")) {
+                    // The card line is already an order ("first X, then Y").
+                    // Keep the potion action, but do not replace the second
+                    // card with the potion's single-card reminder.
+                    int cut = quickPotion.indexOf("，再打");
+                    String potion = cut > 0 ? quickPotion.substring(0, cut) : quickPotion;
+                    compact = potion + "；" + compact;
+                } else if (quickPotion.contains("再打")) {
                     compact = quickPotion;
                 } else {
                     compact = quickPotion + (compact.startsWith("打") ? "，再" + compact : "；" + compact);

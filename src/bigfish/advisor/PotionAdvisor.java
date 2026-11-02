@@ -65,7 +65,11 @@ public final class PotionAdvisor {
                         return "先喝【" + po.name + "】，再打【" + attack.name + "】";
                     }
                 } else if (isTemporaryDex(po)) {
-                    AbstractCard block = bestBlock(p);
+                    // Only pair the potion with the card the combat advisor is
+                    // actually highlighting.  Naming a different "best block"
+                    // here made the compact line say "drink, then Defend" while
+                    // the gold highlight was Cleave.
+                    AbstractCard block = recommendedBlock(recommended);
                     if (block != null) {
                         return "先喝【" + po.name + "】，再打【" + block.name + "】";
                     }
@@ -78,6 +82,11 @@ public final class PotionAdvisor {
     }
 
     public static List<String> lines(AbstractPlayer p, boolean combat, int incoming, boolean eliteOrBoss) {
+        return lines(p, combat, incoming, eliteOrBoss, null);
+    }
+
+    public static List<String> lines(AbstractPlayer p, boolean combat, int incoming, boolean eliteOrBoss,
+                                     AbstractCard recommended) {
         List<String> out = new ArrayList<String>();
         String summary = line(p, combat, incoming, eliteOrBoss);
         if (summary.length() == 0) {
@@ -85,7 +94,7 @@ public final class PotionAdvisor {
         }
         out.add(summary);
         for (AbstractPotion po : potions(p)) {
-            out.add("【" + po.name + "】：" + detail(po, p, combat, incoming, eliteOrBoss));
+            out.add("【" + po.name + "】：" + detail(po, p, combat, incoming, eliteOrBoss, recommended));
         }
         return out;
     }
@@ -193,7 +202,7 @@ public final class PotionAdvisor {
     }
 
     private static String detail(AbstractPotion po, AbstractPlayer p, boolean combat,
-                                 int incoming, boolean eliteOrBoss) {
+                                 int incoming, boolean eliteOrBoss, AbstractCard recommended) {
         int hpPct = p.currentHealth * 100 / Math.max(1, p.maxHealth);
         if (is(po, "fairy")) {
             return "留着自动复活；不要手动喝，Boss 战尤其要保留。";
@@ -209,29 +218,29 @@ public final class PotionAdvisor {
                     ? "有空药水格，现在喝补满；格子满时先别喝。"
                     : "药水格满了，先用掉一瓶再喝。";
         }
-        AbstractCard affordable = bestAttack(p, 0);
+        AbstractCard affordable = followUpAttack(p, recommended, 0);
         if (isTemporaryStrength(po)) {
             if (!combat) {
                 return "临时力量只持续到回合结束，战斗里能打多段攻击时再喝；现在先留着。";
             }
             return affordable == null
-                    ? "这是临时力量，只持续到回合结束。这回合没有能打出的攻击，先留着，别空喝。"
+                    ? "这是临时力量，只持续到回合结束。当前推荐不是可打出的攻击，先留着，别空喝。"
                     : "临时力量，先喝再打【" + affordable.name + "】；先打攻击再喝就浪费了。";
         }
         if (isStrengthPotion(po)) {
             return affordable == null
-                    ? "永久力量，早喝早赚；但现在手里没有能打出的攻击，可以等关键攻击前再喝。"
+                    ? "永久力量，早喝早赚；但当前推荐不是攻击牌，可以等关键攻击前再喝。"
                     : "永久力量，先喝再打【" + affordable.name + "】更赚；多段攻击前喝最好。";
         }
         if (isDuplication(po)) {
             return affordable == null
-                    ? "下一张牌打两次；先想好要复制哪张关键牌，别先出小牌。"
+                    ? "下一张牌打两次；当前推荐不是攻击牌，先想好要复制哪张关键牌，别先出小牌。"
                     : "下一张牌打两次；先喝再打【" + affordable.name + "】，别把复制交给小牌。";
         }
         if (isTemporaryDex(po)) {
-            AbstractCard block = bestBlock(p);
+            AbstractCard block = followUpBlock(p, recommended);
             return block == null
-                    ? "临时敏捷，只到回合结束；这回合没有能打出的格挡牌，先留着。"
+                    ? "临时敏捷，只到回合结束；当前推荐不是格挡牌，先留着。"
                     : "临时敏捷，先喝再打【" + block.name + "】；先打格挡再喝会少很多格挡。";
         }
         if (isDefensive(po)) {
@@ -304,6 +313,35 @@ public final class PotionAdvisor {
             return null;
         }
         return recommended;
+    }
+
+    /** Only pair a potion with the card the player is actually being told to play. */
+    private static AbstractCard followUpAttack(AbstractPlayer p, AbstractCard recommended, int extraEnergy) {
+        if (recommended != null) {
+            return recommendedAttack(recommended, extraEnergy);
+        }
+        return bestAttack(p, extraEnergy);
+    }
+
+    private static AbstractCard recommendedBlock(AbstractCard recommended) {
+        if (recommended == null || recommended.type != AbstractCard.CardType.SKILL) {
+            return null;
+        }
+        int block = Math.max(recommended.block, recommended.baseBlock);
+        if (block <= 0) {
+            return null;
+        }
+        if (!recommended.freeToPlay() && recommended.costForTurn > EnergyPanel.totalCount) {
+            return null;
+        }
+        return recommended;
+    }
+
+    private static AbstractCard followUpBlock(AbstractPlayer p, AbstractCard recommended) {
+        if (recommended != null) {
+            return recommendedBlock(recommended);
+        }
+        return bestBlock(p);
     }
 
     /** Best affordable attack in hand, optionally assuming +extraEnergy. */

@@ -32,6 +32,7 @@ public final class CombatAdvisor {
         public boolean lethal;
         public boolean aoe;
         public boolean setupVulnerable;
+        public String followUpName;
         public boolean enablesLethal;
         public String lethalAttack;
         public int energyGain;
@@ -102,7 +103,14 @@ public final class CombatAdvisor {
                 r.second = r.ranking.get(1);
             }
         }
-        r.title = r.endTurn ? "这回合先收手" : "打【" + CardDatabase.shortName(r.best.card) + "】";
+        if (r.endTurn) {
+            r.title = "这回合先收手";
+        } else if (r.best.setupVulnerable && r.best.followUpName != null) {
+            r.title = "先【" + CardDatabase.shortName(r.best.card) + "】再【"
+                    + r.best.followUpName + "】";
+        } else {
+            r.title = "打【" + CardDatabase.shortName(r.best.card) + "】";
+        }
         r.context = String.format("第 %d 回合 · 敌人意图 %d 伤 · 你 %d 格挡 · 能量 %d",
                 r.turn, r.incoming, player.currentBlock, r.energy);
         buildLines(player, r);
@@ -189,16 +197,21 @@ public final class CombatAdvisor {
             }
         }
 
-        int otherAttackDamage = otherAttackDamage(player, card, bestTarget, r.energy);
-        boolean targetVulnerable = bestTarget != null && bestTarget.hasPower("Vulnerable");
+        boolean targetVulnerable = relevantTargetsVulnerable(card, bestTarget, alive);
         boolean targetWeak = bestTarget != null && bestTarget.hasPower("Weak");
 
+        int vulnGain = 0;
         if (tags.contains("vuln") && !targetVulnerable) {
-            score += 2.4 + Math.min(12.0, otherAttackDamage * 0.5);
-            if (s.damage + otherAttackDamage * 1.5 >= (bestTarget == null ? 0
-                    : bestTarget.currentHealth + bestTarget.currentBlock)) {
+            // Value the *whole* follow-up, not just "does this enable a kill".
+            // Thunderclap -> Cleave is the classic example: the Cleave damage
+            // should be counted at 1.5x when deciding which card goes first.
+            FollowUp follow = vulnerableFollowUp(player, card, alive,
+                    s.aoe ? null : bestTarget, Math.max(0, r.energy - s.energyCost));
+            vulnGain = follow.gain;
+            score += 2.4 + Math.min(20.0, vulnGain * 0.9);
+            if (vulnGain >= 3) {
                 s.setupVulnerable = true;
-                score += 16.0;
+                s.followUpName = follow.name;
             }
         }
         if (tags.contains("weak") && !targetWeak) {
@@ -319,7 +332,7 @@ public final class CombatAdvisor {
         score += Math.min(1.5, deckSynergy * 0.35);
 
         s.score = score;
-        s.reason = buildReason(player, s, r, targetVulnerable, otherAttackDamage);
+        s.reason = buildReason(player, s, r, vulnGain);
         return s;
     }
 
@@ -356,8 +369,10 @@ public final class CombatAdvisor {
         if (r.best.enablesLethal) {
             r.lines.add("顺序：先打【" + CardDatabase.shortName(r.best.card) + "】充能，再打【"
                     + r.best.lethalAttack + "】斩杀；不要现在结束回合。");
-        } else if (r.best.setupVulnerable) {
-            r.lines.add("顺序：先上易伤，再用攻击收尾；易伤只持续到敌人回合结束。");
+        } else if (r.best.setupVulnerable && r.best.followUpName != null) {
+            r.lines.add("顺序：先打【" + CardDatabase.shortName(r.best.card)
+                    + "】上易伤，再打【" + r.best.followUpName
+                    + "】；先打输出会少掉这 50% 的易伤加成，别把顺序打反。");
         } else if (r.best.lethal) {
             r.lines.add("这是斩杀线：先收掉它，能少挨一轮攻击/减少后续变数。");
         } else if (r.best.block > 0 && r.incoming > 0) {
@@ -371,9 +386,18 @@ public final class CombatAdvisor {
             r.lines.add(String.format("另一个选择是【%s】：它大约 %d 伤 / %d 格挡。"
                             + "两张差不多时，我更偏向能保命、能过牌、费用更灵活的那张。",
                     CardDatabase.shortName(r.second.card), r.second.damage, r.second.block));
-            r.plan = "备选是【" + CardDatabase.shortName(r.second.card) + "】"
-                    + (r.second.target != null ? "，目标 " + r.second.target.name : "")
-                    + "；如果首选打不死/挡不住，就换它。";
+            if (r.best.setupVulnerable && r.best.followUpName != null) {
+                r.plan = "先【" + CardDatabase.shortName(r.best.card) + "】上易伤，再【"
+                        + r.best.followUpName + "】收尾；备选是【"
+                        + CardDatabase.shortName(r.second.card) + "】。";
+            } else {
+                r.plan = "备选是【" + CardDatabase.shortName(r.second.card) + "】"
+                        + (r.second.target != null ? "，目标 " + r.second.target.name : "")
+                        + "；如果首选打不死/挡不住，就换它。";
+            }
+        } else if (r.best.setupVulnerable && r.best.followUpName != null) {
+            r.plan = "先【" + CardDatabase.shortName(r.best.card) + "】上易伤，再【"
+                    + r.best.followUpName + "】收尾。";
         } else {
             r.plan = "目标：" + (r.best.target == null ? "全体敌人" : r.best.target.name);
         }
@@ -396,8 +420,7 @@ public final class CombatAdvisor {
         }
     }
 
-    private String buildReason(AbstractPlayer player, Scored s, Result r, boolean targetVulnerable,
-                               int otherAttackDamage) {
+    private String buildReason(AbstractPlayer player, Scored s, Result r, int vulnGain) {
         String name = CardDatabase.shortName(s.card);
         String target = s.target == null ? "全体敌人" : s.target.name;
         if (s.enablesLethal) {
@@ -413,8 +436,8 @@ public final class CombatAdvisor {
                     name, s.damage, target, s.target.currentHealth);
         }
         if (s.setupVulnerable) {
-            return String.format("【%s】先上易伤：后续攻击伤害 ×1.5，手里攻击还能多打约 %d。",
-                    name, Math.max(0, (int) (otherAttackDamage * 0.5)));
+            return String.format("【%s】先上易伤：后续攻击伤害 ×1.5，手里这套还能多打约 %d。",
+                    name, Math.max(0, vulnGain));
         }
         if (s.damage > 0 && s.block > 0) {
             return String.format("【%s】约 %d 伤 + %d 格挡，攻防一体；对面这回合有 %d 伤。",
@@ -657,19 +680,115 @@ public final class CombatAdvisor {
         return Math.max(1, hits);
     }
 
-    private static int otherAttackDamage(AbstractPlayer p, AbstractCard self, AbstractMonster target, int energy) {
-        int total = 0;
-        int n = 0;
+    private static boolean relevantTargetsVulnerable(AbstractCard card, AbstractMonster primary,
+                                                      List<AbstractMonster> alive) {
+        if (isAoe(card)) {
+            if (alive.isEmpty()) {
+                return false;
+            }
+            for (AbstractMonster m : alive) {
+                if (!m.hasPower("Vulnerable")) {
+                    return false;
+                }
+            }
+            return true;
+        }
+        return primary != null && primary.hasPower("Vulnerable");
+    }
+
+    private static final class FollowUpCandidate {
+        final AbstractCard card;
+        final int gain;
+        final int cost;
+
+        FollowUpCandidate(AbstractCard card, int gain, int cost) {
+            this.card = card;
+            this.gain = gain;
+            this.cost = cost;
+        }
+    }
+
+    private static final class FollowUp {
+        final int gain;
+        final String name;
+
+        FollowUp(int gain, String name) {
+            this.gain = gain;
+            this.name = name;
+        }
+    }
+
+    /**
+     * Estimate the extra damage earned by applying Vulnerable before the rest
+     * of the hand.  This is deliberately a greedy simulation: attacks are
+     * taken in value order while energy lasts, so a 2-energy Cleave is not
+     * counted after a 2-energy Bash when only 3 energy is available.
+     */
+    private static FollowUp vulnerableFollowUp(AbstractPlayer p, AbstractCard self,
+                                                List<AbstractMonster> alive, AbstractMonster primary,
+                                                int energyLeft) {
+        if (p == null || p.hand == null || energyLeft <= 0) {
+            return new FollowUp(0, null);
+        }
+        List<AbstractMonster> targets;
+        if (isAoe(self)) {
+            targets = alive;
+        } else {
+            AbstractMonster t = primary == null ? mostThreatening(alive) : primary;
+            targets = t == null ? Collections.<AbstractMonster>emptyList()
+                    : Collections.singletonList(t);
+        }
+        if (targets.isEmpty()) {
+            return new FollowUp(0, null);
+        }
+        List<FollowUpCandidate> candidates = new ArrayList<FollowUpCandidate>();
         for (AbstractCard c : p.hand.group) {
-            if (c == self || c.type != AbstractCard.CardType.ATTACK || c.damage <= 0) {
+            if (c == null || c == self || c.type != AbstractCard.CardType.ATTACK
+                    || (c.damage <= 0 && c.baseDamage <= 0)) {
                 continue;
             }
-            total += estimateDamage(c, target, energy);
-            if (++n >= 2) {
-                break;
+            int cost = c.costForTurn < 0 ? energyLeft : Math.max(0, c.costForTurn);
+            if (!c.freeToPlay() && cost > energyLeft) {
+                continue;
+            }
+            if (!c.canUse(p, isAoe(c) ? null : targets.get(0))) {
+                continue;
+            }
+            int gain = 0;
+            for (AbstractMonster m : targets) {
+                if (m.hasPower("Vulnerable")) {
+                    continue;
+                }
+                int dmg = estimateDamage(c, m, energyLeft);
+                gain += (int) Math.round(dmg * 0.5);
+            }
+            if (gain > 0) {
+                candidates.add(new FollowUpCandidate(c, gain, cost));
             }
         }
-        return total;
+        Collections.sort(candidates, new Comparator<FollowUpCandidate>() {
+            @Override
+            public int compare(FollowUpCandidate a, FollowUpCandidate b) {
+                int byGain = Integer.compare(b.gain, a.gain);
+                if (byGain != 0) {
+                    return byGain;
+                }
+                return Integer.compare(a.cost, b.cost);
+            }
+        });
+        int remaining = energyLeft;
+        int total = 0;
+        String name = null;
+        for (FollowUpCandidate c : candidates) {
+            if (c.cost <= remaining) {
+                total += c.gain;
+                if (name == null) {
+                    name = CardDatabase.shortName(c.card);
+                }
+                remaining -= c.cost;
+            }
+        }
+        return new FollowUp(total, name);
     }
 
     private static int countTag(AbstractPlayer p, String tag) {
