@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.2.1
+
+- Combat order: when a vulnerability card (e.g. Thunderclap) can raise the damage of attacks still playable this turn, it is now recommended first, with the follow-up card named in the same sentence. The estimate respects current energy and sums AOE damage across every target that is not yet vulnerable.
+- Potion/card consistency: strength, duplication, speed and other potion advice now pairs with the same card the combat panel highlights. Speed potion no longer recommends a block card while the panel recommends an attack.
+- Compact panel: the collapsed bubble is capped at two wrapped lines instead of five, so it no longer grows into a tall card over the player's buff icons. Click `+` or the title to read the full text.
+- Expanded panel: width/height are capped at 86%/82% of the screen; overflow still uses the existing page buttons, never an ellipsis.
+- Current-cost calculations: combat affordability and lookahead use `costForTurn`, so Snecko Eye/Confusion, Corruption, Mummified Hand and similar in-combat modifiers are respected; X-cost cards are handled separately.
+- Necronomicon now checks the card's current cost (or X energy spent), not its printed cost.
+- Card rewards with Snecko Eye/Confusion use an expected-value bonus based on printed cost and show a short reminder, instead of the old fixed high-cost penalty.
+
 ## 1.2.0
 
 - Neow opening choices: fixed empty option labels and the panel disappearing after the first dialogue.

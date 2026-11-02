@@ -39,7 +39,7 @@
 
 ## 安装（Windows，发布包）
 
-发布包 `BigFishAdvisor-1.2.0.zip` 里已经带好 ModTheSpire 3.6.3（MIT 协议）。
+发布包 `BigFishAdvisor-1.2.1.zip` 里已经带好 ModTheSpire 3.6.3（MIT 协议）。
 
 1. 解压到一个**非中文、非 Program Files** 的普通目录，例如 `D:\BigFishAdvisor`。
 2. 右键 `install.ps1` → **使用 PowerShell 运行**。如果系统禁止脚本，打开 PowerShell 执行：
