@@ -292,7 +292,7 @@ public final class PotionAdvisor {
                 continue;
             }
             int block = Math.max(c.block, c.baseBlock);
-            if (block <= 0 || (!c.freeToPlay() && c.costForTurn > energy)) {
+            if (block <= 0 || !CostUtil.canPay(c, energy)) {
                 continue;
             }
             if (block > bestBlock) {
@@ -309,7 +309,7 @@ public final class PotionAdvisor {
             return null;
         }
         int energy = EnergyPanel.totalCount + Math.max(0, extraEnergy);
-        if (!recommended.freeToPlay() && recommended.costForTurn > energy) {
+        if (!CostUtil.canPay(recommended, energy)) {
             return null;
         }
         return recommended;
@@ -331,7 +331,7 @@ public final class PotionAdvisor {
         if (block <= 0) {
             return null;
         }
-        if (!recommended.freeToPlay() && recommended.costForTurn > EnergyPanel.totalCount) {
+        if (!CostUtil.canPay(recommended, EnergyPanel.totalCount)) {
             return null;
         }
         return recommended;
@@ -356,7 +356,7 @@ public final class PotionAdvisor {
             if (c == null || c.type != AbstractCard.CardType.ATTACK) {
                 continue;
             }
-            if (!c.freeToPlay() && c.costForTurn > energy) {
+            if (!CostUtil.canPay(c, energy)) {
                 continue;
             }
             double d = c.damage > 0 ? c.damage : c.baseDamage;

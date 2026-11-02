@@ -3,6 +3,7 @@ package bigfish.advisor;
 import com.megacrit.cardcrawl.cards.AbstractCard;
 import com.megacrit.cardcrawl.characters.AbstractPlayer;
 import com.megacrit.cardcrawl.relics.AbstractRelic;
+import com.megacrit.cardcrawl.ui.panels.EnergyPanel;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -72,6 +73,9 @@ public final class RelicAdvisor {
         if (!triggers.isEmpty()) {
             out.add("遗物计数：" + join(triggers));
         }
+        if (p.hasPower("Confusion")) {
+            out.add("费用提醒：混乱已生效，我是按手牌当前显示的费用算，不看原费。");
+        }
         return out;
     }
 
@@ -80,10 +84,10 @@ public final class RelicAdvisor {
             return 0.0;
         }
         double b = 0.0;
-        if (has(p, "Necronomicon") && c.type == AbstractCard.CardType.ATTACK && c.cost >= 2) {
+        if (necronomiconNow(p, c)) {
             b += 2.0;
         }
-        if (has(p, "Chemical X") && c.costForTurn < 0) {
+        if (has(p, "Chemical X") && CostUtil.isX(c)) {
             b += 1.5;
         }
         if (has(p, "Pen Nib") && c.type == AbstractCard.CardType.ATTACK && counter(p, "Pen Nib") >= 9) {
@@ -111,7 +115,7 @@ public final class RelicAdvisor {
         if (has(p, "Tungsten Rod") && CardDatabase.hasTag(c, "selfdmg")) {
             b += 0.6;
         }
-        if (has(p, "Snecko Eye") && c.cost >= 2) {
+        if (has(p, "Snecko Eye") && CostUtil.current(c) >= 2) {
             b += 0.25;
         }
         return b;
@@ -121,11 +125,11 @@ public final class RelicAdvisor {
         if (p == null || c == null) {
             return "";
         }
-        if (has(p, "Necronomicon") && c.type == AbstractCard.CardType.ATTACK && c.cost >= 2) {
-            return "死灵书：这张 2 费以上攻击会打两次";
+        if (necronomiconNow(p, c)) {
+            return "死灵书：这张当前费用 2 费以上，会打两次";
         }
-        if (has(p, "Chemical X") && c.costForTurn < 0) {
-            return "化学 X：X 费牌额外 +2";
+        if (has(p, "Chemical X") && CostUtil.isX(c)) {
+            return "化学 X：这张 X 费牌额外 +2";
         }
         if (has(p, "Pen Nib") && c.type == AbstractCard.CardType.ATTACK && counter(p, "Pen Nib") >= 9) {
             return "笔尖已满：这张攻击翻倍";
@@ -146,10 +150,10 @@ public final class RelicAdvisor {
             return 0.0;
         }
         double b = 0.0;
-        if (has(p, "Necronomicon") && c.type == AbstractCard.CardType.ATTACK && c.cost >= 2) {
+        if (necronomiconPick(p, c)) {
             b += 0.8;
         }
-        if (has(p, "Chemical X") && c.costForTurn < 0) {
+        if (has(p, "Chemical X") && CostUtil.isX(c)) {
             b += 0.7;
         }
         if (has(p, "Dead Branch") && CardDatabase.hasTag(c, "exhaust")) {
@@ -161,7 +165,7 @@ public final class RelicAdvisor {
         if (has(p, "Bird-Faced Urn") && c.type == AbstractCard.CardType.POWER) {
             b += 0.35;
         }
-        if (has(p, "Wrist Blade") && c.costForTurn == 0 && c.type == AbstractCard.CardType.ATTACK) {
+        if (has(p, "Wrist Blade") && CostUtil.printed(c) == 0 && c.type == AbstractCard.CardType.ATTACK) {
             b += 0.7;
         }
         if (has(p, "Hovering Kite") && CardDatabase.hasTag(c, "discard")) {
@@ -171,11 +175,13 @@ public final class RelicAdvisor {
             b += 0.5;
         }
         if (has(p, "Shuriken") || has(p, "Kunai")) {
-            if (c.type == AbstractCard.CardType.ATTACK && c.costForTurn <= 1) {
+            int printed = CostUtil.printed(c);
+            if (c.type == AbstractCard.CardType.ATTACK && printed >= 0 && printed <= 1) {
                 b += 0.25;
             }
         }
-        if (has(p, "Letter Opener") && c.type == AbstractCard.CardType.SKILL && c.costForTurn <= 1) {
+        if (has(p, "Letter Opener") && c.type == AbstractCard.CardType.SKILL
+                && CostUtil.printed(c) >= 0 && CostUtil.printed(c) <= 1) {
             b += 0.2;
         }
         if (has(p, "Tungsten Rod") && CardDatabase.hasTag(c, "selfdmg")) {
@@ -188,10 +194,10 @@ public final class RelicAdvisor {
         if (p == null || c == null) {
             return "";
         }
-        if (has(p, "Necronomicon") && c.type == AbstractCard.CardType.ATTACK && c.cost >= 2) {
+        if (necronomiconPick(p, c)) {
             return "死灵书能把它变成双发";
         }
-        if (has(p, "Chemical X") && c.costForTurn < 0) {
+        if (has(p, "Chemical X") && CostUtil.isX(c)) {
             return "化学 X 直接加强 X 费";
         }
         if (has(p, "Dead Branch") && CardDatabase.hasTag(c, "exhaust")) {
@@ -200,7 +206,7 @@ public final class RelicAdvisor {
         if (has(p, "Mummified Hand") && c.type == AbstractCard.CardType.POWER) {
             return "干瘪之手让能力牌更赚";
         }
-        if (has(p, "Wrist Blade") && c.costForTurn == 0 && c.type == AbstractCard.CardType.ATTACK) {
+        if (has(p, "Wrist Blade") && CostUtil.printed(c) == 0 && c.type == AbstractCard.CardType.ATTACK) {
             return "袖剑给 0 费攻击加伤害";
         }
         if (has(p, "Hovering Kite") && CardDatabase.hasTag(c, "discard")) {
@@ -550,7 +556,7 @@ public final class RelicAdvisor {
     private static int highCost(AbstractPlayer p) {
         int n = 0;
         for (AbstractCard c : p.masterDeck.group) {
-            if (c.costForTurn >= 2 || c.cost >= 2) {
+            if (CostUtil.printed(c) >= 2) {
                 n++;
             }
         }
@@ -560,7 +566,7 @@ public final class RelicAdvisor {
     private static int highCostAttacks(AbstractPlayer p) {
         int n = 0;
         for (AbstractCard c : p.masterDeck.group) {
-            if (c.type == AbstractCard.CardType.ATTACK && (c.costForTurn >= 2 || c.cost >= 2)) {
+            if (c.type == AbstractCard.CardType.ATTACK && CostUtil.printed(c) >= 2) {
                 n++;
             }
         }
@@ -570,11 +576,29 @@ public final class RelicAdvisor {
     private static int xCosts(AbstractPlayer p) {
         int n = 0;
         for (AbstractCard c : p.masterDeck.group) {
-            if (c.costForTurn < 0 || c.cost < 0) {
+            if (CostUtil.isX(c)) {
                 n++;
             }
         }
         return n;
+    }
+
+    private static boolean necronomiconNow(AbstractPlayer p, AbstractCard c) {
+        if (!has(p, "Necronomicon") || c == null || c.type != AbstractCard.CardType.ATTACK) {
+            return false;
+        }
+        // Necronomicon checks costForTurn >= 2, or X-cost with at least 2
+        // energy spent.  Do not use the printed cost: Corruption and
+        // Mummified Hand can make a 2-cost attack cost 0 right now.
+        if (CostUtil.isX(c)) {
+            return EnergyPanel.totalCount >= 2;
+        }
+        return CostUtil.current(c) >= 2;
+    }
+
+    private static boolean necronomiconPick(AbstractPlayer p, AbstractCard c) {
+        return has(p, "Necronomicon") && c != null
+                && c.type == AbstractCard.CardType.ATTACK && CostUtil.printed(c) >= 2;
     }
 
     private static String join(List<String> parts) {

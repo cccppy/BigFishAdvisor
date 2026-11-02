@@ -76,7 +76,7 @@ public final class CombatAdvisor {
             if (c == null || c.type == AbstractCard.CardType.CURSE || c.type == AbstractCard.CardType.STATUS) {
                 continue;
             }
-            if (c.costForTurn > r.energy && !c.freeToPlay()) {
+            if (!CostUtil.canPay(c, r.energy)) {
                 continue;
             }
             Scored s = scoreCard(player, c, alive, r);
@@ -121,7 +121,7 @@ public final class CombatAdvisor {
         Scored s = new Scored();
         s.card = card;
         s.aoe = isAoe(card);
-        s.energyCost = card.costForTurn < 0 ? r.energy : Math.max(0, card.costForTurn);
+        s.energyCost = CostUtil.isX(card) ? r.energy : CostUtil.current(card);
         s.energyGain = energyGain(card);
         s.selfHpCost = selfHpCost(card);
         int bestDamage = 0;
@@ -308,8 +308,9 @@ public final class CombatAdvisor {
         if (neededBlock > 0 && s.block == 0 && !s.lethal && !s.enablesLethal) {
             score -= Math.min(9.0, neededBlock * 0.10);
         }
-        if (card.costForTurn >= 2) {
-            score -= 0.15 * card.costForTurn;
+        int actualCost = CostUtil.current(card);
+        if (actualCost >= 2) {
+            score -= 0.15 * actualCost;
         }
         if (card.exhaust) {
             score -= 0.2;
@@ -565,10 +566,11 @@ public final class CombatAdvisor {
     private Lookahead findLethalWithEnergy(AbstractPlayer p, List<AbstractMonster> alive,
                                            AbstractCard energyCard, int oldEnergy, int newEnergy) {
         for (AbstractCard c : p.hand.group) {
+            int cost = CostUtil.current(c);
             if (c == energyCard || c.type != AbstractCard.CardType.ATTACK
                     || (c.damage <= 0 && c.baseDamage <= 0)
-                    || (c.costForTurn > newEnergy && !c.freeToPlay())
-                    || (c.costForTurn <= oldEnergy && !c.freeToPlay())) {
+                    || (cost > newEnergy && !c.freeToPlay())
+                    || (cost >= 0 && cost <= oldEnergy && !c.freeToPlay())) {
                 continue;
             }
             for (AbstractMonster m : alive) {
@@ -584,10 +586,11 @@ public final class CombatAdvisor {
     private boolean hasAttackAfterEnergy(AbstractPlayer p, AbstractCard energyCard,
                                          int oldEnergy, int newEnergy) {
         for (AbstractCard c : p.hand.group) {
+            int cost = CostUtil.current(c);
             if (c != energyCard && c.type == AbstractCard.CardType.ATTACK
                     && (c.damage > 0 || c.baseDamage > 0)
-                    && (c.costForTurn <= newEnergy || c.freeToPlay())
-                    && (c.costForTurn > oldEnergy || c.freeToPlay())) {
+                    && (cost < 0 || cost <= newEnergy || c.freeToPlay())
+                    && (cost < 0 || cost > oldEnergy || c.freeToPlay())) {
                 return true;
             }
         }
@@ -674,7 +677,7 @@ public final class CombatAdvisor {
         } else if (id.contains("whirlwind") || id.contains("skewer") || id.contains("fiendfire")) {
             hits = Math.max(1, energy);
         }
-        if (c.cost == -1 || c.costForTurn == -1) {
+        if (CostUtil.isX(c)) {
             hits = Math.max(1, energy);
         }
         return Math.max(1, hits);
@@ -747,7 +750,10 @@ public final class CombatAdvisor {
                     || (c.damage <= 0 && c.baseDamage <= 0)) {
                 continue;
             }
-            int cost = c.costForTurn < 0 ? energyLeft : Math.max(0, c.costForTurn);
+            int cost = CostUtil.current(c);
+            if (cost < 0) {
+                cost = energyLeft;
+            }
             if (!c.freeToPlay() && cost > energyLeft) {
                 continue;
             }

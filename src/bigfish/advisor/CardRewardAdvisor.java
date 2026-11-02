@@ -152,11 +152,18 @@ public final class CardRewardAdvisor {
                 && c.rarity != AbstractCard.CardRarity.RARE) {
             score -= 0.25;
         }
-        if (c.costForTurn >= 3 && act == 1) {
-            score -= 0.20;
-        }
-        if (c.costForTurn <= 1) {
-            score += 0.08;
+        if (!CostUtil.randomCost(p)) {
+            if (c.costForTurn >= 3 && act == 1) {
+                score -= 0.20;
+            }
+            if (c.costForTurn <= 1) {
+                score += 0.08;
+            }
+        } else {
+            // Snecko Eye / Confusion: the next combat will randomize this
+            // card's cost to 0-3.  Reward high-cost cards for their upside,
+            // and stop treating a 0-cost card as permanently cheap.
+            score += CostUtil.sneckoPickBonus(c);
         }
         if (CardDatabase.hasTag(c, "selfdmg") && p.currentHealth * 100 / Math.max(1, p.maxHealth) < 45) {
             score -= 0.7;
@@ -387,6 +394,12 @@ public final class CardRewardAdvisor {
         String relicFit = RelicAdvisor.cardNote(p, r.top.card);
         if (relicFit.length() > 0) {
             r.lines.add("遗物配合：" + relicFit + "。");
+        }
+        if (CostUtil.randomCost(p)) {
+            String costNote = CostUtil.sneckoPickNote(r.top.card);
+            if (costNote.length() > 0) {
+                r.lines.add("异蛇之眼提醒：" + costNote + "。");
+            }
         }
         String actFit = ActAdvisor.cardNote(p, r.top.card);
         if (actFit.length() > 0) {
