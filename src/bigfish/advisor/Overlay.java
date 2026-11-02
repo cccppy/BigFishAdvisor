@@ -836,7 +836,11 @@ public final class Overlay {
         float tw = panelW - av - 52 * ui.s;
         String body = compactText == null || compactText.length() == 0 ? title : compactText;
         List<String> lines = ui.wrap(ui.bodyFont, body, tw);
-        int show = Math.min(5, lines.size());
+        // Compact mode is a glance, not a second full panel.  Five wrapped
+        // lines made a tall cream card that covered the player's power icons
+        // at the bottom-left; two lines keep the recommendation readable and
+        // the full text is still available by clicking "+" / the panel.
+        int show = Math.min(2, lines.size());
         panelH = Math.max(panelH, 42 * ui.s + show * ui.bodyFont.getLineHeight() + 18 * ui.s);
         panelY = clamp(panelY, 6 * ui.s, Settings.HEIGHT - panelH - 6 * ui.s);
         ui.drawPanel(sb, panelX, panelY, panelW, panelH);
@@ -875,8 +879,11 @@ public final class Overlay {
             all.add(plan);
         }
         BitmapFont body = ui.bodyFont;
-        float maxW = Settings.WIDTH - 12 * ui.s;
-        float maxH = Settings.HEIGHT - 12 * ui.s;
+        // Never let the expanded card swallow almost the whole combat screen
+        // (it was growing to H-12 and covering the player's buffs).  Leave a
+        // margin on every side; any overflow is paginated, never ellipsized.
+        float maxW = Math.min(Settings.WIDTH * 0.86f, Settings.WIDTH - 12 * ui.s);
+        float maxH = Math.min(Settings.HEIGHT * 0.82f, Settings.HEIGHT - 12 * ui.s);
         float textW;
         int titleLines;
         int subtitleLines;
