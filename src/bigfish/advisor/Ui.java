@@ -325,6 +325,11 @@ public final class Ui {
     }
 
     public void drawTarget(SpriteBatch sb, com.megacrit.cardcrawl.monsters.AbstractMonster m) {
+        drawTarget(sb, m, "推荐目标");
+    }
+
+    public void drawTarget(SpriteBatch sb, com.megacrit.cardcrawl.monsters.AbstractMonster m,
+                           String label) {
         if (m == null || m.hb == null) {
             return;
         }
@@ -333,7 +338,7 @@ public final class Ui {
         drawGlow(sb, m.hb.cX, m.hb.cY, r * 1.45f, GOLD, 0.13f + 0.08f * pulse);
         drawRing(sb, m.hb.cX, m.hb.cY, r, GOLD, 0.92f);
         drawBadge(sb, m.hb.cX - 42 * s, m.hb.cY - r - 34 * s, 84 * s, 25 * s, INK, GOLD,
-                "推荐目标", smallFont, GOLD);
+                label == null ? "推荐目标" : label, smallFont, GOLD);
     }
 
     public String ellipsize(BitmapFont font, String text, float maxWidth) {

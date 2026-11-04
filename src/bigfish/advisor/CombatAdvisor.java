@@ -38,6 +38,10 @@ public final class CombatAdvisor {
         public int energyGain;
         public int selfHpCost;
         public String reason;
+        public String characterNote;
+        public AbstractMonster focusTarget;
+        public String focusReason;
+        public String focusOrder;
     }
 
     public static final class Result {
@@ -48,6 +52,7 @@ public final class CombatAdvisor {
         public int incoming;
         public int energy;
         public int turn;
+        public List<AbstractMonster> alive = new ArrayList<AbstractMonster>();
         public List<String> enemyLines = new ArrayList<String>();
         public String title;
         public String context;
@@ -70,6 +75,7 @@ public final class CombatAdvisor {
         if (alive.isEmpty()) {
             return null;
         }
+        r.alive = alive;
         r.enemyLines = EnemyAdvisor.lines(alive);
 
         for (AbstractCard c : new ArrayList<AbstractCard>(player.hand.group)) {
@@ -108,6 +114,9 @@ public final class CombatAdvisor {
         } else if (r.best.setupVulnerable && r.best.followUpName != null) {
             r.title = "先【" + CardDatabase.shortName(r.best.card) + "】再【"
                     + r.best.followUpName + "】";
+        } else if (r.best.aoe && r.best.focusTarget != null) {
+            r.title = "打【" + CardDatabase.shortName(r.best.card) + "】· 先压【"
+                    + r.best.focusTarget.name + "】";
         } else {
             r.title = "打【" + CardDatabase.shortName(r.best.card) + "】";
         }
@@ -127,22 +136,37 @@ public final class CombatAdvisor {
         int bestDamage = 0;
         AbstractMonster bestTarget = null;
         boolean lethal = false;
+        int aoeKills = 0;
+        boolean aoeHighHp = false;
         if (s.aoe) {
+            AbstractMonster highTarget = null;
+            int highHp = -1;
             for (AbstractMonster m : alive) {
                 int d = estimateDamage(card, m, r.energy);
                 bestDamage += d;
-                if (d >= m.currentHealth + m.currentBlock) {
+                int hp = m.currentHealth + m.currentBlock;
+                if (d >= hp) {
                     lethal = true;
+                    aoeKills++;
                 }
+                if (hp > highHp) {
+                    highHp = hp;
+                    highTarget = m;
+                }
+            }
+            if (highTarget != null) {
+                int highDamage = estimateDamage(card, highTarget, r.energy);
+                aoeHighHp = highDamage >= highTarget.currentHealth + highTarget.currentBlock;
             }
             bestTarget = mostThreatening(alive);
         } else {
             double bestValue = -9999.0;
             for (AbstractMonster m : alive) {
-                int d = estimateDamage(card, m, r.energy);
+                CharacterAdvisor.Read read = CharacterAdvisor.combatCard(
+                        player, card, alive, m, false, r.energy, r.incoming);
+                int d = read.damage >= 0 ? read.damage : estimateDamage(card, m, r.energy);
                 boolean kill = d >= m.currentHealth + m.currentBlock;
-                double v = d - Math.max(0, d - (m.currentHealth + m.currentBlock)) * 0.25
-                        + (kill ? 40.0 : 0.0) + threat(m) * 0.02;
+                double v = targetValue(m, d, kill, alive) + read.bonus * 0.35;
                 if (v > bestValue) {
                     bestValue = v;
                     bestDamage = d;
@@ -156,6 +180,32 @@ public final class CombatAdvisor {
         s.lethal = lethal && s.damage > 0;
         if (bestTarget == null) {
             bestTarget = mostThreatening(alive);
+        }
+        CharacterAdvisor.Read characterRead = CharacterAdvisor.combatCard(
+                player, card, alive, bestTarget, s.aoe, r.energy, r.incoming);
+        if (!s.aoe && characterRead.damage >= 0) {
+            s.damage = characterRead.damage;
+            s.lethal = s.damage >= (bestTarget == null ? Integer.MAX_VALUE
+                    : bestTarget.currentHealth + bestTarget.currentBlock) && s.damage > 0;
+        }
+        s.characterNote = characterRead.note;
+        // Single-target cards already have a bestTarget.  AoE has no single
+        // game target, but the player still needs to know which enemy to
+        // pressure first, so keep a separate focus target for the ring/text.
+        FocusAdvisor.Focus focus = FocusAdvisor.choose(player, alive, card, s.aoe);
+        s.focusTarget = s.aoe ? focus.target : bestTarget;
+        if (s.focusTarget != null) {
+            s.focusReason = focus.reason;
+            if (!s.aoe && focus.target != s.focusTarget) {
+                // The damage score picked a different single target than the
+                // group priority.  Never put "kill the Mystic" next to a ring
+                // on the Centurion; describe the target we actually mark.
+                s.focusReason = FocusAdvisor.focusLine(s.focusTarget, false);
+            }
+            if (s.focusReason == null || s.focusReason.isEmpty()) {
+                s.focusReason = FocusAdvisor.focusLine(s.focusTarget, s.aoe);
+            }
+            s.focusOrder = FocusAdvisor.orderLine(focus, s.aoe);
         }
         if (!card.canUse(player, card.target == AbstractCard.CardTarget.ALL
                 || card.target == AbstractCard.CardTarget.ALL_ENEMY ? null : bestTarget)) {
@@ -171,6 +221,7 @@ public final class CombatAdvisor {
             score += (quality.score - 6.0) * 0.16;
         }
         score += RelicAdvisor.combatBonus(player, card);
+        score += characterRead.bonus;
 
         if (s.damage > 0) {
             int effective = s.damage;
@@ -182,7 +233,17 @@ public final class CombatAdvisor {
             }
             score += effective * 0.95;
             if (s.lethal) {
-                score += 55.0;
+                // Killing one low-health minion with an AoE is not the same as
+                // spending a single-target nuke on it.  Single-target lethal
+                // still gets the big reward; AoE gets paid for coverage and
+                // for actually reaching the high-health target.
+                score += s.aoe ? 16.0 + Math.min(12.0, aoeKills * 4.0) : 55.0;
+                if (s.aoe && aoeHighHp) {
+                    score += 8.0;
+                }
+            }
+            if (s.aoe && alive.size() > 1) {
+                score += 1.5 + Math.min(6.0, (alive.size() - 1) * 1.5);
             }
             if (bestTarget != null) {
                 score += threat(bestTarget) * 0.012;
@@ -341,6 +402,9 @@ public final class CombatAdvisor {
         r.lines.clear();
         r.lines.add("先看对面，主人：");
         r.lines.addAll(r.enemyLines);
+        if (!r.endTurn && r.best.focusOrder != null && !r.best.focusOrder.isEmpty()) {
+            r.lines.add(r.best.focusOrder);
+        }
         List<String> relicLines = RelicAdvisor.combatLines(player);
         if (!relicLines.isEmpty()) {
             r.lines.add("遗物这边也在帮您：");
@@ -360,6 +424,15 @@ public final class CombatAdvisor {
                         + "你现在 %d 能量、%d 张手牌。", r.incoming, player.currentBlock,
                 Math.max(0, r.incoming - player.currentBlock), r.energy, player.hand.size()));
         r.lines.add(r.best.reason);
+        if (r.best.characterNote != null && !r.best.characterNote.isEmpty()) {
+            r.lines.add(r.best.characterNote);
+        }
+        List<String> roleLines = CharacterAdvisor.combatLines(
+                player, r.alive, r.energy, r.incoming);
+        if (!roleLines.isEmpty()) {
+            r.lines.add("这个角色的节奏，我单独算给您看：");
+            r.lines.addAll(roleLines);
+        }
         r.lines.add(String.format("我为什么更想打它：它大约能打 %d、挡 %d，只花 %d 能量。"
                         + "这不是只看伤害数字，而是把“能不能挡住这回合、能不能收掉威胁、费用会不会卡住”一起算了。",
                 r.best.damage, r.best.block, r.best.energyCost));
@@ -400,7 +473,9 @@ public final class CombatAdvisor {
             r.plan = "先【" + CardDatabase.shortName(r.best.card) + "】上易伤，再【"
                     + r.best.followUpName + "】收尾。";
         } else {
-            r.plan = "目标：" + (r.best.target == null ? "全体敌人" : r.best.target.name);
+            r.plan = r.best.aoe && r.best.focusTarget != null
+                    ? "AOE 优先关注【" + r.best.focusTarget.name + "】：" + r.best.focusReason
+                    : "目标：" + (r.best.target == null ? "全体敌人" : r.best.target.name);
         }
         if (r.best.block == 0 && r.incoming > player.currentBlock) {
             r.lines.add("但要注意：这张不给你格挡，打完预计还要吃 "
@@ -431,7 +506,10 @@ public final class CombatAdvisor {
         }
         if (s.lethal) {
             if (s.target == null) {
-                return String.format("【%s】群体约 %d 伤，能收掉残血目标/完成清场。", name, s.damage);
+                String focus = s.focusTarget == null ? ""
+                        : "优先关注【" + s.focusTarget.name + "】：" + s.focusReason;
+                return String.format("【%s】群体约 %d 伤，能收掉残血目标/完成清场。%s",
+                        name, s.damage, focus);
             }
             return String.format("【%s】约 %d 伤，%s只有 %d 血：正好斩杀，先收掉它。",
                     name, s.damage, target, s.target.currentHealth);
@@ -445,6 +523,12 @@ public final class CombatAdvisor {
                     name, s.damage, s.block, r.incoming);
         }
         if (s.damage > 0) {
+            if (s.aoe) {
+                String focus = s.focusTarget == null ? ""
+                        : "先关注【" + s.focusTarget.name + "】：" + s.focusReason;
+                return String.format("【%s】群体约 %d 伤，花 %d 能量；%s",
+                        name, s.damage, s.energyCost, focus);
+            }
             return String.format("【%s】约 %d 伤，花 %d 能量；%s的威胁最高（本回合 %d 伤）。",
                     name, s.damage, s.energyCost, target, threat(s.target));
         }
@@ -534,6 +618,40 @@ public final class CombatAdvisor {
             }
         }
         return best;
+    }
+
+    /**
+     * Pick the target that makes the card's damage actually matter.  A flat
+     * kill bonus used to make Brilliance kill a 10 HP minion while a 60 HP
+     * threat kept attacking.  Overkill is now expensive, kill value scales
+     * with the threat removed, and a huge single-target hit is penalized when
+     * a bigger, equally dangerous target is left alive.  AoE is handled in
+     * scoreCard separately because it covers several targets at once.
+     */
+    private static double targetValue(AbstractMonster m, int damage, boolean kill,
+                                      List<AbstractMonster> alive) {
+        int hp = m.currentHealth + m.currentBlock;
+        int over = Math.max(0, damage - hp);
+        double v = damage * 0.95 - over * 0.85 + threat(m) * 0.22 + m.currentHealth * 0.025;
+        if (kill) {
+            v += 8.0 + threat(m) * 0.75;
+            if (alive.size() > 1 && damage > hp + 5) {
+                for (AbstractMonster other : alive) {
+                    if (other == null || other == m || other.isDeadOrEscaped()) {
+                        continue;
+                    }
+                    int otherHp = other.currentHealth + other.currentBlock;
+                    if (otherHp > hp + 6 && threat(other) >= threat(m) * 0.75
+                            && damage < otherHp) {
+                        // Save the big hit for the bigger threat; don't spend
+                        // it on a low-health target just because it dies.
+                        v -= 10.0;
+                        break;
+                    }
+                }
+            }
+        }
+        return v;
     }
 
     private static int threat(AbstractMonster m) {

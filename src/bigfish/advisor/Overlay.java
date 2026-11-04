@@ -464,8 +464,9 @@ public final class Overlay {
         if (combat.best != null) {
             ui.drawCardCorners(sb, combat.best.card, Ui.GOLD);
             ui.drawCardTag(sb, combat.best.card, "推荐", Ui.INK, Ui.GOLD, Ui.GOLD);
-            if (combat.best.target != null && !combat.best.aoe) {
-                ui.drawTarget(sb, combat.best.target);
+            if (combat.best.focusTarget != null) {
+                ui.drawTarget(sb, combat.best.focusTarget,
+                        combat.best.aoe ? "优先目标" : "推荐目标");
             }
         } else if (combat.endTurn) {
             ui.drawBadge(sb, Settings.WIDTH * 0.72f, 186 * ui.s, 210 * ui.s, 38 * ui.s,

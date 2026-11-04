@@ -54,6 +54,10 @@ public final class CardRewardAdvisor {
             s.score = score(player, card, r.deck, act, floor);
             s.offPackage = isOffPackage(card, r.deck);
             s.note = CardDatabase.note(card);
+            String roleNote = CharacterAdvisor.pickNote(player, card, r.deck);
+            if (roleNote != null && roleNote.length() > 0) {
+                s.note = s.note + " " + roleNote;
+            }
             s.tier = CardDatabase.tier(card);
             r.cards.add(s);
             r.byId.put(card.uuid, s);
@@ -99,6 +103,7 @@ public final class CardRewardAdvisor {
         score += ActAdvisor.cardBonus(p, c);
         score += ArchetypeAdvisor.cardBonus(p, c, deck, act, floor);
         score += keySynergy(p, c, deck, act);
+        score += CharacterAdvisor.pickBonus(p, c, deck);
         if (c.upgraded || c.timesUpgraded > 0) {
             score += 0.15;
         }
