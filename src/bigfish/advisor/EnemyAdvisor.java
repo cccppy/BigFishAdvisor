@@ -163,6 +163,106 @@ public final class EnemyAdvisor {
             p.passive = "会塞诅咒/虚无牌";
             p.pattern = "诅咒、攻击、强化交替";
             p.counter = "优先杀；手里被塞诅咒时先算好抽牌，别让关键牌被卡掉";
+        } else if (key.contains("taskmaster")) {
+            p.nick = "工头 / 监工";
+            p.passive = "会上易伤，让后续攻击更疼";
+            p.pattern = "鞭打/上易伤，和另外两只奴隶一起压";
+            p.counter = "三奴隶里先杀工头，别让易伤叠起来；再处理红/蓝奴隶";
+        } else if (key.contains("looter") || key.contains("mugger")) {
+            p.nick = key.contains("mugger") ? "强盗" : "盗贼";
+            p.passive = "会偷金币，偷够就跑";
+            p.pattern = "偷钱、攻击、准备逃跑";
+            p.counter = "优先杀血少/准备逃跑的那只；跑掉的金币不会回来";
+        } else if (key.contains("banditleader")) {
+            p.nick = "强盗头目 / Romeo";
+            p.passive = "会给全体加力量/强化";
+            p.pattern = "先强化，再配合 Pointy/Bear 输出";
+            p.counter = "先杀 Romeo，别让它把两只强盗养起来；Pointy 输出高，Bear 比较肉";
+        } else if (key.contains("banditpointy")) {
+            p.nick = "尖头强盗 / Pointy";
+            p.passive = "高单体输出";
+            p.pattern = "连续刺击，血少但很疼";
+            p.counter = "Romeo 死后优先处理 Pointy；留够格挡防连续攻击";
+        } else if (key.contains("banditbear")) {
+            p.nick = "熊 / Bear";
+            p.passive = "血厚、会保护同伴";
+            p.pattern = "重击/格挡，拖久很烦";
+            p.counter = "先杀 Romeo/Pointy，最后处理熊；别把爆发浪费在它身上";
+        } else if (key.contains("exploder")) {
+            p.nick = "爆炸怪";
+            p.passive = "几回合后会自爆，伤害很高";
+            p.pattern = "充能后爆炸；不打它也会爆";
+            p.counter = "先杀爆炸怪，别让它白爆；有 AOE 就一起清";
+        } else if (key.contains("repulsor")) {
+            p.nick = "排斥怪";
+            p.passive = "会上虚弱/易伤，干扰输出";
+            p.pattern = "debuff + 攻击";
+            p.counter = "先处理排斥怪，别让虚弱把你的爆发拖没；爆炸怪优先级更高";
+        } else if (key.contains("spiker")) {
+            p.nick = "尖刺怪";
+            p.passive = "有荆棘，打它会反伤";
+            p.pattern = "缩起来反伤/攻击";
+            p.counter = "别用多段小攻击喂荆棘；用高单次伤害或等它不缩时打";
+        } else if (key.contains("sphericguardian")) {
+            p.nick = "球体守卫";
+            p.passive = "开局有屏障/人工制品，硬打会吃减伤";
+            p.pattern = "屏障、攻击、上负面交替";
+            p.counter = "先破屏障，别把低伤害分散；破盾后集中输出，注意人工制品挡 debuff";
+        } else if (key.contains("shelledparasite")) {
+            p.nick = "甲壳寄生体";
+            p.passive = "有覆甲，每回合加格挡；会吸血/上负面";
+            p.pattern = "覆甲 + 攻击 + 吸血";
+            p.counter = "先用多段攻击剥覆甲，再用高单次伤害打本体；别让它靠覆甲拖回合";
+        } else if (key.contains("snecko")) {
+            p.nick = "蛇眼";
+            p.passive = "混乱：每回合手牌费用随机";
+            p.pattern = "咬击/上混乱，费用不再按原牌面";
+            p.counter = "别按原费规划；优先打当前费用低/能立刻形成格挡或输出的牌";
+        } else if (key.contains("reptomancer")) {
+            p.nick = "蛇女 / 爬行者";
+            p.passive = "会召唤匕首，匕首会爆炸";
+            p.pattern = "召唤、双咬、重咬；匕首越多越危险";
+            p.counter = "先用 AOE/多段清匕首，别让匕首堆到 4 把；清完再打本体";
+        } else if (key.contains("nemesis")) {
+            p.nick = "复仇女神";
+            p.passive = "每隔一回合进入无实体，硬打很亏";
+            p.pattern = "无实体/攻击交替，还会塞幽灵";
+            p.counter = "无实体回合别硬砸，叠格挡/过牌；等实体回合再爆发";
+        } else if (key.contains("gianthead")) {
+            p.nick = "大头";
+            p.passive = "有 Slow：你每打一张牌它就少受一点伤害";
+            p.pattern = "前期慢，后期重击；拖久很疼";
+            p.counter = "别用一堆小牌刷它；攒好资源，在它重击前留大格挡/爆发";
+        } else if (key.contains("writhingmass")) {
+            p.nick = "蠕动之物";
+            p.passive = "被打会加格挡/塞寄生虫，越打越硬";
+            p.pattern = "攻击、塞诅咒、叠格挡";
+            p.counter = "别用多段小攻击喂它；算好斩杀线，用高单次伤害一次压死";
+        } else if (key.contains("spireshield")) {
+            p.nick = "尖塔盾";
+            p.passive = "会给全体加格挡，自己很肉";
+            p.pattern = "重击/加盾，和长矛一起打";
+            p.counter = "先杀长矛，再处理盾；别把爆发浪费在它的格挡上";
+        } else if (key.contains("spirespear")) {
+            p.nick = "尖塔矛";
+            p.passive = "会给全体加力量、塞燃烧";
+            p.pattern = "燃烧攻击、穿刺、强化";
+            p.counter = "第四幕精英先杀长矛，拆掉全体力量/燃烧；再打盾";
+        } else if (key.contains("bronzeorb")) {
+            p.nick = "青铜球";
+            p.passive = "会偷牌/干扰，和铜人一起出现";
+            p.pattern = "光束/偷牌，拖久会打乱牌组";
+            p.counter = "先清球再打铜人；球清掉后留大格挡防 Hyper Beam";
+        } else if (key.contains("torchhead")) {
+            p.nick = "火炬头";
+            p.passive = "被收藏家强化，每回合输出";
+            p.pattern = "撞击，收藏家会给它加力量";
+            p.counter = "先清火炬头，别让收藏家白强化；AOE 可同时压本体";
+        } else if (key.contains("dagger")) {
+            p.nick = "匕首";
+            p.passive = "会爆炸，数量越多越危险";
+            p.pattern = "攻击/爆炸，蛇女会不断召唤";
+            p.counter = "优先用 AOE/多段清匕首，别让它们堆到 4 把";
         } else if (key.contains("centurion") || key.contains("mystic")) {
             p.nick = key.contains("mystic") ? "祭司" : "百夫长";
             p.passive = "祭司会给百夫长回血/加 buff；百夫长负责输出";
