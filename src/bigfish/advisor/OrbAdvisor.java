@@ -37,8 +37,8 @@ public final class OrbAdvisor {
         if (add > 0) {
             if (free <= 0) {
                 bonus -= 2.2;
-                note(r, "球槽已经满了（" + used + "/" + slots + "）。再充能会挤掉最右边的【"
-                        + rightName(p) + "】；如果那是黑暗/等离子，先激发或扩容，别直接把它挤掉。");
+                note(r, "球槽已经满了（" + used + "/" + slots + "）。再充能会先激发最右边的【"
+                        + rightName(p) + "】再把它顶掉；如果那是黑暗/等离子，先激发或扩容，别让它被强制提前交掉。");
                 if (isValuable(rightOrb(p))) {
                     bonus -= 1.0;
                 }
@@ -191,7 +191,7 @@ public final class OrbAdvisor {
         int dark = countOrb(p, "Dark");
         int plasma = countOrb(p, "Plasma");
         out.add("充能球：槽位 " + used + "/" + slots + "，集中 " + focus + "。"
-                + (used >= slots ? "槽位已满，下一次充能会挤掉最右边的球；先激发/扩容。"
+                + (used >= slots ? "槽位已满，下一次充能会先激发最右边的球，再把它顶掉；先激发/扩容。"
                 : "还有 " + (slots - used) + " 个空槽，可以继续充能。"));
         if (used > 0) {
             out.add("从右边数：" + rightName(p) + "。" + orbValueText(p)
@@ -205,14 +205,14 @@ public final class OrbAdvisor {
                 + "所以【碎片整理】/【偏执认知】这类牌不是直接伤害，"
                 + "而是把整条球体系一起放大。");
         out.add("激发的顺序：先看最右边的球。黑暗球适合攒大再激发，等离子球激发给能量，"
-                + "冰球激发给格挡，闪电球激发打伤害；球槽满时，先激发再充能，别让新球把关键球挤掉。");
+                + "冰球激发给格挡，闪电球激发打伤害；球槽满时，先激发再充能，别让新球顶掉关键球。");
         if (focus > 0) {
             out.add("你现在有 " + focus + " 集中；冰球格挡和闪电伤害都按这个数加成。"
                     + "如果要打光束/重构，先想清楚会不会把集中清掉。");
         }
         if (used >= slots && slots > 0) {
-            out.add("槽满时最忌讳无脑充能：新球会把最右边的球挤掉，"
-                    + "如果那是黑暗/等离子，等于白丢资源；先 Dualcast/Multi-Cast/Recursion 激发它。");
+            out.add("槽满时最忌讳无脑充能：新球会先激发最右边的球再顶掉它，"
+                    + "如果那是黑暗/等离子，等于强行提前交掉；先 Dualcast/Multi-Cast/Recursion 激发它。");
         }
         return out;
     }
