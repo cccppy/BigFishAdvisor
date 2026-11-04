@@ -68,7 +68,8 @@ public final class StanceAdvisor {
             if (p.hasPower("Mental Fortress")) {
                 bonus += 0.4;
             }
-            if (incoming * 2 > p.currentBlock + p.currentHealth * 0.30) {
+            int incomingAfter = cur == WRATH ? incoming : incoming * 2;
+            if (incomingAfter > p.currentBlock + p.currentHealth * 0.30) {
                 bonus -= 1.35;
             }
             if (potential == 0 && cur != WRATH) {
@@ -250,8 +251,8 @@ public final class StanceAdvisor {
         } else if (cur == WRATH) {
             out.add("为什么现在要小心愤怒：你造成和受到的伤害都 ×2。"
                     + "如果这回合不能斩杀/挡住，先把愤怒退掉（Empty 系列）再打；"
-                    + "否则对面 " + incoming + " 伤会变成约 " + (incoming * 2)
-                    + "，很容易把血线打穿。");
+                    + "对面这回合约 " + incoming + " 伤（这个数已经按愤怒 ×2 算过），"
+                    + "血线不够就别硬吃。");
         } else if (cur == DIVINITY) {
             out.add("为什么现在要全力输出：神性只持续到回合结束，攻击 ×3；"
                     + "不要再进平静/愤怒浪费这回合，先把高伤害攻击全部打出去。");
