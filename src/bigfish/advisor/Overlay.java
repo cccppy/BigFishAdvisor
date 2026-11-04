@@ -23,7 +23,7 @@ import java.util.List;
 
 /** Owns the in-game fish bubble, the toggle, and the per-screen advice caches. */
 public final class Overlay {
-    private enum Mode {NONE, MAP, CARD, COMBAT, EVENT, CAMPFIRE, UPGRADE, PURGE, SHOP, HANDSELECT, CARDSELECT, BOSSRELIC}
+    private enum Mode {NONE, MAP, CARD, COMBAT, EVENT, CAMPFIRE, UPGRADE, PURGE, SHOP, HANDSELECT, CARDSELECT, BOSSRELIC, POTIONREWARD}
 
     private final CombatAdvisor combatAdvisor = new CombatAdvisor();
     private final CardRewardAdvisor cardAdvisor = new CardRewardAdvisor();
@@ -47,6 +47,7 @@ public final class Overlay {
     private ShopAdvisor.Result shop;
     private CardSelectAdvisor.Result cardSelect;
     private RelicAdvisor.BossChoice bossRelic;
+    private PotionRewardAdvisor.Result potionReward;
     private AbstractCard hoveredCard;
     private long lastCombatSeen;
 
@@ -265,6 +266,9 @@ public final class Overlay {
         if (AbstractDungeon.player == null || AbstractDungeon.getCurrRoom() == null) {
             return Mode.NONE;
         }
+        if (BigFishAdvisor.config.potions && PotionRewardAdvisor.find(AbstractDungeon.player) != null) {
+            return Mode.POTIONREWARD;
+        }
         if (BigFishAdvisor.config.cardSelect
                 && AbstractDungeon.screen == AbstractDungeon.CurrentScreen.HAND_SELECT
                 && AbstractDungeon.handCardSelectScreen != null) {
@@ -347,9 +351,12 @@ public final class Overlay {
         shop = null;
         cardSelect = null;
         bossRelic = null;
+        potionReward = null;
         hoveredCard = null;
         AbstractPlayer p = AbstractDungeon.player;
-        if (mode == Mode.BOSSRELIC) {
+        if (mode == Mode.POTIONREWARD) {
+            potionReward = PotionRewardAdvisor.find(p);
+        } else if (mode == Mode.BOSSRELIC) {
             bossRelic = RelicAdvisor.chooseBoss(p, AbstractDungeon.bossRelicScreen.relics);
         } else if (mode == Mode.HANDSELECT) {
             cardSelect = cardSelectAdvisor.analyzeHand(p, AbstractDungeon.handCardSelectScreen);
@@ -430,6 +437,7 @@ public final class Overlay {
                     || (mode == Mode.CARD && cards == null) || (mode == Mode.MAP && map == null)
                     || (mode == Mode.EVENT && event == null)
                     || (mode == Mode.SHOP && shop == null)
+                    || (mode == Mode.POTIONREWARD && potionReward == null)
                     || (mode == Mode.BOSSRELIC && bossRelic == null)
                     || ((mode == Mode.HANDSELECT || mode == Mode.CARDSELECT) && cardSelect == null)
                     || ((mode == Mode.CAMPFIRE || mode == Mode.UPGRADE || mode == Mode.PURGE)
@@ -447,6 +455,8 @@ public final class Overlay {
                 renderCampfire(sb);
             } else if (mode == Mode.SHOP) {
                 renderShop(sb);
+            } else if (mode == Mode.POTIONREWARD) {
+                renderPotionReward(sb);
             } else if (mode == Mode.BOSSRELIC) {
                 renderBossRelic(sb);
             } else if (mode == Mode.HANDSELECT || mode == Mode.CARDSELECT) {
@@ -560,6 +570,19 @@ public final class Overlay {
         showAdvice(sb, cardSelect.kicker, cardSelect.title, null, cardSelect.lines, null,
                 "点击 - 收起理由 · 拖动标题移动 · 高亮牌为推荐", cardSelect.compact,
                 14 * ui.s, Settings.HEIGHT * 0.34f, 500, 360);
+    }
+
+    private void renderPotionReward(SpriteBatch sb) {
+        if (!potionReward.skip && potionReward.reward != null
+                && potionReward.reward.hb != null) {
+            ui.drawOptionHighlight(sb, potionReward.reward.hb, Ui.GOLD);
+        }
+        showAdvice(sb, "战斗奖励 · 药水取舍", potionReward.title, null,
+                potionReward.lines, null,
+                "点击 - 收起理由 · 拖动标题移动 · 满格直接领会丢新药水",
+                potionReward.compact,
+                Settings.WIDTH - 560 * ui.s - 14 * ui.s, Settings.HEIGHT * 0.20f,
+                540, 360);
     }
 
     private void renderBossRelic(SpriteBatch sb) {
