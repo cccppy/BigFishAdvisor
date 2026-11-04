@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.2.2
+
+- Character-specific combat reads for all four characters. Watcher: Calm/Wrath/Divinity entries and exits, Mantra, Miracle timing and source, conditional stance cards, and attack estimates that do not multiply the current stance twice. Defect: orb slots, rightmost orb, Focus, channel/evoke/remove, Fission, Dualcast, Multi-Cast, Tempest, Barrage. Silent: poison timing, Catalyst/Bane, shivs, discard payoffs, and Finisher counting attacks actually played this turn. Ironclad: Strength, Body Slam, Barricade, exhaust, self-damage, temporary Flex, and Spot Weakness requiring an attacking target.
+- Group-fight focus orders, not just "highest HP": sentries, byrds, gremlin gang, Gremlin Leader, Slavers, Bronze Automaton, Collector, Awakened One, Reptomancer, Spire Shield/Spear, bandits, shapes, louses, fungi, cultists, thieves, and slime splits now get a priority target plus an explicit 1→2→3 order.
+- Special single-enemy notes for Spheric Guardian, Shelled Parasite, Snecko, Nemesis, Giant Head, Writhing Mass, Bronze Orb, Torch Head, Dagger, Taskmaster and others.
+- Potion reward screen: when all potion slots are full, compares the new potion with the current three, recommends which to drop/drink or whether to skip it, and warns that claiming with full slots destroys the new potion in the base game. The mod never discards or claims automatically.
+- Existing 1.2.1 fixes remain: vulnerability setup before follow-up attacks, potion advice paired with the highlighted card, current-cost calculations, and the two-line compact / 82%-height expanded panel.
+
 ## 1.2.1
 
 - Combat order: when a vulnerability card (e.g. Thunderclap) can raise the damage of attacks still playable this turn, it is now recommended first, with the follow-up card named in the same sentence. The estimate respects current energy and sums AOE damage across every target that is not yet vulnerable.

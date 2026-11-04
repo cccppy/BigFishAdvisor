@@ -10,7 +10,7 @@ import com.evacipated.cardcrawl.modthespire.lib.SpireInitializer;
 @SpireInitializer
 public final class BigFishAdvisor {
     public static final String MOD_ID = "bigfishadvisor";
-    public static final String VERSION = "1.2.1";
+    public static final String VERSION = "1.2.2";
     public static Config config;
     public static Overlay overlay;
 
