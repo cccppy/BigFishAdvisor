@@ -236,14 +236,23 @@ public final class StanceAdvisor {
             out.add("奇迹：现在手里没有。" + source);
         }
         int calm = countId(p, "vigilance") + countId(p, "tranquility")
-                + countId(p, "innerpeace") + countId(p, "fearnoevil")
                 + countId(p, "meditate");
+        if (cur != CALM) {
+            calm += countId(p, "innerpeace");
+        }
+        if (anyAttacking(alive)) {
+            calm += countId(p, "fearnoevil");
+        }
         int wrath = countId(p, "eruption") + countId(p, "crescendo")
-                + countId(p, "indignation") + countId(p, "tantrum");
-        int exit = countId(p, "emptyfist") + countId(p, "emptybody")
+                + countId(p, "tantrum");
+        if (cur == CALM) {
+            wrath += countId(p, "indignation");
+        }
+        int exit = cur == NONE ? 0
+                : countId(p, "emptyfist") + countId(p, "emptybody")
                 + countId(p, "emptymind");
         out.add("这回合手里的姿态入口：进平静 " + calm + " 张、进愤怒 " + wrath
-                + " 张、退出 " + exit + " 张。");
+                + " 张、退出 " + exit + " 张（条件牌已按当前姿态/敌人意图筛过）。");
         if (cur == CALM) {
             out.add("为什么现在适合先平静：平静本身不增伤，但退出平静会给 2 能量；"
                     + "先用平静牌/格挡稳住，再退出拿能量进愤怒，才能把 2 能量变成两张攻击。"
@@ -378,6 +387,16 @@ public final class StanceAdvisor {
                     + "适合先平静再爆发的循环。";
         }
         return "";
+    }
+
+    private static boolean anyAttacking(List<AbstractMonster> alive) {
+        for (AbstractMonster m : alive) {
+            if (m != null && !m.isDeadOrEscaped() && m.intent != null
+                    && m.intent.name().contains("ATTACK")) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private static int stance(AbstractPlayer p) {
