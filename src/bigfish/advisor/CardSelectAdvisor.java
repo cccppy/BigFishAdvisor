@@ -354,27 +354,58 @@ public final class CardSelectAdvisor {
                 r.lines.add("为什么呢：优先拿回能立即改变局面的关键牌；如果只是补充普通攻击，先看能量够不够。");
                 break;
             case RETAIN:
-                String secondName = count > 1 && cards.size() > 1
-                        ? CardDatabase.shortName(cards.get(1)) : null;
-                r.title = "保留：选【" + name + "】"
+                // Retaining is optional (RetainCardsAction uses canPickZero).
+                // Do not fill the slots with ordinary Strikes/Defends just
+                // because they are available: a retained bad card clogs the
+                // next hand and can be worse than retaining nothing.
+                List<AbstractCard> picks = new ArrayList<AbstractCard>();
+                for (AbstractCard c : cards) {
+                    if (retainValue(p, c) >= 2.5) {
+                        picks.add(c);
+                        if (picks.size() >= count) {
+                            break;
+                        }
+                    }
+                }
+                if (picks.isEmpty()) {
+                    r.stop = true;
+                    r.best = null;
+                    r.tag = "停";
+                    r.title = "这次不用保留";
+                    r.compact = "这次不保留";
+                    r.lines.add("大肥鱼建议：这次直接点确认，不保留也可以。");
+                    r.lines.add("为什么呢：手里没有值得占用保留位的牌；"
+                            + "为了填满位置去留普通打击/防御，反而会让下一回合的手牌更卡。");
+                    r.lines.add("保留不是必须的：没有关键牌/能力/下回合组合时，空着比硬留更好。");
+                    return r;
+                }
+                r.best = picks.get(0);
+                String firstName = CardDatabase.shortName(r.best);
+                String secondName = picks.size() > 1
+                        ? CardDatabase.shortName(picks.get(1)) : null;
+                r.title = "保留：选【" + firstName + "】"
                         + (secondName != null ? "，再选【" + secondName + "】" : "");
-                r.compact = "留 " + name
+                r.compact = "留 " + firstName
                         + (secondName != null ? " + " + secondName : "");
                 r.tag = "保留";
-                r.lines.add("大肥鱼建议：这张【" + name + "】留到下回合。"
+                r.lines.add("大肥鱼建议：这张【" + firstName + "】留到下回合。"
                         + (secondName != null ? "第二张留【" + secondName + "】。" : ""));
                 r.lines.add("为什么留它：" + retainReason(p, r.best));
                 if (secondName != null) {
                     r.lines.add("为什么留第二张【" + secondName + "】："
-                            + retainReason(p, cards.get(1)));
+                            + retainReason(p, picks.get(1)));
                 }
-                if (count > 1) {
+                if (picks.size() < count) {
+                    r.lines.add("这次没有第二张值得留的牌；不用为了填满位置硬留，"
+                            + "空着不丢牌，直接点确认。");
+                } else if (count > 1) {
                     r.lines.add("这次还能保留 " + count + " 张；选够后我会提示“点确认”，"
                             + "不会再让你继续选。只留一张也可以，空着不丢牌。");
                 } else {
                     r.lines.add("这次还能保留 1 张；选够后直接点确认，不会再多推荐一张。");
                 }
-                r.lines.add("别选：诅咒/状态、虚无牌、已经带保留的牌；普通打击防御只有在没牌可留时才考虑。");
+                r.lines.add("保留不是必须的；只有关键牌/能力/下回合组合才值得占位置。"
+                        + "别选：诅咒/状态、虚无牌、已经带保留的牌、普通打击防御。");
                 break;
             case UPGRADE:
                 r.title = "升级：选【" + name + "】";

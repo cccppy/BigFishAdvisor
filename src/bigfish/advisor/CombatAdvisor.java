@@ -155,6 +155,14 @@ public final class CombatAdvisor {
         AbstractMonster lethalEndingTarget = null;
         int aoeKills = 0;
         boolean aoeHighHp = false;
+        // For a single-target card, FocusAdvisor's group order must be able to
+        // override raw damage.  Otherwise Awakened One's cultists (or
+        // Collector's torchheads) are named as the priority in the text while
+        // the gold target ring still sits on the high-HP boss.
+        FocusAdvisor.Focus priorityFocus = FocusAdvisor.choose(player, alive, card, false);
+        boolean specialFocus = !s.aoe
+                && card.target == AbstractCard.CardTarget.ENEMY
+                && FocusAdvisor.hasSpecialPriority(alive);
         if (s.aoe) {
             AbstractMonster highTarget = null;
             int highHp = -1;
@@ -202,6 +210,22 @@ public final class CombatAdvisor {
                     lethal = kill;
                 }
             }
+        }
+        if (specialFocus && priorityFocus.target != null && !lethalEnding) {
+            AbstractMonster forced = priorityFocus.target;
+            CharacterAdvisor.Read forcedRead = CharacterAdvisor.combatCard(
+                    player, card, alive, forced, false, effectiveEnergy, r.incoming);
+            int forcedDamage = forcedRead.damage >= 0
+                    ? forcedRead.damage : estimateDamage(card, forced, effectiveEnergy);
+            boolean forcedKill = forcedDamage >= forced.currentHealth + forced.currentBlock;
+            // The strategic group target wins even if another enemy is
+            // killable: Awakened One's cultists keep buffing it, and the
+            // Collector's torchheads keep scaling.  The only exception is a
+            // true encounter-ending leader kill, handled above by
+            // lethalEnding (Gremlin Leader/Collector/Automaton/Reptomancer).
+            bestTarget = forced;
+            bestDamage = forcedDamage;
+            lethal = forcedKill;
         }
         s.damage = bestDamage;
         s.target = s.aoe ? null : bestTarget;

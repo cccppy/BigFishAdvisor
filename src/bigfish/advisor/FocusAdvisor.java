@@ -45,6 +45,50 @@ public final class FocusAdvisor {
                 || k.contains("reptomancer");
     }
 
+    /**
+     * True when the encounter has a strategic target order that must beat
+     * raw damage/HP.  CombatAdvisor uses this for single-target cards too;
+     * otherwise it labels a cultist/torchhead as the priority but still marks
+     * the boss because the boss has more HP.
+     */
+    public static boolean hasSpecialPriority(List<AbstractMonster> alive) {
+        List<AbstractMonster> list = new ArrayList<AbstractMonster>();
+        if (alive != null) {
+            for (AbstractMonster m : alive) {
+                if (m != null && !m.isDeadOrEscaped()) {
+                    list.add(m);
+                }
+            }
+        }
+        if (list.size() <= 1) {
+            return false;
+        }
+        if (all(list, "sentry") || all(list, "byrd")) {
+            return true;
+        }
+        String[] groups = {
+                "gremlinleader", "gremlinfat", "gremlinwizard",
+                "gremlinwarrior", "gremlinthief", "gremlintsundere",
+                "taskmaster", "slaverblue", "slaverred",
+                "bronzeorb", "automaton", "torchhead", "collector",
+                "awakenedone", "cultist", "looter", "mugger",
+                "acidslime", "spikeslime", "dagger", "reptomancer",
+                "spirespear", "spireshield", "chosen",
+                "banditleader", "banditpointy", "banditbear",
+                "exploder", "repulsor", "spiker", "louse",
+                "fungibeast", "mystic", "donu", "darkling"
+        };
+        for (AbstractMonster m : list) {
+            String k = key(m);
+            for (String group : groups) {
+                if (k.contains(group)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     public static Focus choose(AbstractPlayer p, List<AbstractMonster> alive,
                                AbstractCard card, boolean aoe) {
         Focus f = new Focus();
