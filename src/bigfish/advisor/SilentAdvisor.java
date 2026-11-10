@@ -124,9 +124,17 @@ public final class SilentAdvisor {
         }
         if ("calculatedgamble".equals(id)) {
             int hand = p.hand == null ? 0 : p.hand.size();
-            bonus += hand >= 5 ? 0.8 : 0.1;
-            note(r, "计算下注弃掉整手再抽同样数量；手牌 " + hand
-                    + " 张时，先把要留的牌打掉/用掉，再弃牌换资源。");
+            int junk = handJunk(p);
+            int payoff = handDiscardPayoff(p);
+            boolean relics = p.hasRelic("Hovering Kite") || p.hasRelic("Tingsha")
+                    || p.hasRelic("Tough Bandages");
+            boolean worth = hand >= 3 && (junk * 2 >= hand || payoff >= 2);
+            worth = worth || (hand >= 4 && relics);
+            bonus += worth ? 0.8 : -0.9;
+            note(r, "【计算下注】会弃掉整手再抽同样数量，不是免费换牌；"
+                    + (worth
+                    ? "现在手里废牌/弃牌收益够多，可以换。"
+                    : "现在手里好牌多，别为了换牌把整手全弃；先打掉要留的牌，或干脆不打。"));
         }
 
         if ("footwork".equals(id)) {
@@ -352,6 +360,44 @@ public final class SilentAdvisor {
         int n = 0;
         for (AbstractCard c : p.masterDeck.group) {
             if (c.type == type) {
+                n++;
+            }
+        }
+        return n;
+    }
+
+    private static int handJunk(AbstractPlayer p) {
+        int n = 0;
+        if (p == null || p.hand == null) {
+            return 0;
+        }
+        for (AbstractCard c : p.hand.group) {
+            if (c.type == AbstractCard.CardType.CURSE || c.type == AbstractCard.CardType.STATUS) {
+                n++;
+                continue;
+            }
+            String id = CardDatabase.norm(c.cardID);
+            if (id.startsWith("strike") || id.startsWith("defend")) {
+                n++;
+                continue;
+            }
+            CardDatabase.Entry e = CardDatabase.get(c);
+            if (e != null && e.score < 4.5) {
+                n++;
+            }
+        }
+        return n;
+    }
+
+    private static int handDiscardPayoff(AbstractPlayer p) {
+        int n = 0;
+        if (p == null || p.hand == null) {
+            return 0;
+        }
+        for (AbstractCard c : p.hand.group) {
+            String id = CardDatabase.norm(c.cardID);
+            if (id.contains("tactician") || id.contains("reflex")
+                    || id.contains("eviscerate") || id.contains("sneakystrike")) {
                 n++;
             }
         }

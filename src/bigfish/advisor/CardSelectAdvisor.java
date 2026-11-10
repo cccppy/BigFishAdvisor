@@ -38,8 +38,20 @@ public final class CardSelectAdvisor {
         boolean forTransform = Boolean.TRUE.equals(read(hs, "forTransform", Boolean.FALSE));
         boolean anyNumber = Boolean.TRUE.equals(read(hs, "anyNumber", Boolean.FALSE));
         Direction dir = classify(prompt, forUpgrade, forTransform);
-        int count = anyNumber ? Math.max(1, hs.numCardsToSelect) : Math.max(1, hs.numCardsToSelect);
-        return build(p, new ArrayList<AbstractCard>(p.hand.group), dir, count, anyNumber);
+        // Gambling Chip uses 99 as the "any number" sentinel.  Some game
+        // builds do not expose the private anyNumber field through reflection,
+        // so treat the sentinel itself as unlimited too.
+        boolean unlimited = anyNumber || hs.numCardsToSelect >= 90;
+        int count = Math.max(1, hs.numCardsToSelect);
+        Result r = build(p, new ArrayList<AbstractCard>(p.hand.group), dir, count, unlimited);
+        if (r != null && unlimited && dir == Direction.DISCARD) {
+            String pick = CardDatabase.shortName(r.best);
+            r.title = "任意数量弃牌：先丢【" + pick + "】";
+            r.compact = "只丢 " + pick + "（不用全弃）";
+            r.lines.add(0, "这是“任意数量弃牌”，不是全弃：只丢你真正想丢的牌，"
+                    + "优先诅咒/状态，再丢最差的 1–2 张基础牌；好牌留着，别把整手换掉。");
+        }
+        return r;
     }
 
     public Result analyzeGrid(AbstractPlayer p, GridCardSelectScreen gs) {
@@ -152,14 +164,6 @@ public final class CardSelectAdvisor {
                 r.lines.add("大肥鱼建议：选【" + name + "】。");
                 r.lines.add("为什么呢：没有识别出明确方向，按当前牌组价值选最关键的一张。");
                 break;
-        }
-        if (many && count > 10 && dir == Direction.DISCARD) {
-            // Gambling Chip opens the hand-select screen with "any number"
-            // (numCards = 99), not "discard 99 cards".  Never imply that the
-            // whole hand should be thrown away.
-            r.lines.add("这次是“任意数量弃牌”（赌博筹码/同类效果），不是全弃："
-                    + "优先丢诅咒/状态，再丢最差的 1–2 张基础牌或当前用不上的牌；"
-                    + "好牌留着。弃几张就补几张，但把整手好牌换掉通常不划算。");
         }
         if (cards.size() > 1) {
             AbstractCard second = cards.get(1);
