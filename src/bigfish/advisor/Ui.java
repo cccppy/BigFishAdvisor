@@ -333,12 +333,29 @@ public final class Ui {
         if (m == null || m.hb == null) {
             return;
         }
-        float r = Math.max(m.hb.width, m.hb.height) * 0.63f;
+        // A boss hitbox can be very large.  Scaling the ring to the whole
+        // hitbox put a huge gold halo over the intent (above the monster) and
+        // the HP bar/buffs (below it).  Keep a small marker in the middle and
+        // move the label to the side so none of the monster UI is covered.
+        float r = Math.min(58 * s, Math.max(m.hb.width, m.hb.height) * 0.32f);
         float pulse = 0.5f + 0.5f * (float) Math.sin(System.currentTimeMillis() / 260.0);
-        drawGlow(sb, m.hb.cX, m.hb.cY, r * 1.45f, GOLD, 0.13f + 0.08f * pulse);
-        drawRing(sb, m.hb.cX, m.hb.cY, r, GOLD, 0.92f);
-        drawBadge(sb, m.hb.cX - 42 * s, m.hb.cY - r - 34 * s, 84 * s, 25 * s, INK, GOLD,
-                label == null ? "推荐目标" : label, smallFont, GOLD);
+        drawGlow(sb, m.hb.cX, m.hb.cY, r * 1.25f, GOLD, 0.08f + 0.05f * pulse);
+        drawRing(sb, m.hb.cX, m.hb.cY, r, GOLD, 0.9f);
+
+        String text = label == null ? "推荐目标" : label;
+        GlyphLayout layout = new GlyphLayout(smallFont, text);
+        float bw = Math.max(78 * s, layout.width + 20 * s);
+        float bh = 25 * s;
+        float bx = m.hb.x - bw - 8 * s;
+        if (bx < 6 * s) {
+            bx = m.hb.x + m.hb.width + 8 * s;
+        }
+        if (bx + bw > Settings.WIDTH - 6 * s) {
+            bx = Math.max(6 * s, m.hb.cX - bw / 2);
+        }
+        float by = Math.max(6 * s,
+                Math.min(Settings.HEIGHT - bh - 6 * s, m.hb.cY - bh / 2));
+        drawBadge(sb, bx, by, bw, bh, INK, GOLD, text, smallFont, GOLD);
     }
 
     public String ellipsize(BitmapFont font, String text, float maxWidth) {
