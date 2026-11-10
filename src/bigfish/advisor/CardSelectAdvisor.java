@@ -368,6 +368,14 @@ public final class CardSelectAdvisor {
                 || p.contains("回到手牌") || p.contains("拿回") || p.contains("加入手牌")) {
             return Direction.HAND;
         }
+        // Gambling Chip's Chinese selectionReason is "替换（赌博筹码）" and the
+        // English one is "Gambling Chip"; neither contains discard/弃牌, so it
+        // used to fall through to CHOOSE and recommend throwing away the best
+        // card.  Treat the chip's replacement prompt as a discard-any-number
+        // screen explicitly.
+        if (p.contains("赌博筹码") || p.contains("gamblingchip") || p.contains("gambling chip")) {
+            return Direction.DISCARD;
+        }
         if (p.contains("bottom") || p.contains("底部")
                 || (p.contains("弃牌堆") && !p.contains("手牌"))) {
             return Direction.BOTTOM;
