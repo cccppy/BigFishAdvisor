@@ -2,6 +2,8 @@ package bigfish.advisor;
 
 import com.megacrit.cardcrawl.cards.AbstractCard;
 import com.megacrit.cardcrawl.characters.AbstractPlayer;
+import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
+import com.megacrit.cardcrawl.monsters.AbstractMonster;
 import com.megacrit.cardcrawl.screens.select.GridCardSelectScreen;
 import com.megacrit.cardcrawl.screens.select.HandCardSelectScreen;
 
@@ -14,7 +16,7 @@ import java.util.Locale;
 
 /** Handles "put on top/bottom", discard, exhaust, tutor and copy prompts. */
 public final class CardSelectAdvisor {
-    public enum Direction {TOP, BOTTOM, DISCARD, EXHAUST, HAND, UPGRADE, TRANSFORM, COPY, CHOOSE}
+    public enum Direction {TOP, BOTTOM, DISCARD, EXHAUST, HAND, RETAIN, UPGRADE, TRANSFORM, COPY, CHOOSE}
 
     public static final class Result {
         public Direction direction = Direction.CHOOSE;
@@ -47,7 +49,40 @@ public final class CardSelectAdvisor {
             return anyNumberDiscard(p, hs);
         }
         int count = Math.max(1, hs.numCardsToSelect);
-        return build(p, new ArrayList<AbstractCard>(p.hand.group), dir, count, anyNumber);
+        // Well-Laid Plans / "retain up to N" is an up-to screen.  Once the
+        // player has selected the allowed number, stop pointing at another
+        // card: the old code kept recommending the next-best card and made
+        // people select past the cap.
+        if (!unlimited && hs.numSelected >= count) {
+            return limitReached(dir, count, hs.numSelected);
+        }
+        List<AbstractCard> hand = new ArrayList<AbstractCard>();
+        if (p.hand != null) {
+            for (AbstractCard c : p.hand.group) {
+                if (hs.selectedCards == null || !containsUuid(hs.selectedCards.group, c)) {
+                    hand.add(c);
+                }
+            }
+        }
+        return build(p, hand, dir, count, anyNumber);
+    }
+
+    private Result limitReached(Direction dir, int count, int selected) {
+        Result r = new Result();
+        r.direction = dir;
+        r.stop = true;
+        r.best = null;
+        r.kicker = "选牌 · 已经选够";
+        r.title = (dir == Direction.RETAIN ? "够了：已保留 " : "够了：已选 ")
+                + selected + " 张";
+        r.compact = "够了，点确认";
+        r.lines.add("这次最多只能选 " + count + " 张，已经选够了；不要再往下选。");
+        if (dir == Direction.RETAIN) {
+            r.lines.add("再选不会多保留一张，只会占掉位置；直接点确认进入下一回合。");
+        } else {
+            r.lines.add("再选会改变这次效果的目标；直接点确认。");
+        }
+        return r;
     }
 
     /**
@@ -246,9 +281,13 @@ public final class CardSelectAdvisor {
         }
         final boolean bad = dir == Direction.DISCARD || dir == Direction.EXHAUST
                 || dir == Direction.BOTTOM || dir == Direction.TRANSFORM;
+        final boolean retain = dir == Direction.RETAIN;
         Collections.sort(cards, new Comparator<AbstractCard>() {
             @Override
             public int compare(AbstractCard a, AbstractCard b) {
+                if (retain) {
+                    return Double.compare(retainValue(p, b), retainValue(p, a));
+                }
                 return Double.compare(value(b, dir), value(a, dir));
             }
         });
@@ -308,6 +347,29 @@ public final class CardSelectAdvisor {
                 r.lines.add("大肥鱼建议：把【" + name + "】拿回手牌。");
                 r.lines.add("为什么呢：优先拿回能立即改变局面的关键牌；如果只是补充普通攻击，先看能量够不够。");
                 break;
+            case RETAIN:
+                String secondName = count > 1 && cards.size() > 1
+                        ? CardDatabase.shortName(cards.get(1)) : null;
+                r.title = "保留：选【" + name + "】"
+                        + (secondName != null ? "，再选【" + secondName + "】" : "");
+                r.compact = "留 " + name
+                        + (secondName != null ? " + " + secondName : "");
+                r.tag = "保留";
+                r.lines.add("大肥鱼建议：这张【" + name + "】留到下回合。"
+                        + (secondName != null ? "第二张留【" + secondName + "】。" : ""));
+                r.lines.add("为什么留它：" + retainReason(p, r.best));
+                if (secondName != null) {
+                    r.lines.add("为什么留第二张【" + secondName + "】："
+                            + retainReason(p, cards.get(1)));
+                }
+                if (count > 1) {
+                    r.lines.add("这次最多保留 " + count + " 张；选够后我会提示“点确认”，"
+                            + "不会再让你继续选。只留一张也可以，空着不丢牌。");
+                } else {
+                    r.lines.add("这次只保留 1 张；选够后直接点确认。");
+                }
+                r.lines.add("别选：诅咒/状态、虚无牌、已经带保留的牌；普通打击防御只有在没牌可留时才考虑。");
+                break;
             case UPGRADE:
                 r.title = "升级：选【" + name + "】";
                 r.compact = "升级 " + name;
@@ -337,7 +399,7 @@ public final class CardSelectAdvisor {
                 r.lines.add("为什么呢：没有识别出明确方向，按当前牌组价值选最关键的一张。");
                 break;
         }
-        if (cards.size() > 1) {
+        if (dir != Direction.RETAIN && cards.size() > 1) {
             AbstractCard second = cards.get(1);
             r.lines.add("另一个选择是：【" + CardDatabase.shortName(second) + "】"
                     + "（评分 " + String.format("%.1f", value(second, dir)) + "）；"
@@ -347,7 +409,7 @@ public final class CardSelectAdvisor {
         }
         r.lines.add("选之前想一下：先确认这张牌是不是你愿意失去/放回的那张；放顶会改变下一抽，"
                 + "弃牌/消耗会改变本回合手牌，复制/变化要注意费用与牌组厚度。");
-        if (many && cards.size() > 1) {
+        if (dir != Direction.RETAIN && many && cards.size() > 1) {
             StringBuilder alt = new StringBuilder();
             for (int i = 1; i < cards.size() && i < 4; i++) {
                 if (alt.length() > 0) {
@@ -358,6 +420,97 @@ public final class CardSelectAdvisor {
             r.lines.add("还可以考虑：" + alt + "。");
         }
         return r;
+    }
+
+    private double retainValue(AbstractPlayer p, AbstractCard c) {
+        if (c == null) {
+            return -999;
+        }
+        if (c.type == AbstractCard.CardType.CURSE || c.type == AbstractCard.CardType.STATUS) {
+            return -100;
+        }
+        if (c.isEthereal) {
+            return -90; // ethereal is not actually retained; wasted slot
+        }
+        if (c.retain) {
+            return -75; // already retained by another effect
+        }
+        if (isBasic(c)) {
+            return -8;
+        }
+        if (isDiscardPayoff(c)) {
+            return -12; // Tactician/Reflex prefer being discarded, not held
+        }
+        double v = 3.0;
+        CardDatabase.Entry e = CardDatabase.get(c);
+        if (e != null) {
+            v += e.score * 0.25;
+        }
+        if (c.type == AbstractCard.CardType.POWER) {
+            v += 6.0; // long-term scaling; play it next turn
+        }
+        if (c.cost >= 2) {
+            v += 2.0; // too expensive this turn, save it
+        }
+        if (c.cost == 0) {
+            v -= 0.5; // easy to replay, less need to spend a retain slot
+        }
+        if (c.type == AbstractCard.CardType.ATTACK) {
+            v += Math.min(5.0, c.damage * 0.08);
+        }
+        int incoming = 0;
+        if (AbstractDungeon.getMonsters() != null) {
+            for (AbstractMonster m : AbstractDungeon.getMonsters().monsters) {
+                if (m != null && !m.isDeadOrEscaped() && m.getIntentDmg() > 0) {
+                    incoming += m.getIntentDmg();
+                }
+            }
+        }
+        if (incoming > p.currentBlock + 4 && c.block > 0) {
+            v += 5.0; // next turn's block matters more when this turn ends exposed
+        }
+        String id = CardDatabase.norm(c.cardID);
+        if (id.contains("catalyst") || id.contains("wraithform")
+                || id.contains("limitbreak") || id.contains("barricade")
+                || id.contains("echoform") || id.contains("biasedcognition")
+                || id.contains("demonform") || id.contains("feed")
+                || id.contains("ritualdagger") || id.contains("geneticalgorithm")
+                || id.contains("lessonlearned") || id.contains("corruption")
+                || id.contains("feelnopain") || id.contains("darkembrace")) {
+            v += 4.0; // key scaling/combo piece: never let it go to discard
+        }
+        return v;
+    }
+
+    private String retainReason(AbstractPlayer p, AbstractCard c) {
+        if (c == null) {
+            return "没有可保留的牌。";
+        }
+        if (c.type == AbstractCard.CardType.POWER) {
+            return "能力牌是长期收益；这回合费用不够/时机不对，留到下回合打，比丢进弃牌堆再抽回来稳。";
+        }
+        if (c.isEthereal) {
+            return "虚无牌本来就会消耗，选它只会浪费保留位。";
+        }
+        if (c.retain) {
+            return "它已经带保留，不需要再占一次保留位。";
+        }
+        if (isBasic(c)) {
+            return "基础打击/防御价值低；只有手里实在没牌可留时才考虑。";
+        }
+        if (isDiscardPayoff(c)) {
+            return "战术大师/反射更适合被弃掉触发收益，留在手里反而浪费。";
+        }
+        if (c.cost >= 2) {
+            return "这回合费用不够，留到下回合能直接打出来；比现在硬打一张低价值牌好。";
+        }
+        if (c.block > 0) {
+            return "下回合可能还需要它挡伤害；先留住，掉血时能救急。";
+        }
+        if (c.type == AbstractCard.CardType.ATTACK) {
+            return "它是手里最值得留到下一回合的输出牌；下一回合配合姿态/易伤/能量能打出更高伤害。";
+        }
+        return "按当前牌组价值，它比普通攻击防御更值得留到下一回合。";
     }
 
     private Direction classify(String prompt, boolean forUpgrade, boolean forTransform) {
@@ -375,6 +528,13 @@ public final class CardSelectAdvisor {
         // screen explicitly.
         if (p.contains("赌博筹码") || p.contains("gamblingchip") || p.contains("gambling chip")) {
             return Direction.DISCARD;
+        }
+        // RetainCardsAction (Well-Laid Plans / "retain up to N") uses the
+        // Chinese prompt "保留" with no discard/top keyword.  It used to fall
+        // through to CHOOSE, so the panel kept naming the next best card and
+        // never respected the two-card cap.
+        if (p.contains("retain") || p.contains("保留")) {
+            return Direction.RETAIN;
         }
         if (p.contains("bottom") || p.contains("底部")
                 || (p.contains("弃牌堆") && !p.contains("手牌"))) {
