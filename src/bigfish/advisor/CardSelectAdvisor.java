@@ -24,6 +24,7 @@ public final class CardSelectAdvisor {
         public List<String> lines = new ArrayList<String>();
         public AbstractCard best;
         public String tag = "选";
+        public boolean stop;
     }
 
     public Result analyzeHand(AbstractPlayer p, HandCardSelectScreen hs) {
@@ -42,16 +43,187 @@ public final class CardSelectAdvisor {
         // builds do not expose the private anyNumber field through reflection,
         // so treat the sentinel itself as unlimited too.
         boolean unlimited = anyNumber || hs.numCardsToSelect >= 90;
-        int count = Math.max(1, hs.numCardsToSelect);
-        Result r = build(p, new ArrayList<AbstractCard>(p.hand.group), dir, count, unlimited);
-        if (r != null && unlimited && dir == Direction.DISCARD) {
-            String pick = CardDatabase.shortName(r.best);
-            r.title = "任意数量弃牌：先丢【" + pick + "】";
-            r.compact = "只丢 " + pick + "（不用全弃）";
-            r.lines.add(0, "这是“任意数量弃牌”，不是全弃：只丢你真正想丢的牌，"
-                    + "优先诅咒/状态，再丢最差的 1–2 张基础牌；好牌留着，别把整手换掉。");
+        if (unlimited && dir == Direction.DISCARD) {
+            return anyNumberDiscard(p, hs);
         }
+        int count = Math.max(1, hs.numCardsToSelect);
+        return build(p, new ArrayList<AbstractCard>(p.hand.group), dir, count, anyNumber);
+    }
+
+    /**
+     * "Discard any number" (Gambling Chip) is not a request to keep selecting
+     * until the hand is empty.  Pick a small, explicit set: curses/statuses,
+     * discard-payoff cards, and at most two basic Strike/Defend cards.  Once
+     * that set is selected, tell the player to stop; never highlight another
+     * card and never imply that every card should go.
+     */
+    private Result anyNumberDiscard(AbstractPlayer p, HandCardSelectScreen hs) {
+        List<AbstractCard> all = new ArrayList<AbstractCard>();
+        if (p.hand != null) {
+            all.addAll(p.hand.group);
+        }
+        if (hs.selectedCards != null) {
+            for (AbstractCard c : hs.selectedCards.group) {
+                if (!containsUuid(all, c)) {
+                    all.add(c);
+                }
+            }
+        }
+        List<AbstractCard> planned = new ArrayList<AbstractCard>();
+        int basics = 0;
+        for (AbstractCard c : all) {
+            if (c == null) {
+                continue;
+            }
+            if (c.type == AbstractCard.CardType.CURSE || c.type == AbstractCard.CardType.STATUS
+                    || isDiscardPayoff(c)) {
+                planned.add(c);
+            } else if (isBasic(c) && basics < 2) {
+                planned.add(c);
+                basics++;
+            }
+        }
+        List<AbstractCard> keep = new ArrayList<AbstractCard>();
+        for (AbstractCard c : all) {
+            if (c != null && !containsUuid(planned, c)) {
+                keep.add(c);
+            }
+        }
+        Collections.sort(keep, new Comparator<AbstractCard>() {
+            @Override
+            public int compare(AbstractCard a, AbstractCard b) {
+                return Double.compare(score(b), score(a));
+            }
+        });
+
+        Result r = new Result();
+        r.direction = Direction.DISCARD;
+        r.kicker = "选牌 · 任意数量弃牌";
+        int selected = Math.max(0, hs.numSelected);
+        if (planned.isEmpty()) {
+            r.stop = true;
+            r.best = null;
+            r.tag = "停";
+            r.title = "这次不用弃";
+            r.compact = "这次不弃";
+            r.lines.add("大肥鱼建议：这次别弃。手里没有值得主动丢的诅咒/状态/基础牌，"
+                    + "也没有弃牌收益牌；为了换牌把好牌全弃不划算。");
+            addKeepLine(r, keep);
+            return r;
+        }
+        if (selected >= planned.size()) {
+            r.stop = true;
+            r.best = null;
+            r.tag = "停";
+            r.title = "够了：已选 " + selected + " 张，点确认";
+            r.compact = "够了，点确认";
+            r.lines.add("大肥鱼建议：已经选够 " + planned.size() + " 张了，别再往下选；"
+                    + "再选就会开始丢好牌。点确认结束。");
+            addKeepLine(r, keep);
+            return r;
+        }
+
+        List<AbstractCard> remaining = new ArrayList<AbstractCard>();
+        for (AbstractCard c : planned) {
+            if (!containsUuid(hs.selectedCards == null ? new ArrayList<AbstractCard>() : hs.selectedCards.group, c)) {
+                remaining.add(c);
+            }
+        }
+        if (remaining.isEmpty()) {
+            r.stop = true;
+            r.best = null;
+            r.tag = "停";
+            r.title = "够了：点确认";
+            r.compact = "够了，点确认";
+            r.lines.add("大肥鱼建议：要丢的牌已经选完了，别再往下选。");
+            addKeepLine(r, keep);
+            return r;
+        }
+        Collections.sort(remaining, new Comparator<AbstractCard>() {
+            @Override
+            public int compare(AbstractCard a, AbstractCard b) {
+                return Double.compare(value(a, Direction.DISCARD), value(b, Direction.DISCARD));
+            }
+        });
+        AbstractCard pick = remaining.get(0);
+        String name = CardDatabase.shortName(pick);
+        r.best = pick;
+        r.tag = "弃";
+        r.title = "任意数量弃牌：丢【" + name + "】（共 " + planned.size() + " 张）";
+        r.compact = "丢 " + name + "（共 " + planned.size() + " 张）";
+        r.lines.add("大肥鱼建议：这次只丢 " + planned.size() + " 张，不是全弃；按顺序先丢【"
+                + name + "】。");
+        r.lines.add("为什么呢：" + discardReason(pick));
+        StringBuilder names = new StringBuilder();
+        for (AbstractCard c : planned) {
+            if (names.length() > 0) {
+                names.append("、");
+            }
+            names.append("【").append(CardDatabase.shortName(c)).append("】");
+        }
+        r.lines.add("这次要丢的名单：" + names + "。选够 " + planned.size()
+                + " 张后点确认，别继续往下选。");
+        addKeepLine(r, keep);
         return r;
+    }
+
+    private static boolean containsUuid(List<AbstractCard> cards, AbstractCard card) {
+        if (cards == null || card == null) {
+            return false;
+        }
+        for (AbstractCard c : cards) {
+            if (c != null && c.uuid != null && c.uuid.equals(card.uuid)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static boolean isBasic(AbstractCard c) {
+        String id = CardDatabase.norm(c.cardID);
+        return id.startsWith("strike") || id.startsWith("defend");
+    }
+
+    private static boolean isDiscardPayoff(AbstractCard c) {
+        String id = CardDatabase.norm(c.cardID);
+        return id.contains("tactician") || id.contains("reflex");
+    }
+
+    private static double score(AbstractCard c) {
+        CardDatabase.Entry e = c == null ? null : CardDatabase.get(c);
+        return e == null ? 0.0 : e.score;
+    }
+
+    private static String discardReason(AbstractCard c) {
+        if (c == null) {
+            return "这张牌现在用不上。";
+        }
+        if (c.type == AbstractCard.CardType.CURSE || c.type == AbstractCard.CardType.STATUS) {
+            return "诅咒/状态留在手里只会占位或卡节奏，丢了最干净。";
+        }
+        if (isDiscardPayoff(c)) {
+            return "这张牌被弃掉时会触发收益（战术大师给能量/反射抽牌），"
+                    + "所以主动丢它反而不亏。";
+        }
+        if (isBasic(c)) {
+            return "基础打击/防御最容易替换；这次最多丢两张，别把整手基础牌都丢光。";
+        }
+        return "这张牌当前用不上，丢了也不心疼。";
+    }
+
+    private static void addKeepLine(Result r, List<AbstractCard> keep) {
+        if (keep.isEmpty()) {
+            r.lines.add("保留：手里没有需要特别保护的好牌，但也不要全选。");
+            return;
+        }
+        StringBuilder s = new StringBuilder();
+        for (int i = 0; i < keep.size() && i < 3; i++) {
+            if (s.length() > 0) {
+                s.append("、");
+            }
+            s.append("【").append(CardDatabase.shortName(keep.get(i))).append("】");
+        }
+        r.lines.add("保留：" + s + " 这些不要选；如果你觉得某张更该丢，再手动替换。");
     }
 
     public Result analyzeGrid(AbstractPlayer p, GridCardSelectScreen gs) {
