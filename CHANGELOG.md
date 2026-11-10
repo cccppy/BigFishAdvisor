@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.2.3
+
+- Cross-turn setup is now scored as a real plan, not a flat "power" bonus: Phantasmal Killer, Nightmare, Doppelganger, Predator, Burst, Well-Laid Plans, Wraith Form, Echo Form, Biased Cognition, Electrodynamics, Loop, Demon Form, Limit Break, Barricade, Corruption and similar cards get a higher score on a safe turn and a lower score when the incoming damage is dangerous. The panel explains "set up now, cash in next turn" and the estimated follow-up damage.
+- X-cost cards now use the actual X value: `energy + 2` with Chemical X, including playing an X-cost card at 0 energy for the Chemical X bonus. Whirlwind, Skewer, Malaise, Reinforced Body, Tempest, Multi-Cast, Doppelganger, Collect, Conjure Blade and Transmutation have per-point or per-effect estimates instead of a fixed tag bonus.
+- Boss target marker reduced: the gold ring now uses a small capped radius and a faint glow, and its label moves beside the boss instead of covering intent, HP or buffs.
+- Gambling Chip / any-number discard gets a finite plan: it names the exact cards to discard (curses/statuses, Tactician/Reflex, at most two basic cards), lists cards to keep, and stops recommending after the planned count with "够了：点确认". It no longer walks the player through the whole hand one card at a time.
+- Retain selection now recommends specific cards from the current fight situation, respects the remaining number of slots, and can say "这次不用保留" when nothing is worth retaining. This applies to every "保留" selection screen, not just Well-Laid Plans; automatic retain effects such as Runic Pyramid/Equilibrium have no selection screen.
+- Elite leader fights only prioritize the leader when the current hit can actually kill it and end the encounter; otherwise the panel goes back to clearing the minions first.
+- Special group focus now also controls the actual target of single-target attacks, not only AOE labels: Awakened One cultists, Collector torch heads, Bronze Automaton orbs, Reptomancer daggers and other special groups are targeted in their proper order.
+
 ## 1.2.2
 
 - Character-specific combat reads for all four characters. Watcher: Calm/Wrath/Divinity entries and exits, Mantra, Miracle timing and source, conditional stance cards, and attack estimates that do not multiply the current stance twice. Defect: orb slots, rightmost orb, Focus, channel/evoke/remove, Fission, Dualcast, Multi-Cast, Tempest, Barrage. Silent: poison timing, Catalyst/Bane, shivs, discard payoffs, and Finisher counting attacks actually played this turn. Ironclad: Strength, Body Slam, Barricade, exhaust, self-damage, temporary Flex, and Spot Weakness requiring an attacking target.
