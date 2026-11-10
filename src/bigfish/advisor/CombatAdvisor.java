@@ -39,6 +39,9 @@ public final class CombatAdvisor {
         public int selfHpCost;
         public String reason;
         public String characterNote;
+        public boolean setup;
+        public String setupNote;
+        public int nextTurnDamage;
         public AbstractMonster focusTarget;
         public String focusReason;
         public String focusOrder;
@@ -114,6 +117,8 @@ public final class CombatAdvisor {
         } else if (r.best.setupVulnerable && r.best.followUpName != null) {
             r.title = "先【" + CardDatabase.shortName(r.best.card) + "】再【"
                     + r.best.followUpName + "】";
+        } else if (r.best.setup) {
+            r.title = "先启动【" + CardDatabase.shortName(r.best.card) + "】";
         } else if (r.best.aoe && r.best.focusTarget != null) {
             r.title = "打【" + CardDatabase.shortName(r.best.card) + "】· 先压【"
                     + r.best.focusTarget.name + "】";
@@ -131,6 +136,11 @@ public final class CombatAdvisor {
         s.card = card;
         s.aoe = isAoe(card);
         s.energyCost = CostUtil.isX(card) ? r.energy : CostUtil.current(card);
+        // X-cost effects scale with energy spent plus Chemical X's +2 effect.
+        // Keep the *cost* at the real energy spent (Necronomicon checks that),
+        // but use the effective X for damage/block estimates.
+        int effectiveEnergy = CostUtil.isX(card)
+                ? SetupAdvisor.xValue(player, r.energy) : r.energy;
         s.energyGain = energyGain(card);
         s.selfHpCost = selfHpCost(card);
         int bestDamage = 0;
@@ -142,7 +152,7 @@ public final class CombatAdvisor {
             AbstractMonster highTarget = null;
             int highHp = -1;
             for (AbstractMonster m : alive) {
-                int d = estimateDamage(card, m, r.energy);
+                int d = estimateDamage(card, m, effectiveEnergy);
                 bestDamage += d;
                 int hp = m.currentHealth + m.currentBlock;
                 if (d >= hp) {
@@ -155,7 +165,7 @@ public final class CombatAdvisor {
                 }
             }
             if (highTarget != null) {
-                int highDamage = estimateDamage(card, highTarget, r.energy);
+                int highDamage = estimateDamage(card, highTarget, effectiveEnergy);
                 aoeHighHp = highDamage >= highTarget.currentHealth + highTarget.currentBlock;
             }
             bestTarget = mostThreatening(alive);
@@ -163,8 +173,8 @@ public final class CombatAdvisor {
             double bestValue = -9999.0;
             for (AbstractMonster m : alive) {
                 CharacterAdvisor.Read read = CharacterAdvisor.combatCard(
-                        player, card, alive, m, false, r.energy, r.incoming);
-                int d = read.damage >= 0 ? read.damage : estimateDamage(card, m, r.energy);
+                        player, card, alive, m, false, effectiveEnergy, r.incoming);
+                int d = read.damage >= 0 ? read.damage : estimateDamage(card, m, effectiveEnergy);
                 boolean kill = d >= m.currentHealth + m.currentBlock;
                 double v = targetValue(m, d, kill, alive) + read.bonus * 0.35;
                 if (v > bestValue) {
@@ -182,7 +192,7 @@ public final class CombatAdvisor {
             bestTarget = mostThreatening(alive);
         }
         CharacterAdvisor.Read characterRead = CharacterAdvisor.combatCard(
-                player, card, alive, bestTarget, s.aoe, r.energy, r.incoming);
+                player, card, alive, bestTarget, s.aoe, effectiveEnergy, r.incoming);
         if (!s.aoe && characterRead.damage >= 0) {
             s.damage = characterRead.damage;
             s.lethal = s.damage >= (bestTarget == null ? Integer.MAX_VALUE
@@ -215,6 +225,22 @@ public final class CombatAdvisor {
         Set<String> tags = CardDatabase.tags(card);
         int neededBlock = Math.max(0, r.incoming - player.currentBlock);
         s.block = estimateBlock(card);
+        SetupAdvisor.Advice setup = SetupAdvisor.read(
+                player, card, alive, effectiveEnergy, r.incoming, r.turn);
+        boolean xUseless = CostUtil.isX(card) && effectiveEnergy <= 0;
+        if (xUseless) {
+            // An X-cost card with X=0 (and no Chemical X) still "can be
+            // played", but it produces nothing.  Never let the generic
+            // can-play path recommend that empty activation.
+            s.damage = 0;
+            s.block = 0;
+        }
+        if (setup.block > s.block) {
+            s.block = setup.block;
+        }
+        s.setup = setup.setup;
+        s.setupNote = setup.note;
+        s.nextTurnDamage = setup.nextTurnDamage;
         double score = 0.0;
         CardDatabase.Entry quality = CardDatabase.get(card);
         if (quality != null) {
@@ -222,6 +248,10 @@ public final class CombatAdvisor {
         }
         score += RelicAdvisor.combatBonus(player, card);
         score += characterRead.bonus;
+        score += setup.bonus;
+        if (xUseless) {
+            score -= 9.0;
+        }
 
         if (s.damage > 0) {
             int effective = s.damage;
@@ -313,9 +343,6 @@ public final class CombatAdvisor {
         }
         if (tags.contains("heal")) {
             score += 1.8;
-        }
-        if (tags.contains("xcost")) {
-            score += r.energy >= 3 ? 0.8 : -0.7;
         }
         if (tags.contains("exhaust")) {
             score -= 0.35;
@@ -427,11 +454,18 @@ public final class CombatAdvisor {
         if (r.best.characterNote != null && !r.best.characterNote.isEmpty()) {
             r.lines.add(r.best.characterNote);
         }
+        if (r.best.setupNote != null && !r.best.setupNote.isEmpty()) {
+            r.lines.add("启动思路：" + r.best.setupNote);
+        }
         List<String> roleLines = CharacterAdvisor.combatLines(
                 player, r.alive, r.energy, r.incoming);
         if (!roleLines.isEmpty()) {
             r.lines.add("这个角色的节奏，我单独算给您看：");
             r.lines.addAll(roleLines);
+        }
+        List<String> setupLines = SetupAdvisor.lines(player, r.alive, r.energy, r.incoming);
+        if (!setupLines.isEmpty()) {
+            r.lines.addAll(setupLines);
         }
         r.lines.add(String.format("我为什么更想打它：它大约能打 %d、挡 %d，只花 %d 能量。"
                         + "这不是只看伤害数字，而是把“能不能挡住这回合、能不能收掉威胁、费用会不会卡住”一起算了。",
@@ -449,6 +483,9 @@ public final class CombatAdvisor {
                     + "】；先打输出会少掉这 50% 的易伤加成，别把顺序打反。");
         } else if (r.best.lethal) {
             r.lines.add("这是斩杀线：先收掉它，能少挨一轮攻击/减少后续变数。");
+        } else if (r.best.setup) {
+            r.lines.add("这回合先做启动：它本身不负责即时伤害，价值在下一回合/后续回合兑现；"
+                    + "如果对面这回合能把您打穿，先保命，别为了启动硬吃。");
         } else if (r.best.block > 0 && r.incoming > 0) {
             r.lines.add("这回合优先保血；如果输出足够，也可以先打攻击再补防御。");
         } else if (r.best.card.type == AbstractCard.CardType.POWER) {
@@ -456,7 +493,11 @@ public final class CombatAdvisor {
         } else {
             r.lines.add("先处理威胁最高的敌人，别只看单张伤害数字。");
         }
-        if (r.second != null) {
+        if (r.best.setup) {
+            r.plan = "先【" + CardDatabase.shortName(r.best.card) + "】做启动"
+                    + (r.best.nextTurnDamage > 0 ? "，下回合大约能多打出 " + r.best.nextTurnDamage + " 伤" : "")
+                    + "；这一步要在这回合安全时做。";
+        } else if (r.second != null) {
             r.lines.add(String.format("另一个选择是【%s】：它大约 %d 伤 / %d 格挡。"
                             + "两张差不多时，我更偏向能保命、能过牌、费用更灵活的那张。",
                     CardDatabase.shortName(r.second.card), r.second.damage, r.second.block));
@@ -792,10 +833,9 @@ public final class CombatAdvisor {
             hits = 4;
         } else if (id.contains("reachheaven")) {
             hits = 2;
-        } else if (id.contains("whirlwind") || id.contains("skewer") || id.contains("fiendfire")) {
-            hits = Math.max(1, energy);
-        }
-        if (CostUtil.isX(c)) {
+        } else if (id.contains("whirlwind") || id.contains("skewer")) {
+            // Both actions repeat the card's printed damage X times; the card
+            // damage itself is not pre-multiplied (verified in SkewerAction).
             hits = Math.max(1, energy);
         }
         return Math.max(1, hits);
