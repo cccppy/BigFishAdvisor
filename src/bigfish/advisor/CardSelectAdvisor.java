@@ -153,6 +153,14 @@ public final class CardSelectAdvisor {
                 r.lines.add("为什么呢：没有识别出明确方向，按当前牌组价值选最关键的一张。");
                 break;
         }
+        if (many && count > 10 && dir == Direction.DISCARD) {
+            // Gambling Chip opens the hand-select screen with "any number"
+            // (numCards = 99), not "discard 99 cards".  Never imply that the
+            // whole hand should be thrown away.
+            r.lines.add("这次是“任意数量弃牌”（赌博筹码/同类效果），不是全弃："
+                    + "优先丢诅咒/状态，再丢最差的 1–2 张基础牌或当前用不上的牌；"
+                    + "好牌留着。弃几张就补几张，但把整手好牌换掉通常不划算。");
+        }
         if (cards.size() > 1) {
             AbstractCard second = cards.get(1);
             r.lines.add("另一个选择是：【" + CardDatabase.shortName(second) + "】"

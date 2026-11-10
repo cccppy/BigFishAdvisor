@@ -30,6 +30,8 @@ public final class CombatAdvisor {
         public int block;
         public int energyCost;
         public boolean lethal;
+        public boolean lethalEnding;
+        public AbstractMonster lethalEndingTarget;
         public boolean aoe;
         public boolean setupVulnerable;
         public String followUpName;
@@ -119,6 +121,9 @@ public final class CombatAdvisor {
                     + r.best.followUpName + "】";
         } else if (r.best.setup) {
             r.title = "先启动【" + CardDatabase.shortName(r.best.card) + "】";
+        } else if (r.best.lethalEnding && r.best.lethalEndingTarget != null) {
+            r.title = "打【" + CardDatabase.shortName(r.best.card) + "】· 斩杀【"
+                    + r.best.lethalEndingTarget.name + "】";
         } else if (r.best.aoe && r.best.focusTarget != null) {
             r.title = "打【" + CardDatabase.shortName(r.best.card) + "】· 先压【"
                     + r.best.focusTarget.name + "】";
@@ -146,6 +151,8 @@ public final class CombatAdvisor {
         int bestDamage = 0;
         AbstractMonster bestTarget = null;
         boolean lethal = false;
+        boolean lethalEnding = false;
+        AbstractMonster lethalEndingTarget = null;
         int aoeKills = 0;
         boolean aoeHighHp = false;
         if (s.aoe) {
@@ -158,6 +165,10 @@ public final class CombatAdvisor {
                 if (d >= hp) {
                     lethal = true;
                     aoeKills++;
+                    if (FocusAdvisor.endsFightWhenKilled(m)) {
+                        lethalEnding = true;
+                        lethalEndingTarget = m;
+                    }
                 }
                 if (hp > highHp) {
                     highHp = hp;
@@ -177,6 +188,13 @@ public final class CombatAdvisor {
                 int d = read.damage >= 0 ? read.damage : estimateDamage(card, m, effectiveEnergy);
                 boolean kill = d >= m.currentHealth + m.currentBlock;
                 double v = targetValue(m, d, kill, alive) + read.bonus * 0.35;
+                if (kill && FocusAdvisor.endsFightWhenKilled(m)) {
+                    // A kill on the encounter leader wins immediately; do not
+                    // spend the same hit on a minion that dies anyway.
+                    v += 200.0;
+                    lethalEnding = true;
+                    lethalEndingTarget = m;
+                }
                 if (v > bestValue) {
                     bestValue = v;
                     bestDamage = d;
@@ -198,24 +216,60 @@ public final class CombatAdvisor {
             s.lethal = s.damage >= (bestTarget == null ? Integer.MAX_VALUE
                     : bestTarget.currentHealth + bestTarget.currentBlock) && s.damage > 0;
         }
+        // Re-check after character-specific damage (Brilliance, Body Slam,
+        // etc.) has overridden the generic estimate.
+        s.lethalEnding = false;
+        s.lethalEndingTarget = null;
+        if (lethalEnding && lethalEndingTarget != null && s.damage > 0) {
+            if (s.aoe) {
+                s.lethalEnding = true;
+            } else if (bestTarget == lethalEndingTarget
+                    && s.damage >= lethalEndingTarget.currentHealth
+                    + lethalEndingTarget.currentBlock) {
+                s.lethalEnding = true;
+            }
+            if (s.lethalEnding) {
+                s.lethalEndingTarget = lethalEndingTarget;
+            }
+        }
         s.characterNote = characterRead.note;
         // Single-target cards already have a bestTarget.  AoE has no single
         // game target, but the player still needs to know which enemy to
         // pressure first, so keep a separate focus target for the ring/text.
         FocusAdvisor.Focus focus = FocusAdvisor.choose(player, alive, card, s.aoe);
-        s.focusTarget = s.aoe ? focus.target : bestTarget;
-        if (s.focusTarget != null) {
+        if (s.lethalEnding && s.lethalEndingTarget != null) {
+            // Gremlin Leader / Collector / Automaton / Reptomancer: killing
+            // the leader ends the fight and removes its minions.  This must
+            // override the normal "clear minions first" order.
+            focus.target = s.lethalEndingTarget;
+            focus.order.clear();
+            focus.order.add(s.lethalEndingTarget);
+            for (AbstractMonster m : alive) {
+                if (m != null && m != s.lethalEndingTarget && !m.isDeadOrEscaped()) {
+                    focus.order.add(m);
+                }
+            }
+            focus.reason = "【" + s.lethalEndingTarget.name + "】这回合的伤害已经够斩杀；"
+                    + "它一死战斗直接结束，小怪/球/匕首会随本体一起消失。"
+                    + "所以现在先打本体，不要先清小怪。";
+            s.focusTarget = s.lethalEndingTarget;
             s.focusReason = focus.reason;
-            if (!s.aoe && focus.target != s.focusTarget) {
-                // The damage score picked a different single target than the
-                // group priority.  Never put "kill the Mystic" next to a ring
-                // on the Centurion; describe the target we actually mark.
-                s.focusReason = FocusAdvisor.focusLine(s.focusTarget, false);
-            }
-            if (s.focusReason == null || s.focusReason.isEmpty()) {
-                s.focusReason = FocusAdvisor.focusLine(s.focusTarget, s.aoe);
-            }
             s.focusOrder = FocusAdvisor.orderLine(focus, s.aoe);
+        } else {
+            s.focusTarget = s.aoe ? focus.target : bestTarget;
+            if (s.focusTarget != null) {
+                s.focusReason = focus.reason;
+                if (!s.aoe && focus.target != s.focusTarget) {
+                    // The damage score picked a different single target than the
+                    // group priority.  Never put "kill the Mystic" next to a ring
+                    // on the Centurion; describe the target we actually mark.
+                    s.focusReason = FocusAdvisor.focusLine(s.focusTarget, false);
+                }
+                if (s.focusReason == null || s.focusReason.isEmpty()) {
+                    s.focusReason = FocusAdvisor.focusLine(s.focusTarget, s.aoe);
+                }
+                s.focusOrder = FocusAdvisor.orderLine(focus, s.aoe);
+            }
         }
         if (!card.canUse(player, card.target == AbstractCard.CardTarget.ALL
                 || card.target == AbstractCard.CardTarget.ALL_ENEMY ? null : bestTarget)) {
@@ -271,6 +325,11 @@ public final class CombatAdvisor {
                 if (s.aoe && aoeHighHp) {
                     score += 8.0;
                 }
+            }
+            if (s.lethalEnding) {
+                // Finishing the encounter leader wins now; this bonus keeps a
+                // minion-kill card from outranking the actual winning line.
+                score += 85.0;
             }
             if (s.aoe && alive.size() > 1) {
                 score += 1.5 + Math.min(6.0, (alive.size() - 1) * 1.5);

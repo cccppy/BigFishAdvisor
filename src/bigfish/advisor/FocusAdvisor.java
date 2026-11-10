@@ -26,6 +26,25 @@ public final class FocusAdvisor {
     private FocusAdvisor() {
     }
 
+    /**
+     * Some elites/bosses end the whole encounter when the leader dies
+     * (Gremlin Leader, Collector, Automaton, Reptomancer).  If that leader is
+     * killable this turn, clearing a minion first is actively wrong: the
+     * minions disappear with the leader.  This is deliberately conservative;
+     * fights where every enemy must die (Sentries, Slavers, Shield/Spear,
+     * Donu/Deca) are not listed.
+     */
+    public static boolean endsFightWhenKilled(AbstractMonster m) {
+        if (m == null) {
+            return false;
+        }
+        String k = key(m);
+        return k.contains("gremlinleader")
+                || k.contains("collector")
+                || k.contains("automaton")
+                || k.contains("reptomancer");
+    }
+
     public static Focus choose(AbstractPlayer p, List<AbstractMonster> alive,
                                AbstractCard card, boolean aoe) {
         Focus f = new Focus();
