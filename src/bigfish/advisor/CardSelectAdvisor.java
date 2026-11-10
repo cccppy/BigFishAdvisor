@@ -64,7 +64,13 @@ public final class CardSelectAdvisor {
                 }
             }
         }
-        return build(p, hand, dir, count, anyNumber);
+        // numCardsToSelect is the TOTAL allowed for the screen, not the
+        // number still available.  After selecting one of two retain targets
+        // the panel must say "one left", otherwise it names two more cards
+        // and looks like it is asking for a third.
+        int shown = dir == Direction.RETAIN
+                ? Math.max(1, count - Math.max(0, hs.numSelected)) : count;
+        return build(p, hand, dir, shown, anyNumber);
     }
 
     private Result limitReached(Direction dir, int count, int selected) {
@@ -363,10 +369,10 @@ public final class CardSelectAdvisor {
                             + retainReason(p, cards.get(1)));
                 }
                 if (count > 1) {
-                    r.lines.add("这次最多保留 " + count + " 张；选够后我会提示“点确认”，"
+                    r.lines.add("这次还能保留 " + count + " 张；选够后我会提示“点确认”，"
                             + "不会再让你继续选。只留一张也可以，空着不丢牌。");
                 } else {
-                    r.lines.add("这次只保留 1 张；选够后直接点确认。");
+                    r.lines.add("这次还能保留 1 张；选够后直接点确认，不会再多推荐一张。");
                 }
                 r.lines.add("别选：诅咒/状态、虚无牌、已经带保留的牌；普通打击防御只有在没牌可留时才考虑。");
                 break;
