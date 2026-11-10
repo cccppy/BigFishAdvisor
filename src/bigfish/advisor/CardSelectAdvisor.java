@@ -92,7 +92,23 @@ public final class CardSelectAdvisor {
                 r.compact = "弃 " + name;
                 r.tag = "弃";
                 r.lines.add("大肥鱼建议：弃掉【" + name + "】。");
-                r.lines.add("为什么呢：优先弃诅咒/状态/基础打击防御；如果牌组有弃牌收益，再考虑弃能触发效果的牌。");
+                if (discardPayoff(r.best)) {
+                    r.lines.add("为什么呢：这张牌被弃掉时会触发收益（【战术大师】给能量/"
+                            + "【反射】抽牌），所以这里反而要主动丢它，"
+                            + "不是丢最差的那张。");
+                } else if (r.best.type == AbstractCard.CardType.CURSE
+                        || r.best.type == AbstractCard.CardType.STATUS) {
+                    r.lines.add("为什么呢：诅咒/状态留在手里只会占位或卡节奏，"
+                            + "弃掉它最干净；别为了保留一张普通攻击而把诅咒留在手里。");
+                } else if (CardDatabase.norm(r.best.cardID).contains("strike")
+                        || CardDatabase.norm(r.best.cardID).contains("defend")) {
+                    r.lines.add("为什么呢：基础打击/防御是牌组里最容易替换的牌；"
+                            + "弃它不会拆掉核心 combo，也不会浪费关键能力。");
+                } else {
+                    r.lines.add("为什么呢：在没有弃牌触发收益时，弃牌要选“现在最不需要、"
+                            + "丢了也不心疼”的那张；不要弃核心能力/关键攻击。"
+                            + "如果手里有【战术大师】/【反射】这类弃牌收益牌，优先弃它们。");
+                }
                 break;
             case EXHAUST:
                 r.title = "消耗：选【" + name + "】";
@@ -141,7 +157,9 @@ public final class CardSelectAdvisor {
             AbstractCard second = cards.get(1);
             r.lines.add("另一个选择是：【" + CardDatabase.shortName(second) + "】"
                     + "（评分 " + String.format("%.1f", value(second, dir)) + "）；"
-                    + (bad ? "除非它更废，否则首选更稳。" : "除非它更关键，否则首选收益更高。"));
+                    + (dir == Direction.DISCARD
+                    ? "如果它也有弃牌收益（战术大师/反射），或者你更想保留首选，再选它。"
+                    : (bad ? "除非它更废，否则首选更稳。" : "除非它更关键，否则首选收益更高。")));
         }
         r.lines.add("选之前想一下：先确认这张牌是不是你愿意失去/放回的那张；放顶会改变下一抽，"
                 + "弃牌/消耗会改变本回合手牌，复制/变化要注意费用与牌组厚度。");
@@ -160,17 +178,25 @@ public final class CardSelectAdvisor {
 
     private Direction classify(String prompt, boolean forUpgrade, boolean forTransform) {
         String p = prompt == null ? "" : prompt.toLowerCase(Locale.ROOT);
-        if (p.contains("bottom") || p.contains("底部")) {
+        // Put "into hand" first: prompts such as "从弃牌堆拿回手牌" contain
+        // both "弃牌堆" and "手牌", but they are not a discard prompt.
+        if (p.contains("into your hand") || (p.contains("add") && p.contains("hand"))
+                || p.contains("回到手牌") || p.contains("拿回") || p.contains("加入手牌")) {
+            return Direction.HAND;
+        }
+        if (p.contains("bottom") || p.contains("底部")
+                || (p.contains("弃牌堆") && !p.contains("手牌"))) {
             return Direction.BOTTOM;
         }
         if (p.contains("top") || p.contains("draw pile") || p.contains("牌堆顶") || p.contains("顶部")) {
             return Direction.TOP;
         }
-        if (p.contains("into your hand") || p.contains("add") && p.contains("hand")
-                || p.contains("回到手牌") || p.contains("拿回")) {
-            return Direction.HAND;
-        }
-        if (p.contains("discard") || p.contains("弃牌")) {
+        // Chinese discard prompts are usually "选择一张牌丢弃/弃掉", not the
+        // noun "弃牌".  Missing "丢弃" made the screen fall through to CHOOSE,
+        // which sorts by card quality and recommended discarding the best card.
+        if (p.contains("discard") || p.contains("丢弃") || p.contains("弃掉")
+                || p.contains("弃置") || p.contains("舍弃") || p.contains("弃一张")
+                || (p.contains("弃牌") && !p.contains("弃牌堆"))) {
             return Direction.DISCARD;
         }
         if (p.contains("exhaust") || p.contains("消耗")) {
@@ -196,6 +222,11 @@ public final class CardSelectAdvisor {
             return dir == Direction.DISCARD || dir == Direction.EXHAUST
                     || dir == Direction.BOTTOM || dir == Direction.TRANSFORM ? 100 : -100;
         }
+        if (dir == Direction.DISCARD && discardPayoff(c)) {
+            // Tactician/Reflex want to be discarded; this is the one case
+            // where the "best" card to throw away is a good card.
+            return 120;
+        }
         CardDatabase.Entry e = CardDatabase.get(c);
         double v = e == null ? 5.0 : e.score;
         if (dir == Direction.UPGRADE) {
@@ -210,6 +241,11 @@ public final class CardSelectAdvisor {
             return 50 - v;
         }
         return v;
+    }
+
+    private boolean discardPayoff(AbstractCard c) {
+        String id = CardDatabase.norm(c.cardID);
+        return id.contains("tactician") || id.contains("reflex");
     }
 
     private double upgradeDelta(AbstractCard c) {
