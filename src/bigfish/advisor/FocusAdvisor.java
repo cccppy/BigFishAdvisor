@@ -271,21 +271,11 @@ public final class FocusAdvisor {
             return ordered(f, list, new String[]{"gremlinfat", "gremlinwizard"},
                     "先清小地精，再处理地精头子。");
         }
-        // Low leader HP: decapitate before it can Rally/Encourage again.
-        // Otherwise remove the minions that are actually dealing damage.
-        boolean burst = leader.currentHealth <= Math.max(35, leader.maxHealth / 2);
-        if (burst || aoe) {
-            f.target = leader;
-            f.order.add(leader);
-            for (AbstractMonster m : list) {
-                if (m != leader) {
-                    f.order.add(m);
-                }
-            }
-            f.reason = "地精头子血线已经低了，直接斩首：它一死，小地精的强化/召唤就断了。"
-                    + (aoe ? "AOE 会顺手压小地精。" : "别再把伤害摊给小地精。");
-            return f;
-        }
+        // Do not send every hit at the leader just because it is low, or just
+        // because the current card is AoE.  The leader is only the priority
+        // when CombatAdvisor has verified that this card can actually kill it
+        // (lethalEnding, which overrides this order).  Otherwise the minions
+        // are still the ones dealing damage, and the player should clear them.
         List<AbstractMonster> minions = new ArrayList<AbstractMonster>();
         for (AbstractMonster m : list) {
             if (m != leader) {
@@ -303,13 +293,17 @@ public final class FocusAdvisor {
                 return Integer.compare(a.currentHealth, b.currentHealth);
             }
         });
-        f.target = minions.isEmpty() ? leader : minions.get(0);
-        f.order.addAll(minions);
-        if (f.target != leader) {
+        if (minions.isEmpty()) {
+            f.target = leader;
             f.order.add(leader);
+            f.reason = "场上只剩地精头子，直接打本体；它一死战斗结束。";
+            return f;
         }
-        f.reason = "先清小地精：头子会 Rally/Encourage，小地精活着每轮都在加伤害；"
-                + "等头子血线低（约一半以下）再直接斩首。AOE 可以同时压。";
+        f.target = minions.get(0);
+        f.order.addAll(minions);
+        f.order.add(leader);
+        f.reason = "不是无脑打头子：先清小地精，它们每轮都在加伤害/加格挡；"
+                + "只有这回合伤害已经够斩杀头子时，我才会把头子改成第一目标。";
         return f;
     }
 

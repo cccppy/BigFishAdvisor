@@ -750,6 +750,11 @@ public final class CombatAdvisor {
                     }
                 }
             }
+        } else if (alive.size() > 1 && FocusAdvisor.endsFightWhenKilled(m)) {
+            // A leader that would end the fight is only worth focusing when
+            // this hit actually kills it.  Otherwise its minions are still
+            // attacking us, and "always hit the big one" loses the fight.
+            v -= 25.0;
         }
         return v;
     }
