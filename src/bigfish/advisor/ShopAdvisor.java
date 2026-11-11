@@ -198,7 +198,35 @@ public final class ShopAdvisor {
                 worst = c;
             }
         }
-        return worst == null ? "" : CardDatabase.shortName(worst);
+        if (worst == null || !isDisposable(worst, p)) {
+            return "";
+        }
+        return CardDatabase.shortName(worst);
+    }
+
+    private boolean isDisposable(AbstractCard c, AbstractPlayer p) {
+        if (c == null) {
+            return false;
+        }
+        if (c.type == AbstractCard.CardType.CURSE || c.type == AbstractCard.CardType.STATUS) {
+            return true;
+        }
+        String id = CardDatabase.norm(c.cardID);
+        if (id.contains("strike") || id.contains("defend")) {
+            return true;
+        }
+        CardDatabase.Entry e = CardDatabase.get(c);
+        double base = e == null ? 5.5 : e.score;
+        if (base < 6.0) {
+            return true;
+        }
+        int copies = 0;
+        for (AbstractCard d : p.masterDeck.group) {
+            if (d != null && d.cardID != null && d.cardID.equals(c.cardID)) {
+                copies++;
+            }
+        }
+        return copies >= 2 && base < 8.0;
     }
 
     private double relicValue(AbstractRelic relic) {

@@ -562,7 +562,8 @@ public final class Overlay {
             boolean bad = cardSelect.direction == CardSelectAdvisor.Direction.DISCARD
                     || cardSelect.direction == CardSelectAdvisor.Direction.EXHAUST
                     || cardSelect.direction == CardSelectAdvisor.Direction.BOTTOM
-                    || cardSelect.direction == CardSelectAdvisor.Direction.TRANSFORM;
+                    || cardSelect.direction == CardSelectAdvisor.Direction.TRANSFORM
+                    || cardSelect.direction == CardSelectAdvisor.Direction.REMOVE;
             Color c = bad ? Ui.RED : Ui.GOLD;
             ui.drawCardCorners(sb, cardSelect.best, c);
             ui.drawCardTag(sb, cardSelect.best, cardSelect.tag, Ui.CREAM, c, c);

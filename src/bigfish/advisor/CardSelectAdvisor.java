@@ -16,7 +16,7 @@ import java.util.Locale;
 
 /** Handles "put on top/bottom", discard, exhaust, tutor and copy prompts. */
 public final class CardSelectAdvisor {
-    public enum Direction {TOP, BOTTOM, DISCARD, EXHAUST, HAND, RETAIN, UPGRADE, TRANSFORM, COPY, CHOOSE}
+    public enum Direction {TOP, BOTTOM, DISCARD, EXHAUST, HAND, RETAIN, REMOVE, UPGRADE, TRANSFORM, COPY, CHOOSE}
 
     public static final class Result {
         public Direction direction = Direction.CHOOSE;
@@ -286,7 +286,8 @@ public final class CardSelectAdvisor {
             return null;
         }
         final boolean bad = dir == Direction.DISCARD || dir == Direction.EXHAUST
-                || dir == Direction.BOTTOM || dir == Direction.TRANSFORM;
+                || dir == Direction.BOTTOM || dir == Direction.TRANSFORM
+                || dir == Direction.REMOVE;
         final boolean retain = dir == Direction.RETAIN;
         Collections.sort(cards, new Comparator<AbstractCard>() {
             @Override
@@ -406,6 +407,26 @@ public final class CardSelectAdvisor {
                 }
                 r.lines.add("保留不是必须的；只有关键牌/能力/下回合组合才值得占位置。"
                         + "别选：诅咒/状态、虚无牌、已经带保留的牌、普通打击防御。");
+                break;
+            case REMOVE:
+                r.title = "移除：删【" + name + "】";
+                r.compact = "删 " + name;
+                r.tag = "删";
+                r.lines.add("大肥鱼建议：从牌组里移除【" + name + "】。");
+                if (r.best.type == AbstractCard.CardType.CURSE
+                        || r.best.type == AbstractCard.CardType.STATUS) {
+                    r.lines.add("为什么呢：诅咒/状态牌只会占手牌或卡节奏，"
+                            + "永久删掉它最干净；除非它正在配合别的效果，否则不要留。");
+                } else if (CardDatabase.norm(r.best.cardID).contains("strike")
+                        || CardDatabase.norm(r.best.cardID).contains("defend")) {
+                    r.lines.add("为什么呢：基础打击/防御是牌组里最容易替换的牌；"
+                            + "删它等于提高核心牌的上手率，不会拆掉 combo。");
+                } else {
+                    r.lines.add("为什么呢：按当前牌组的质量/配合，它是相对最不值得留的一张；"
+                            + "如果它是 S/A 核心或关键能力，换成下一张候选，不要删。");
+                }
+                r.lines.add("删牌是永久的：优先诅咒/状态、多余基础牌、重复且不参与 combo 的牌；"
+                        + "核心能力、关键攻击、关键遗物配合牌不要删。");
                 break;
             case UPGRADE:
                 r.title = "升级：选【" + name + "】";
@@ -573,6 +594,14 @@ public final class CardSelectAdvisor {
         if (p.contains("retain") || p.contains("保留")) {
             return Direction.RETAIN;
         }
+        // Shop purge / Peace Pipe / event "remove a card": the Chinese prompt
+        // is "选择一张牌移除", not "弃牌".  Without this branch the screen fell
+        // through to CHOOSE, which sorts by card quality and highlighted the
+        // strongest card in the deck for permanent removal.
+        if (p.contains("remove") || p.contains("purge") || p.contains("删除")
+                || p.contains("移除") || p.contains("删掉")) {
+            return Direction.REMOVE;
+        }
         if (p.contains("bottom") || p.contains("底部")
                 || (p.contains("弃牌堆") && !p.contains("手牌"))) {
             return Direction.BOTTOM;
@@ -609,7 +638,19 @@ public final class CardSelectAdvisor {
         }
         if (c.type == AbstractCard.CardType.CURSE || c.type == AbstractCard.CardType.STATUS) {
             return dir == Direction.DISCARD || dir == Direction.EXHAUST
-                    || dir == Direction.BOTTOM || dir == Direction.TRANSFORM ? 100 : -100;
+                    || dir == Direction.BOTTOM || dir == Direction.TRANSFORM
+                    || dir == Direction.REMOVE ? 100 : -100;
+        }
+        if (dir == Direction.REMOVE) {
+            // Permanent removal uses the same "worst card first" ordering as
+            // discard, but Tactician/Reflex are NOT discard payoffs here.
+            CardDatabase.Entry removeEntry = CardDatabase.get(c);
+            double removeScore = removeEntry == null ? 5.0 : removeEntry.score;
+            if (CardDatabase.norm(c.cardID).contains("strike")
+                    || CardDatabase.norm(c.cardID).contains("defend")) {
+                return 80;
+            }
+            return 50 - removeScore;
         }
         if (dir == Direction.DISCARD && discardPayoff(c)) {
             // Tactician/Reflex want to be discarded; this is the one case

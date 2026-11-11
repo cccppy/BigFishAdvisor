@@ -118,17 +118,68 @@ public final class CampfireAdvisor {
         if (r.purgeOptions.isEmpty()) {
             return null;
         }
-        r.purgeBest = r.purgeOptions.get(0);
+        r.purgeBest = null;
+        for (Upgrade candidate : r.purgeOptions) {
+            if (isDisposable(candidate.card, p)) {
+                r.purgeBest = candidate;
+                break;
+            }
+        }
+        // Never point at a core card just because it happens to be the least
+        // bad card in a well-built deck.  Removing is permanent; if there is
+        // nothing genuinely disposable, skipping the removal is better than
+        // deleting a key power/attack.
+        if (r.purgeBest == null) {
+            r.title = "这次不建议删牌";
+            r.compact = "这次不删";
+            r.lines.add("大肥鱼建议：这次先别删牌。");
+            r.lines.add("为什么呢：牌组里没有明显该删的诅咒/状态/多余基础牌，"
+                    + "剩下的都是有配合的核心牌；为了删而删会把关键牌删掉。");
+            r.lines.add("如果你确实想精简，优先删重复且不参与 combo 的牌，"
+                    + "或者把这笔钱/火堆留给升级、买遗物。");
+            return r;
+        }
         r.compact = "删 " + CardDatabase.shortName(r.purgeBest.card);
         r.lines.add("大肥鱼建议：删除【" + CardDatabase.shortName(r.purgeBest.card) + "】");
         r.lines.add("为什么呢：" + r.purgeBest.note);
-        if (r.purgeOptions.size() > 1) {
-            Upgrade second = r.purgeOptions.get(1);
+        Upgrade second = null;
+        for (Upgrade candidate : r.purgeOptions) {
+            if (candidate != r.purgeBest && isDisposable(candidate.card, p)) {
+                second = candidate;
+                break;
+            }
+        }
+        if (second != null) {
             r.lines.add("备选：【" + CardDatabase.shortName(second.card) + "】"
                     + "（" + String.format("%.1f", second.score) + " 分）");
         }
         r.lines.add("大肥鱼的想法：优先删诅咒/状态牌，其次删基础打击/防御或重复牌；不要删核心能力/关键攻击。");
         return r;
+    }
+
+    private boolean isDisposable(AbstractCard c, AbstractPlayer p) {
+        if (c == null) {
+            return false;
+        }
+        if (c.type == AbstractCard.CardType.CURSE || c.type == AbstractCard.CardType.STATUS) {
+            return true;
+        }
+        String id = CardDatabase.norm(c.cardID);
+        if (id.contains("strike") || id.contains("defend")) {
+            return true;
+        }
+        CardDatabase.Entry e = CardDatabase.get(c);
+        double base = e == null ? 5.5 : e.score;
+        if (base < 6.0) {
+            return true;
+        }
+        int copies = 0;
+        for (AbstractCard d : p.masterDeck.group) {
+            if (d != null && d.cardID != null && d.cardID.equals(c.cardID)) {
+                copies++;
+            }
+        }
+        return copies >= 2 && base < 8.0;
     }
 
     private double purgeScore(AbstractCard c, AbstractPlayer p) {
@@ -175,7 +226,7 @@ public final class CampfireAdvisor {
         if (base < 5.0) {
             return "这张牌对当前牌组贡献较小，删掉比留着更精简。";
         }
-        return "非核心牌；如果没有诅咒/基础牌可删，再考虑它。";
+        return "它不是明显的废牌，属于可替代/重复牌；如果牌组已经有核心，再考虑删它。";
     }
 
     public Result analyzeUpgrade(AbstractPlayer p) {
