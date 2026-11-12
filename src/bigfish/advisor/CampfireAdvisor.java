@@ -2,6 +2,7 @@ package bigfish.advisor;
 
 import com.megacrit.cardcrawl.cards.AbstractCard;
 import com.megacrit.cardcrawl.characters.AbstractPlayer;
+import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.rooms.CampfireUI;
 import com.megacrit.cardcrawl.rooms.RestRoom;
 import com.megacrit.cardcrawl.ui.campfire.AbstractCampfireOption;
@@ -38,6 +39,8 @@ public final class CampfireAdvisor {
         public List<Upgrade> purgeOptions = new ArrayList<Upgrade>();
         public Upgrade purgeBest;
         public List<String> lines = new ArrayList<String>();
+        public boolean preBossDanger;
+        public int bossBurst;
     }
 
     private static Field buttonsField;
@@ -53,6 +56,11 @@ public final class CampfireAdvisor {
         }
         Result r = new Result();
         int hpPct = p.currentHealth * 100 / Math.max(1, p.maxHealth);
+        boolean preBoss = isPreBossCampfire();
+        int burst = preBoss ? bossBurst() : 0;
+        boolean danger = preBoss && p.currentHealth <= burst + 8;
+        r.preBossDanger = danger;
+        r.bossBurst = burst;
         r.upgrades = upgradeOptions(p);
         r.upgradeBest = r.upgrades.isEmpty() ? null : r.upgrades.get(0);
 
@@ -63,8 +71,8 @@ public final class CampfireAdvisor {
             Option o = new Option();
             o.button = b;
             o.name = name(b);
-            o.note = note(b, p, r.upgradeBest);
-            o.score = score(b, p, hpPct, r.upgradeBest);
+            o.note = note(b, p, r.upgradeBest, preBoss, danger, burst);
+            o.score = score(b, p, hpPct, r.upgradeBest, preBoss, danger);
             r.options.add(o);
         }
         if (r.options.isEmpty()) {
@@ -82,7 +90,7 @@ public final class CampfireAdvisor {
                 r.compact = "锻造 " + CardDatabase.shortName(r.upgradeBest.card);
             }
         }
-        buildText(r, p, hpPct);
+        buildText(r, p, hpPct, preBoss, danger, burst);
         return r;
     }
 
@@ -278,6 +286,49 @@ public final class CampfireAdvisor {
         return new ArrayList<AbstractCampfireOption>();
     }
 
+    private boolean isPreBossCampfire() {
+        // Act 1/2/3 bosses sit at floors 16/33/50; the campfire immediately
+        // before them is 15/32/49.  Do not guess from a generic "low HP" rule:
+        // a rest site in the middle of an act is usually better used to smith.
+        int f = AbstractDungeon.floorNum;
+        return f == 15 || f == 32 || f == 49;
+    }
+
+    private int bossBurst() {
+        String key = CardDatabase.norm(AbstractDungeon.bossKey == null ? "" : AbstractDungeon.bossKey);
+        if (key.contains("hexaghost")) {
+            return 46;
+        }
+        if (key.contains("guardian")) {
+            return 40;
+        }
+        if (key.contains("slimeboss")) {
+            return 40;
+        }
+        if (key.contains("champ")) {
+            return 52;
+        }
+        if (key.contains("bronzeautomaton")) {
+            return 46;
+        }
+        if (key.contains("collector")) {
+            return 46;
+        }
+        if (key.contains("timeeater")) {
+            return 52;
+        }
+        if (key.contains("awakenedone")) {
+            return 50;
+        }
+        if (key.contains("donu") || key.contains("deca")) {
+            return 44;
+        }
+        if (key.contains("corruptheart")) {
+            return 60;
+        }
+        return 42;
+    }
+
     private String name(AbstractCampfireOption b) {
         String cls = b.getClass().getSimpleName();
         if (cls.equals("RestOption")) {
@@ -301,11 +352,21 @@ public final class CampfireAdvisor {
         return cls.replace("Option", "");
     }
 
-    private double score(AbstractCampfireOption b, AbstractPlayer p, int hpPct, Upgrade up) {
+    private double score(AbstractCampfireOption b, AbstractPlayer p, int hpPct, Upgrade up,
+                         boolean preBoss, boolean danger) {
         String name = name(b);
         double s;
         if (name.equals("休息")) {
             s = hpPct < 45 ? 9.4 : hpPct < 60 ? 8.0 : hpPct < 75 ? 6.2 : 4.6;
+            // The run history shows four Silent Act 1 deaths where the last
+            // campfire was used to smith at 33-42 HP and the boss hit for
+            // 35-46.  Before a boss, surviving the first big attack is worth
+            // more than a small upgrade.
+            if (danger) {
+                s += 6.5;
+            } else if (preBoss) {
+                s += 0.5;
+            }
         } else if (name.equals("锻造")) {
             s = 7.2;
             if (up != null) {
@@ -313,6 +374,9 @@ public final class CampfireAdvisor {
             }
             if (hpPct < 50) {
                 s -= 1.0;
+            }
+            if (danger) {
+                s -= 7.0;
             }
         } else if (name.equals("挖掘")) {
             s = 8.2;
@@ -331,13 +395,25 @@ public final class CampfireAdvisor {
         return s;
     }
 
-    private String note(AbstractCampfireOption b, AbstractPlayer p, Upgrade up) {
+    private String note(AbstractCampfireOption b, AbstractPlayer p, Upgrade up,
+                        boolean preBoss, boolean danger, int burst) {
         String name = name(b);
         int heal = (int) Math.floor(p.maxHealth * 0.3);
         if (name.equals("休息")) {
+            if (danger) {
+                return "回复约 " + heal + " 生命；Boss 最坏约 " + burst + " 伤，"
+                        + "现在这血量再锻造就可能进 Boss 送命。";
+            }
+            if (preBoss) {
+                return "回复约 " + heal + " 生命；血量够接 Boss，休息稳，但升级也能提上限。";
+            }
             return "回复约 " + heal + " 生命；血量低时最稳。";
         }
         if (name.equals("锻造")) {
+            if (danger) {
+                return "升级一张牌，但 Boss 最坏约 " + burst + " 伤，"
+                        + "你现在的血量很可能撑不到升级发挥作用。";
+            }
             return up == null ? "升级一张牌，但当前没有可升级牌。"
                     : "升级【" + CardDatabase.shortName(up.card) + "】收益最高。";
         }
@@ -356,9 +432,21 @@ public final class CampfireAdvisor {
         return "可选营火操作。";
     }
 
-    private void buildText(Result r, AbstractPlayer p, int hpPct) {
+    private void buildText(Result r, AbstractPlayer p, int hpPct,
+                           boolean preBoss, boolean danger, int burst) {
         r.lines.add(String.format("现在的情况：生命 %d/%d（%d%%），牌组 %d 张；营火选项 %d 个。",
                 p.currentHealth, p.maxHealth, hpPct, p.masterDeck.size(), r.options.size()));
+        if (preBoss) {
+            int heal = (int) Math.floor(p.maxHealth * 0.3);
+            r.lines.add("Boss 前体检：下一场是 Boss，最坏情况大约吃 " + burst
+                    + " 伤；你当前 " + p.currentHealth + "，休息约回 " + heal + "。");
+            if (danger) {
+                r.lines.add("警告：现在这点血量经不起 Boss 的第一轮；再锻造很可能进 Boss 送命。"
+                        + "先休息，把血量抬到安全线，再谈升级。");
+            } else {
+                r.lines.add("血量够接 Boss，升级核心牌也可以；但如果药水/格挡不稳，休息更保险。");
+            }
+        }
         r.lines.add("大肥鱼建议：" + (r.best == null ? "先休息" : r.best.name)
                 + (r.best == null ? "" : "（" + String.format("%.1f", r.best.score) + " 分）"));
         if (r.best != null) {

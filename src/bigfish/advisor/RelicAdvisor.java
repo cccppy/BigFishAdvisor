@@ -441,8 +441,8 @@ public final class RelicAdvisor {
             if (hpPct < 55 && id.contains("coffe")) {
                 s -= 0.8;
             }
-            if (id.contains("bustedcrown") && d.size < 20) {
-                s -= 1.2;
+            if (id.contains("bustedcrown") && (d.size < 24 || highValueCards(p) < 6)) {
+                s -= 1.0;
             }
             if (id.contains("sozu") && p.potions != null && !p.potions.isEmpty()) {
                 s -= 0.2;
@@ -484,8 +484,18 @@ public final class RelicAdvisor {
         if (id.contains("wristblade") && d.tag("shiv") >= 3) {
             s += 0.7;
         }
-        if (id.contains("hoveringkite") && d.tag("discard") >= 3) {
-            s += 0.6;
+        if (id.contains("hoveringkite")) {
+            if (d.tag("discard") >= 3) {
+                s += 0.6;
+            } else {
+                s -= 0.9;
+            }
+        }
+        if (id.contains("velvetchoker") && (d.zeroCost >= 5 || d.drawCards >= 4)) {
+            s -= 0.8;
+        }
+        if (id.contains("philosophersstone") && (d.blockCards < 8 || hpPct < 60)) {
+            s -= 0.8;
         }
         if (id.contains("frozenco") && d.tag("focus") >= 3) {
             s += 0.5;
@@ -552,16 +562,16 @@ public final class RelicAdvisor {
             return "不能再拿金币，商店/删牌会受影响";
         }
         if (id.contains("philosophersstone")) {
-            return "敌人全体 +1 力量，多段怪会很疼";
+            return "敌人全体 +1 力量，多段攻击会越打越痛；格挡不足时很危险";
         }
         if (id.contains("runicdome")) {
             return "看不到敌人意图，新手很难防";
         }
         if (id.contains("velvetchoker")) {
-            return "每回合最多 6 张牌，0 费连击流会被卡";
+            return "每回合最多出 6 张牌，低费/抽牌循环会被卡住";
         }
         if (id.contains("bustedcrown")) {
-            return "以后奖励少 2 张，补关键牌更难";
+            return "未来卡奖励少 2 张；牌组没成型时更难补核心";
         }
         if (id.contains("markofpain")) {
             return "开局多 2 张伤口，没消耗手段会卡手";
@@ -574,6 +584,9 @@ public final class RelicAdvisor {
         }
         if (id.contains("pandorasbox") || id.contains("astrolabe")) {
             return "变化结果随机，可能补不到防御";
+        }
+        if (id.contains("hoveringkite")) {
+            return "需要每回合弃牌才有能量；没有稳定弃牌出口时接近白板";
         }
         return "";
     }
@@ -631,6 +644,20 @@ public final class RelicAdvisor {
                 || id.contains("philosophersstone") || id.contains("runicdome")
                 || id.contains("velvetchoker") || id.contains("bustedcrown")
                 || id.contains("markofpain");
+    }
+
+    private static int highValueCards(AbstractPlayer p) {
+        int n = 0;
+        if (p == null || p.masterDeck == null) {
+            return n;
+        }
+        for (AbstractCard c : p.masterDeck.group) {
+            CardDatabase.Entry e = CardDatabase.get(c);
+            if (e != null && e.score >= 8.0) {
+                n++;
+            }
+        }
+        return n;
     }
 
     private static int basics(AbstractPlayer p) {

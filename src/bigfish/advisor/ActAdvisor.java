@@ -81,6 +81,7 @@ public final class ActAdvisor {
             return "";
         }
         DeckSummary d = DeckSummary.of(p);
+        int act = Math.max(1, AbstractDungeon.actNum);
         StringBuilder b = new StringBuilder("牌组体检：攻击 ")
                 .append(d.attacks).append(" / 格挡 ").append(d.blockCards)
                 .append(" / AOE ").append(d.aoeCards);
@@ -88,8 +89,14 @@ public final class ActAdvisor {
             b.append(" / 诅咒 ").append(d.curses);
         }
         b.append("。");
-        if (d.blockCards < 5) {
+        if (act >= 2 && d.blockCards < 7) {
+            b.append("第二幕格挡只有 ").append(d.blockCards)
+                    .append(" 张，Boss/精英的多段攻击会直接打穿，优先补格挡/虚弱/敏捷。");
+        } else if (d.blockCards < 5) {
             b.append("格挡偏少，Boss 前优先补格挡/升级防御，别只拿输出。");
+        } else if (act >= 2 && d.aoeCards < 2 && d.size >= 15) {
+            b.append("第二幕 AOE 只有 ").append(d.aoeCards)
+                    .append(" 张，遇到分裂/召小怪会清不过来，优先补一张群体伤害。");
         } else if (d.aoeCards < 1 && d.size >= 15) {
             b.append("没有 AOE，遇到分裂/召小怪会很难，优先补一张群体伤害。");
         } else if (d.size >= 26) {

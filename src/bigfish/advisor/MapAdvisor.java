@@ -223,6 +223,13 @@ public final class MapAdvisor {
                 score += 0.4;
             }
             score += ActAdvisor.eliteReadiness(p) * 1.1;
+            // The run history is full of Act 1 routes with zero elites and
+            // only 2-5 relics.  If the deck already has a basic attack/block
+            // shell, one mid-act elite is how Act 1 turns into a real run.
+            if (act1 && y >= 6 && hpPct >= 65
+                    && deck.size >= 15 && deck.attacks >= 6 && deck.blockCards >= 5) {
+                score += 1.3;
+            }
             if (AbstractDungeon.ascensionLevel >= 10) {
                 score -= 0.8;
             }

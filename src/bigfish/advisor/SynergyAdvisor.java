@@ -92,11 +92,30 @@ public final class SynergyAdvisor {
     }
 
     public static double cardBonus(AbstractPlayer p, AbstractCard c, DeckSummary d) {
-        return fit(p, c, d).bonus;
+        double b = fit(p, c, d).bonus;
+        String id = CardDatabase.norm(c.cardID);
+        if (poisonPayoffMissing(d)
+                && (id.contains("catalyst") || id.contains("corpseexplosion"))) {
+            b += 1.15;
+        }
+        return b;
     }
 
     public static String note(AbstractPlayer p, AbstractCard c, DeckSummary d) {
-        return fit(p, c, d).note;
+        String note = fit(p, c, d).note;
+        String id = CardDatabase.norm(c.cardID);
+        if (poisonPayoffMissing(d)
+                && (id.contains("catalyst") || id.contains("corpseexplosion"))) {
+            note = note + " 你已经有 " + d.tag("poison")
+                    + " 张毒牌，但缺爆发；这张能把毒层兑现成伤害，别再只叠毒。";
+        }
+        return note;
+    }
+
+    private static boolean poisonPayoffMissing(DeckSummary d) {
+        return d.tag("poison") >= 3
+                && !d.has("catalyst")
+                && !d.has("corpseexplosion");
     }
 
     /** A compact deck-level line for the card reward / shop panel. */
@@ -130,6 +149,11 @@ public final class SynergyAdvisor {
             } else if (primary.outlets > 0 && primary.payoffs > 0) {
                 sb.append("启动和收益都有了，开始补稳定性/防御，不要继续塞普通牌。");
             }
+        }
+        if (poisonPayoffMissing(d)) {
+            sb.append(" 毒牌已有 ").append(d.tag("poison"))
+                    .append(" 张，但没有【催化剂】/【尸爆术】：毒层叠得再高也只是慢慢掉血，")
+                    .append("优先补爆发，或者别再继续加毒。");
         }
         return sb.toString();
     }

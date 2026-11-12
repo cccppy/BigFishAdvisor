@@ -66,6 +66,10 @@ public final class CardRewardAdvisor {
             if (roleNote != null && roleNote.length() > 0) {
                 s.note = s.note + " " + roleNote;
             }
+            if (defenseShortage(r.deck, act) && isDefenseCard(card)) {
+                s.note = s.note + " 你现在只有 " + r.deck.blockCards
+                        + " 张格挡牌，这是保命牌，别连续跳过。";
+            }
             s.tier = CardDatabase.tier(card);
             r.cards.add(s);
             r.byId.put(card.uuid, s);
@@ -130,6 +134,20 @@ public final class CardRewardAdvisor {
         }
         if (deck.blockCards < 4 && (c.block > 0 || c.baseBlock > 0 || CardDatabase.hasTag(c, "block"))) {
             score += 0.40;
+        }
+        // The run history shows the same draft mistake repeatedly: a Silent
+        // player skips Footwork / Leg Sweep / Piercing Wail / Backflip for a
+        // marginally higher damage card, then dies to Hexaghost with 7-9
+        // block cards.  When the deck is short on defence, premium defence
+        // must outrank another mediocre attack.
+        if (defenseShortage(deck, act) && isDefenseCard(c)) {
+            score += act >= 2 ? 1.0 : 0.55;
+            String did = CardDatabase.norm(c.cardID);
+            if (act == 1 && (did.contains("footwork") || did.contains("afterimage")
+                    || did.contains("legsweep") || did.contains("piercingwail")
+                    || did.contains("backflip"))) {
+                score += 0.35;
+            }
         }
         if (act >= 2 && deck.aoeCards < 1 && CardDatabase.hasTag(c, "aoe")) {
             score += 0.65;
@@ -372,6 +390,36 @@ public final class CardRewardAdvisor {
         return true;
     }
 
+    private boolean defenseShortage(DeckSummary deck, int act) {
+        if (act >= 2) {
+            return deck.blockCards < 8;
+        }
+        return deck.blockCards < 10;
+    }
+
+    private boolean isDefenseCard(AbstractCard c) {
+        if (c == null) {
+            return false;
+        }
+        String id = CardDatabase.norm(c.cardID);
+        return c.block > 0 || c.baseBlock > 0
+                || CardDatabase.hasTag(c, "block")
+                || CardDatabase.hasTag(c, "weak")
+                || CardDatabase.hasTag(c, "dex")
+                || id.contains("footwork")
+                || id.contains("afterimage")
+                || id.contains("legsweep")
+                || id.contains("piercingwail")
+                || id.contains("backflip")
+                || id.contains("impervious")
+                || id.contains("shrugitoff")
+                || id.contains("powerthrough")
+                || id.contains("secondwind")
+                || id.contains("glacier")
+                || id.contains("equilibrium")
+                || id.contains("protect");
+    }
+
     private double genericScore(AbstractCard c) {
         if (c.type == AbstractCard.CardType.ATTACK) {
             double d = Math.max(0, c.baseDamage > 0 ? c.baseDamage : c.damage);
@@ -402,6 +450,11 @@ public final class CardRewardAdvisor {
         r.lines.add(r.deck.countsLine());
         r.lines.add(SynergyAdvisor.deckLine(r.deck));
         r.lines.add("当前需要：" + r.deck.needLine(act));
+        if (act >= 2 && r.deck.blockCards < 7) {
+            r.lines.add("保命提醒：第二幕格挡只有 " + r.deck.blockCards
+                    + " 张，多段/群体怪会直接打穿；这幕优先补格挡、虚弱、敏捷，"
+                    + "别连续跳过防御牌。");
+        }
         r.lines.add(ArchetypeAdvisor.stageLine(p, r.deck, act, AbstractDungeon.floorNum));
         r.lines.add(ArchetypeAdvisor.planLine(p, r.deck, act, AbstractDungeon.floorNum));
         r.lines.add(ActAdvisor.bossLine(p));
