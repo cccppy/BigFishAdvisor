@@ -174,6 +174,24 @@ public final class RelicAdvisor {
         if (has(p, "Tough Bandages") && CardDatabase.hasTag(c, "discard")) {
             b += 0.5;
         }
+        if (has(p, "Tingsha") && CardDatabase.hasTag(c, "discard")) {
+            b += 0.45;
+        }
+        if (has(p, "Snecko Skull") && CardDatabase.hasTag(c, "poison")) {
+            b += 0.5;
+        }
+        if (has(p, "The Specimen") && CardDatabase.hasTag(c, "poison")) {
+            b += 0.35;
+        }
+        if (has(p, "Wrist Blade") && CardDatabase.hasTag(c, "shiv")) {
+            b += 0.5;
+        }
+        if (has(p, "Runic Pyramid") && CardDatabase.hasTag(c, "retain")) {
+            b += 0.3;
+        }
+        if (has(p, "Violet Lotus") && CardDatabase.hasTag(c, "stance")) {
+            b += 0.3;
+        }
         if (has(p, "Shuriken") || has(p, "Kunai")) {
             int printed = CostUtil.printed(c);
             if (c.type == AbstractCard.CardType.ATTACK && printed >= 0 && printed <= 1) {
@@ -187,6 +205,21 @@ public final class RelicAdvisor {
         if (has(p, "Tungsten Rod") && CardDatabase.hasTag(c, "selfdmg")) {
             b += 0.35;
         }
+        if (has(p, "Molten Egg 2") && c.type == AbstractCard.CardType.ATTACK) {
+            b += 0.35;
+        }
+        if (has(p, "Toxic Egg 2") && c.type == AbstractCard.CardType.SKILL) {
+            b += 0.30;
+        }
+        if (has(p, "Frozen Egg 2") && c.type == AbstractCard.CardType.POWER) {
+            b += 0.30;
+        }
+        if (has(p, "Ice Cream") && CostUtil.isX(c)) {
+            b += 0.25;
+        }
+        if (has(p, "Snecko Eye") && CostUtil.printed(c) >= 2) {
+            b += 0.20;
+        }
         return b;
     }
 
@@ -194,25 +227,83 @@ public final class RelicAdvisor {
         if (p == null || c == null) {
             return "";
         }
+        List<String> notes = new ArrayList<String>();
         if (necronomiconPick(p, c)) {
-            return "死灵书能把它变成双发";
+            notes.add("死灵书能把它变成双发");
         }
         if (has(p, "Chemical X") && CostUtil.isX(c)) {
-            return "化学 X 直接加强 X 费";
+            notes.add("化学 X 直接加强 X 费");
         }
         if (has(p, "Dead Branch") && CardDatabase.hasTag(c, "exhaust")) {
-            return "腐化树枝会把消耗变成资源";
+            notes.add("腐化树枝会把消耗变成资源");
         }
         if (has(p, "Mummified Hand") && c.type == AbstractCard.CardType.POWER) {
-            return "干瘪之手让能力牌更赚";
+            notes.add("干瘪之手让能力牌更赚");
+        }
+        if (has(p, "Bird-Faced Urn") && c.type == AbstractCard.CardType.POWER) {
+            notes.add("鸟面瓮让开能力回血");
         }
         if (has(p, "Wrist Blade") && CostUtil.printed(c) == 0 && c.type == AbstractCard.CardType.ATTACK) {
-            return "袖剑给 0 费攻击加伤害";
+            notes.add("袖剑给 0 费攻击加伤害");
         }
         if (has(p, "Hovering Kite") && CardDatabase.hasTag(c, "discard")) {
-            return "风筝把弃牌变成能量";
+            notes.add("风筝把弃牌变成能量");
         }
-        return "";
+        if (has(p, "Tough Bandages") && CardDatabase.hasTag(c, "discard")) {
+            notes.add("绷带让弃牌变格挡");
+        }
+        if (has(p, "Tingsha") && CardDatabase.hasTag(c, "discard")) {
+            notes.add("铜钹让弃牌补伤害");
+        }
+        if (has(p, "Snecko Skull") && CardDatabase.hasTag(c, "poison")) {
+            notes.add("蛇骷髅让每次上毒多 1 层");
+        }
+        if (has(p, "The Specimen") && CardDatabase.hasTag(c, "poison")) {
+            notes.add("标本让毒转移到别的怪");
+        }
+        if (has(p, "Wrist Blade") && CardDatabase.hasTag(c, "shiv")) {
+            notes.add("袖剑专门加强小刀");
+        }
+        if (has(p, "Runic Pyramid") && CardDatabase.hasTag(c, "retain")) {
+            notes.add("金字塔让你能留住关键牌");
+        }
+        if (has(p, "Violet Lotus") && CardDatabase.hasTag(c, "stance")) {
+            notes.add("紫莲让退出平静多 1 能量");
+        }
+        if ((has(p, "Shuriken") || has(p, "Kunai")) && c.type == AbstractCard.CardType.ATTACK
+                && CostUtil.printed(c) >= 0 && CostUtil.printed(c) <= 1) {
+            notes.add("手里剑、苦无吃低费攻击次数");
+        }
+        if (has(p, "Letter Opener") && c.type == AbstractCard.CardType.SKILL
+                && CostUtil.printed(c) >= 0 && CostUtil.printed(c) <= 1) {
+            notes.add("开信刀吃低费技能次数");
+        }
+        if (has(p, "Tungsten Rod") && CardDatabase.hasTag(c, "selfdmg")) {
+            notes.add("钨钢棒减轻自伤");
+        }
+        if (has(p, "Molten Egg 2") && c.type == AbstractCard.CardType.ATTACK) {
+            notes.add("熔火蛋让攻击牌直接升级");
+        }
+        if (has(p, "Toxic Egg 2") && c.type == AbstractCard.CardType.SKILL) {
+            notes.add("毒蛋让技能牌直接升级");
+        }
+        if (has(p, "Frozen Egg 2") && c.type == AbstractCard.CardType.POWER) {
+            notes.add("冻蛋让能力牌直接升级");
+        }
+        if (has(p, "Ice Cream") && CostUtil.isX(c)) {
+            notes.add("冰淇淋把剩余能量留到下一回合，X 费更赚");
+        }
+        if (has(p, "Snecko Eye") && CostUtil.printed(c) >= 2) {
+            notes.add("异蛇之眼会把高费牌随机成 0–3 费");
+        }
+        StringBuilder sb = new StringBuilder();
+        for (String n : notes) {
+            if (sb.length() > 0) {
+                sb.append("；");
+            }
+            sb.append(n);
+        }
+        return sb.toString();
     }
 
     // --------------------------------------------------------------- shop fit

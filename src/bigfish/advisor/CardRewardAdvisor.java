@@ -54,6 +54,14 @@ public final class CardRewardAdvisor {
             s.score = score(player, card, r.deck, act, floor);
             s.offPackage = isOffPackage(card, r.deck);
             s.note = CardDatabase.note(card);
+            String synergyNote = SynergyAdvisor.note(player, card, r.deck);
+            if (synergyNote.length() > 0) {
+                s.note = s.note + " " + synergyNote;
+            }
+            String relicNote = RelicAdvisor.cardNote(player, card);
+            if (relicNote.length() > 0) {
+                s.note = s.note + " " + relicNote;
+            }
             String roleNote = CharacterAdvisor.pickNote(player, card, r.deck);
             if (roleNote != null && roleNote.length() > 0) {
                 s.note = s.note + " " + roleNote;
@@ -102,6 +110,7 @@ public final class CardRewardAdvisor {
         score += RelicAdvisor.cardBonus(p, c);
         score += ActAdvisor.cardBonus(p, c);
         score += ArchetypeAdvisor.cardBonus(p, c, deck, act, floor);
+        score += SynergyAdvisor.cardBonus(p, c, deck);
         score += keySynergy(p, c, deck, act);
         score += CharacterAdvisor.pickBonus(p, c, deck);
         if (c.upgraded || c.timesUpgraded > 0) {
@@ -194,8 +203,10 @@ public final class CardRewardAdvisor {
         String secondary = deck.secondaryKey();
         int primaryCount = arch.length() == 0 ? 0 : deck.tag(arch);
         boolean matchesPackage = arch.length() == 0
+                || SynergyAdvisor.fitsPackage(c, arch)
                 || CardDatabase.hasTag(c, arch)
-                || (secondary.length() > 0 && CardDatabase.hasTag(c, secondary));
+                || (secondary.length() > 0 && (SynergyAdvisor.fitsPackage(c, secondary)
+                || CardDatabase.hasTag(c, secondary)));
         if (arch.length() > 0 && matchesPackage) {
             score += 0.45;
         }
@@ -346,8 +357,10 @@ public final class CardRewardAdvisor {
             return false;
         }
         String secondary = deck.secondaryKey();
-        if (CardDatabase.hasTag(c, primary)
-                || (secondary.length() > 0 && CardDatabase.hasTag(c, secondary))) {
+        if (SynergyAdvisor.fitsPackage(c, primary)
+                || CardDatabase.hasTag(c, primary)
+                || (secondary.length() > 0 && (SynergyAdvisor.fitsPackage(c, secondary)
+                || CardDatabase.hasTag(c, secondary)))) {
             return false;
         }
         if (CardDatabase.hasTag(c, "block") && deck.blockCards < 5) {
@@ -387,6 +400,7 @@ public final class CardRewardAdvisor {
             r.title = "拿【" + CardDatabase.shortName(r.top.card) + "】";
         }
         r.lines.add(r.deck.countsLine());
+        r.lines.add(SynergyAdvisor.deckLine(r.deck));
         r.lines.add("当前需要：" + r.deck.needLine(act));
         r.lines.add(ArchetypeAdvisor.stageLine(p, r.deck, act, AbstractDungeon.floorNum));
         r.lines.add(ArchetypeAdvisor.planLine(p, r.deck, act, AbstractDungeon.floorNum));

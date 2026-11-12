@@ -133,6 +133,14 @@ public final class ShopAdvisor {
             i.price = c.price;
             i.priority = cardScore * 10.0 - c.price * 0.12;
             i.note = CardDatabase.note(c);
+            String syn = SynergyAdvisor.note(p, c, DeckSummary.of(p));
+            if (syn.length() > 0) {
+                i.note = i.note + " " + syn;
+            }
+            String relicNote = RelicAdvisor.cardNote(p, c);
+            if (relicNote.length() > 0) {
+                i.note = i.note + " " + relicNote;
+            }
             r.items.add(i);
         }
     }

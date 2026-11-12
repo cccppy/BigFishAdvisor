@@ -215,6 +215,9 @@ public final class ArchetypeAdvisor {
     // ------------------------------------------------------------- core data
 
     private static boolean isCore(AbstractCard c) {
+        if (SynergyAdvisor.isCoreCard(c)) {
+            return true;
+        }
         String id = CardDatabase.norm(c.cardID);
         return id.contains("corruption") || id.contains("darkembrace") || id.contains("feelnopain")
                 || id.contains("barricade") || id.contains("limitbreak") || id.contains("demonform")
@@ -309,12 +312,22 @@ public final class ArchetypeAdvisor {
         if (id.contains("scrawl") || id.contains("vault")) {
             n += Math.min(2, d.tag("draw") + d.tag("retain"));
         }
+        if (id.contains("tactician") || id.contains("reflex") || id.contains("eviscerate")
+                || id.contains("sneakystrike") || id.contains("grandfinale")) {
+            n += Math.min(3, d.tag("discard"));
+        }
+        if (id.contains("bane") || id.contains("corpseexplosion")) {
+            n += Math.min(3, d.tag("poison"));
+        }
         return n;
     }
 
     private static boolean matchesDirection(AbstractCard c, String direction) {
         if (direction.length() == 0) {
             return false;
+        }
+        if (SynergyAdvisor.matchesDirection(c, direction)) {
+            return true;
         }
         if (CardDatabase.hasTag(c, direction)) {
             return true;
@@ -385,7 +398,9 @@ public final class ArchetypeAdvisor {
         String bestName = "";
         int bestScore = 2;
         for (String[] m : directions(d)) {
-            int score = d.tag(m[0]) + relicDirection(p, m[0]);
+            int score = d.tag(m[0])
+                    + (int) Math.round(SynergyAdvisor.directionWeight(d, m[0]))
+                    + relicDirection(p, m[0]);
             if (score > bestScore) {
                 bestScore = score;
                 best = m[0];
@@ -438,6 +453,15 @@ public final class ArchetypeAdvisor {
             }
             if (key.equals("discard") && id.contains("hoveringkite")) {
                 n += 2;
+            }
+            if (key.equals("discard") && (id.contains("toughbandages") || id.contains("tingsha"))) {
+                n += 1;
+            }
+            if (key.equals("poison") && id.contains("sneckoskull")) {
+                n += 2;
+            }
+            if (key.equals("poison") && id.contains("thespecimen")) {
+                n += 1;
             }
             if ((key.equals("focus") || key.equals("orb")) && id.contains("nuclearbattery")) {
                 n += 1;

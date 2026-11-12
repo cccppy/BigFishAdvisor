@@ -89,7 +89,7 @@ public final class DeckSummary {
         String best = null;
         int bestCount = 2;
         for (String[] m : archetypeMap()) {
-            int n = tag(m[0]);
+            int n = tag(m[0]) + Math.min(5, SynergyAdvisor.packageCount(this, m[0]));
             if (n > bestCount) {
                 bestCount = n;
                 best = m[0];
@@ -131,7 +131,7 @@ public final class DeckSummary {
             if (m[0].equals(primary)) {
                 continue;
             }
-            int n = tag(m[0]);
+            int n = tag(m[0]) + Math.min(5, SynergyAdvisor.packageCount(this, m[0]));
             if (n > bestCount) {
                 bestCount = n;
                 best = m[0];
