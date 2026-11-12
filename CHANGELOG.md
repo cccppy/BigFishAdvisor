@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.2.4
+
+- Removal safety: shop/campfire/card-select removal now uses the game's own purgeability rules and never recommends Ascender's Bane, Necronomicurse, or Curse of the Bell. If no disposable card exists, it says "don't remove anything" instead of sacrificing a core card to fill the slot.
+- Curse choices are audited as a deck cost, not a HP trade: event scoring now distinguishes "add a curse" from "remove a curse", lowers max-HP/heal weights, and applies a larger penalty when the deck has no reliable removal, exhaust package, Omamori, or curse payoff. It will explicitly warn against taking a curse just for max HP or a relic.
+- Text cleanup: `#9` and all short StS color codes (`#b/#g/#r/#y/#p/#gold`) are stripped from event and potion text, and repeated whitespace is collapsed, so numbers are no longer mixed with formatting fragments.
+- Boss preparation: map and card-reward advice now includes a deck check (attack / block / AOE / curses). It warns when block is below 5, AOE is missing in a 15+ card deck, the deck is 26+ cards, or curses are piling up, instead of only explaining the boss pattern.
+- Kept 1.2.3: cross-turn setup, X-cost modeling, boss target ring fix, Gambling Chip finite discard, retain choice with remaining slots, lethal leader priority, and single-target special-group focus.
+
 ## 1.2.3
 
 - Cross-turn setup is now scored as a real plan, not a flat "power" bonus: Phantasmal Killer, Nightmare, Doppelganger, Predator, Burst, Well-Laid Plans, Wraith Form, Echo Form, Biased Cognition, Electrodynamics, Loop, Demon Form, Limit Break, Barricade, Corruption and similar cards get a higher score on a safe turn and a lower score when the incoming damage is dangerous. The panel explains "set up now, cash in next turn" and the estimated follow-up damage.
