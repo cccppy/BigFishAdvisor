@@ -87,7 +87,7 @@ public final class CampfireAdvisor {
     }
 
     public Result analyzePurge(AbstractPlayer p) {
-        return analyzePurge(p, p == null ? null : p.masterDeck.group);
+        return analyzePurge(p, p == null ? null : CurseAdvisor.purgeable(p));
     }
 
     public Result analyzePurge(AbstractPlayer p, List<AbstractCard> available) {
@@ -100,7 +100,7 @@ public final class CampfireAdvisor {
         List<AbstractCard> cards = available == null || available.isEmpty()
                 ? p.masterDeck.group : available;
         for (AbstractCard c : cards) {
-            if (c == null) {
+            if (c == null || CurseAdvisor.isUnremovable(c)) {
                 continue;
             }
             Upgrade u = new Upgrade();
@@ -158,7 +158,7 @@ public final class CampfireAdvisor {
     }
 
     private boolean isDisposable(AbstractCard c, AbstractPlayer p) {
-        if (c == null) {
+        if (c == null || CurseAdvisor.isUnremovable(c)) {
             return false;
         }
         if (c.type == AbstractCard.CardType.CURSE || c.type == AbstractCard.CardType.STATUS) {
@@ -183,6 +183,9 @@ public final class CampfireAdvisor {
     }
 
     private double purgeScore(AbstractCard c, AbstractPlayer p) {
+        if (c == null || CurseAdvisor.isUnremovable(c)) {
+            return -999.0;
+        }
         if (c.type == AbstractCard.CardType.CURSE || c.type == AbstractCard.CardType.STATUS) {
             return 10.0;
         }

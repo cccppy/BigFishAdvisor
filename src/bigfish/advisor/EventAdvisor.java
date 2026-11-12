@@ -244,7 +244,7 @@ public final class EventAdvisor {
             o.button = buttons.get(i);
             o.index = i;
             o.text = text;
-            o.score = simpleNeowScore(text);
+            o.score = simpleNeowScore(text, player);
             o.note = simpleNeowNote(text);
             o.verdict = o.score >= 8.0 ? "稳，优先" : o.score >= 6.5 ? "不错" : "看情况";
             r.options.add(o);
@@ -263,15 +263,15 @@ public final class EventAdvisor {
                     + o.verdict + " · 评分 " + String.format("%.1f", o.score));
             r.lines.add("说明：" + o.note);
         }
-        r.lines.add("先说结论：新手开局优先稳定收益（最大生命、删牌、金币、普通遗物）；"
+        r.lines.add("先说结论：新手开局优先删牌/金币/普通遗物；最大生命是稳定但上限较低。"
                 + "诅咒/失去最大生命/高风险 Boss 遗物先别碰。");
         return r;
     }
 
-    private double simpleNeowScore(String text) {
+    private double simpleNeowScore(String text, AbstractPlayer p) {
         String t = text.toLowerCase(Locale.ROOT);
         if (has(t, "最大生命") || has(t, "max hp")) {
-            return has(t, "失去") ? 4.0 : 8.6;
+            return has(t, "失去") ? 4.4 : 7.3;
         }
         if (has(t, "3 场") || has(t, "三场") || has(t, "1 点生命")) {
             return 8.0;
@@ -286,7 +286,7 @@ public final class EventAdvisor {
             return 8.2;
         }
         if (has(t, "诅咒") || has(t, "curse")) {
-            return 4.0;
+            return 3.2;
         }
         return 6.2;
     }
@@ -294,7 +294,8 @@ public final class EventAdvisor {
     private String simpleNeowNote(String text) {
         String t = text.toLowerCase(Locale.ROOT);
         if (has(t, "最大生命")) {
-            return "永久加最大生命，最稳，不需要操作就能吃到收益。";
+            return "永久最大生命很稳，但只是提高容错，不会补牌组质量；"
+                    + "删牌/稀有遗物的上限通常更高。";
         }
         if (has(t, "3 场") || has(t, "三场") || has(t, "1 点生命")) {
             return "前三场战斗几乎白送，能快速拿牌/金币；但不会直接提高后期上限。";
@@ -330,14 +331,24 @@ public final class EventAdvisor {
             o.button = b;
             o.index = i;
             o.text = clean(b.msg);
+            boolean curseOption = CurseAdvisor.givesCurse(o.text);
             o.score = id.equals("NeowEvent") ? neowScore(o.text, player, hpPct)
                     : genericScore(o.text, player, hpPct);
             if (override != null && i < override.length) {
                 o.score = override[i] + contextAdjust(o.text, player, hpPct);
+                // The hand-written event table predates the curse audit.  A
+                // curse is a permanent deck cost, so apply the same burden to
+                // override scores instead of trusting a flat 5.x.
+                if (curseOption) {
+                    o.score -= CurseAdvisor.eventPenalty(player);
+                }
             }
             o.score = Math.max(0.0, Math.min(10.0, o.score));
             o.note = overrideNotes != null && i < overrideNotes.length
                     ? overrideNotes[i] : note(o.text, player, hpPct);
+            if (curseOption) {
+                o.note += " " + CurseAdvisor.advice(player);
+            }
             o.verdict = verdict(o);
             r.options.add(o);
         }
@@ -384,7 +395,7 @@ public final class EventAdvisor {
             return 8.8;
         }
         if (has(t, "max hp") || has(t, "最大生命") || has(t, "最大血量")) {
-            return has(t, "lose") || has(t, "失去") ? 5.2 : 8.5;
+            return has(t, "lose") || has(t, "失去") ? 5.4 : 7.3;
         }
         if (has(t, "rare relic") || has(t, "稀有遗物")) {
             return 8.4;
@@ -408,7 +419,7 @@ public final class EventAdvisor {
             return 6.0;
         }
         if (has(t, "curse") || has(t, "诅咒")) {
-            return 4.8;
+            return 3.2;
         }
         if (has(t, "card") || has(t, "牌")) {
             return 6.8;
@@ -426,7 +437,7 @@ public final class EventAdvisor {
             s += 2.0;
         }
         if (has(t, "max hp") || has(t, "最大生命") || has(t, "最大血量")) {
-            s += has(t, "lose") || has(t, "失去") ? -2.0 : 2.6;
+            s += has(t, "lose") || has(t, "失去") ? -2.2 : 1.2;
         }
         if (has(t, "relic") || has(t, "遗物")) {
             s += 2.2;
@@ -441,7 +452,7 @@ public final class EventAdvisor {
             s += 2.4;
         }
         if (has(t, "heal") || has(t, "回复") || has(t, "治疗")) {
-            s += hpPct < 60 ? 2.4 : 0.8;
+            s += hpPct < 35 ? 1.8 : hpPct < 60 ? 1.0 : 0.3;
         }
         if (has(t, "gold") || has(t, "金币")) {
             s += p.gold < 100 ? 1.5 : 0.8;
@@ -450,7 +461,7 @@ public final class EventAdvisor {
             s += 0.8;
         }
         if (has(t, "curse") || has(t, "诅咒")) {
-            s -= 2.8;
+            s -= CurseAdvisor.eventPenalty(p);
         }
         if (has(t, "lose max hp") || has(t, "失去最大生命") || has(t, "失去最大血量")) {
             s -= 2.2;
@@ -480,7 +491,7 @@ public final class EventAdvisor {
         String t = text.toLowerCase(Locale.ROOT);
         double adjust = 0.0;
         if (has(t, "heal") || has(t, "回复")) {
-            adjust += hpPct < 55 ? 0.8 : -0.4;
+            adjust += hpPct < 45 ? 0.3 : -0.2;
         }
         if (has(t, "remove") || has(t, "移除")) {
             if (p.masterDeck.size() > 18) {
@@ -550,9 +561,15 @@ public final class EventAdvisor {
         r.lines.add("我会这么选：先排除会直接致死/无法翻盘的选项，再比较即时收益与不可逆代价；"
                 + "同一档收益时选更稳定、后续更容易补回来的。");
         if (id.equals("NeowEvent")) {
-            r.lines.add("大肥鱼的想法：开局优先稳定收益——删牌/最大生命/金币/普通遗物；Boss 遗物换风险高，新手别第一选。");
+            r.lines.add("大肥鱼的想法：开局优先删牌/金币/普通遗物；最大生命只是稳定，不是最高上限。"
+                    + "Boss 遗物换风险高，新手别第一选。");
         } else {
-            r.lines.add("大肥鱼的想法：先看不可逆代价（最大生命、诅咒、强制战斗），再看即时收益；血量 " + hpPct + "%。");
+            r.lines.add("大肥鱼的想法：先看不可逆代价（诅咒、最大生命、强制战斗），再看即时收益；"
+                    + "回血/加最大生命只解决眼前血量，不会补牌组质量；血量 " + hpPct + "%。");
+        }
+        String curseDeck = CurseAdvisor.deckLine(p);
+        if (curseDeck.length() > 0) {
+            r.lines.add(curseDeck);
         }
     }
 
@@ -580,14 +597,6 @@ public final class EventAdvisor {
         return s == null ? "" : s.replace("\n", " ").trim();
     }
 
-    private static String shortText(String s, int max) {
-        if (s == null) {
-            return "";
-        }
-        String t = s.replace("\n", " ").trim();
-        return t.length() <= max ? t : t.substring(0, Math.max(0, max - 1)) + "...";
-    }
-
     private static String clean(String s) {
         if (s == null) {
             return "";
@@ -595,9 +604,13 @@ public final class EventAdvisor {
         // Only strip color codes/tags. Neow option labels can contain normal
         // bracketed text; removing every [...] left the recommendation empty.
         return s.replaceAll("\\[#[0-9a-fA-F]{6,8}\\]", "")
+                // StS uses short color codes (#b/#g/#r/#y/#p/#gold) and,
+                // in some UI text, #9.  They are formatting, not values.
+                .replaceAll("[#＃](?:gold|[bgryp9])", "")
                 .replaceAll("\\[/?[a-zA-Z]+\\]", "")
                 .replace("[]", "")
                 .replace("\n", " ")
+                .replaceAll("\\s+", " ")
                 .trim();
     }
 

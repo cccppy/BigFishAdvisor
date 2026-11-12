@@ -179,7 +179,7 @@ public final class ShopAdvisor {
     private String purgeTarget(AbstractPlayer p) {
         AbstractCard worst = null;
         double worstScore = -999;
-        for (AbstractCard c : p.masterDeck.group) {
+        for (AbstractCard c : CurseAdvisor.purgeable(p)) {
             if (c == null) {
                 continue;
             }
@@ -205,7 +205,7 @@ public final class ShopAdvisor {
     }
 
     private boolean isDisposable(AbstractCard c, AbstractPlayer p) {
-        if (c == null) {
+        if (c == null || CurseAdvisor.isUnremovable(c)) {
             return false;
         }
         if (c.type == AbstractCard.CardType.CURSE || c.type == AbstractCard.CardType.STATUS) {

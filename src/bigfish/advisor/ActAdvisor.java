@@ -66,7 +66,38 @@ public final class ActAdvisor {
         if (nick.length() == 0) {
             return "本幕 Boss：" + bossName() + "。先按当前意图和牌组短板准备，别等到 Boss 前才补防御。";
         }
-        return "本幕 Boss：" + bossName() + "（" + nick + "）——" + mechanic + "。准备：" + prepare;
+        return "本幕 Boss：" + bossName() + "（" + nick + "）——" + mechanic
+                + "。准备：" + prepare + " " + readinessLine(p);
+    }
+
+    /**
+     * The old boss line was all "what the boss does" and no "is my deck
+     * actually ready?".  A beginner can follow every card/event tip and still
+     * walk into the Act 1 boss with 4 block cards and two curses.  Keep this
+     * short: it is shown next to the route/reward card, not a full audit.
+     */
+    private static String readinessLine(AbstractPlayer p) {
+        if (p == null) {
+            return "";
+        }
+        DeckSummary d = DeckSummary.of(p);
+        StringBuilder b = new StringBuilder("牌组体检：攻击 ")
+                .append(d.attacks).append(" / 格挡 ").append(d.blockCards)
+                .append(" / AOE ").append(d.aoeCards);
+        if (d.curses > 0) {
+            b.append(" / 诅咒 ").append(d.curses);
+        }
+        b.append("。");
+        if (d.blockCards < 5) {
+            b.append("格挡偏少，Boss 前优先补格挡/升级防御，别只拿输出。");
+        } else if (d.aoeCards < 1 && d.size >= 15) {
+            b.append("没有 AOE，遇到分裂/召小怪会很难，优先补一张群体伤害。");
+        } else if (d.size >= 26) {
+            b.append("牌组偏厚，后面少拿普通牌，优先删基础牌/升级核心。");
+        } else {
+            b.append("基础结构够用，Boss 前把核心牌升级、药水留好。");
+        }
+        return b.toString();
     }
 
     public static String eliteLine(AbstractPlayer p) {

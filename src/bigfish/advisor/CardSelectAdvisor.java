@@ -282,6 +282,15 @@ public final class CardSelectAdvisor {
     }
 
     private Result build(AbstractPlayer p, List<AbstractCard> cards, Direction dir, int count, boolean many) {
+        if (dir == Direction.REMOVE) {
+            // The purge grid normally hides Ascender's Bane, but guard the
+            // advice path too: it is not removable and must never be named.
+            for (int i = cards.size() - 1; i >= 0; i--) {
+                if (CurseAdvisor.isUnremovable(cards.get(i))) {
+                    cards.remove(i);
+                }
+            }
+        }
         if (cards.isEmpty()) {
             return null;
         }
@@ -634,6 +643,10 @@ public final class CardSelectAdvisor {
 
     private double value(AbstractCard c, Direction dir) {
         if (c == null) {
+            return -999;
+        }
+        if (dir == Direction.REMOVE && CurseAdvisor.isUnremovable(c)) {
+            // Ascender's Bane is not purgeable; never present it as a choice.
             return -999;
         }
         if (c.type == AbstractCard.CardType.CURSE || c.type == AbstractCard.CardType.STATUS) {

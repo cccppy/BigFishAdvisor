@@ -492,7 +492,8 @@ public final class PotionRewardAdvisor {
         String s = text.replace("NL", "；");
         s = s.replaceAll("\\[[^\\]]*\\]", "");
         s = s.replace("#b", "").replace("#g", "").replace("#r", "")
-                .replace("#y", "").replace("#p", "").replace("*", "").replace("%", "");
+                .replace("#y", "").replace("#p", "").replace("#9", "")
+                .replace("＃9", "").replace("*", "").replace("%", "");
         s = s.replaceAll("\\s+", " ").trim();
         return s;
     }
