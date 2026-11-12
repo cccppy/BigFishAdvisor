@@ -44,6 +44,9 @@ public final class CombatAdvisor {
         public boolean setup;
         public String setupNote;
         public int nextTurnDamage;
+        public boolean blockSetup;
+        public String blockFollowUp;
+        public int blockSetupGain;
         public AbstractMonster focusTarget;
         public String focusReason;
         public String focusOrder;
@@ -119,6 +122,9 @@ public final class CombatAdvisor {
         } else if (r.best.setupVulnerable && r.best.followUpName != null) {
             r.title = "先【" + CardDatabase.shortName(r.best.card) + "】再【"
                     + r.best.followUpName + "】";
+        } else if (r.best.blockSetup && r.best.blockFollowUp != null) {
+            r.title = "先【" + CardDatabase.shortName(r.best.card) + "】再【"
+                    + r.best.blockFollowUp + "】";
         } else if (r.best.setup) {
             r.title = "先启动【" + CardDatabase.shortName(r.best.card) + "】";
         } else if (r.best.lethalEnding && r.best.lethalEndingTarget != null) {
@@ -303,6 +309,10 @@ public final class CombatAdvisor {
         Set<String> tags = CardDatabase.tags(card);
         int neededBlock = Math.max(0, r.incoming - player.currentBlock);
         s.block = estimateBlock(card);
+        // Only call this a "block setup" when there is actually damage to
+        // block this turn.  On a safe turn the normal power/attack score
+        // should decide, not a fake defensive bundle.
+        BlockSetup blockSetup = neededBlock > 0 ? blockSetup(player, card, r.energy) : null;
         SetupAdvisor.Advice setup = SetupAdvisor.read(
                 player, card, alive, effectiveEnergy, r.incoming, r.turn);
         boolean xUseless = CostUtil.isX(card) && effectiveEnergy <= 0;
@@ -319,6 +329,16 @@ public final class CombatAdvisor {
         s.setup = setup.setup;
         s.setupNote = setup.note;
         s.nextTurnDamage = setup.nextTurnDamage;
+        if (blockSetup != null) {
+            int useful = Math.min(blockSetup.total, neededBlock);
+            s.blockSetup = true;
+            s.blockFollowUp = blockSetup.follow;
+            s.blockSetupGain = blockSetup.gain;
+            s.setup = true;
+            s.setupNote = "先开【" + CardDatabase.shortName(card) + "】拿敏捷；"
+                    + "手里还能接着打出格挡牌，之后每张格挡都会多吃这层敏捷。"
+                    + (useful > 0 ? "这回合格挡牌合计约 " + blockSetup.total + " 点。" : "");
+        }
         double score = 0.0;
         CardDatabase.Entry quality = CardDatabase.get(card);
         if (quality != null) {
@@ -327,6 +347,17 @@ public final class CombatAdvisor {
         score += RelicAdvisor.combatBonus(player, card);
         score += characterRead.bonus;
         score += setup.bonus;
+        if (blockSetup != null) {
+            int useful = Math.min(blockSetup.total, neededBlock);
+            if (useful > 0) {
+                // Compare the whole "power + block cards" sequence, not just
+                // the power's own zero block.  Play Footwork first, then the
+                // blocks, and the total block is what keeps the player alive.
+                score += useful * 1.55 + 1.2;
+            } else {
+                score += Math.min(2.0, blockSetup.gain * 0.18);
+            }
+        }
         if (xUseless) {
             score -= 9.0;
         }
@@ -446,7 +477,7 @@ public final class CombatAdvisor {
 
         if (card.type == AbstractCard.CardType.POWER) {
             score += 3.4 + r.turn * 0.45;
-            if (r.incoming > 16 && neededBlock > 0) {
+            if (!s.blockSetup && r.incoming > 16 && neededBlock > 0) {
                 score -= 2.7;
             }
             if (r.turn >= 8) {
@@ -564,6 +595,10 @@ public final class CombatAdvisor {
             r.lines.add("顺序：先打【" + CardDatabase.shortName(r.best.card)
                     + "】上易伤，再打【" + r.best.followUpName
                     + "】；先打输出会少掉这 50% 的易伤加成，别把顺序打反。");
+        } else if (r.best.blockSetup && r.best.blockFollowUp != null) {
+            r.lines.add("顺序：先打【" + CardDatabase.shortName(r.best.card)
+                    + "】拿敏捷，再打【" + r.best.blockFollowUp
+                    + "】；这样每张格挡都会多吃这层敏捷，先交防御会把这份加成白白丢掉。");
         } else if (r.best.lethal) {
             r.lines.add("这是斩杀线：先收掉它，能少挨一轮攻击/减少后续变数。");
         } else if (r.best.setup) {
@@ -576,7 +611,10 @@ public final class CombatAdvisor {
         } else {
             r.lines.add("先处理威胁最高的敌人，别只看单张伤害数字。");
         }
-        if (r.best.setup) {
+        if (r.best.blockSetup && r.best.blockFollowUp != null) {
+            r.plan = "先【" + CardDatabase.shortName(r.best.card) + "】拿敏捷，再打【"
+                    + r.best.blockFollowUp + "】；这回合的格挡会被敏捷放大，别先交防御。";
+        } else if (r.best.setup) {
             r.plan = "先【" + CardDatabase.shortName(r.best.card) + "】做启动"
                     + (r.best.nextTurnDamage > 0 ? "，下回合大约能多打出 " + r.best.nextTurnDamage + " 伤" : "")
                     + "；这一步要在这回合安全时做。";
@@ -641,6 +679,11 @@ public final class CombatAdvisor {
         if (s.setupVulnerable) {
             return String.format("【%s】先上易伤：后续攻击伤害 ×1.5，手里这套还能多打约 %d。",
                     name, Math.max(0, vulnGain));
+        }
+        if (s.blockSetup && s.blockFollowUp != null) {
+            return String.format("【%s】先拿敏捷：手里还能接【%s】等格挡牌，"
+                            + "先开它再打防御，本回合合计约多挡 %d 点；先交防御会少这一截。",
+                    name, s.blockFollowUp, s.blockSetupGain);
         }
         if (s.damage > 0 && s.block > 0) {
             return String.format("【%s】约 %d 伤 + %d 格挡，攻防一体；对面这回合有 %d 伤。",
@@ -900,6 +943,67 @@ public final class CombatAdvisor {
         AbstractCard copy = card.makeStatEquivalentCopy();
         copy.applyPowers();
         return Math.max(0, Math.max(copy.block, card.block));
+    }
+
+    private static final class BlockSetup {
+        int gain;
+        int total;
+        String follow;
+    }
+
+    /**
+     * 灵动步伐/斋戒这类“先加敏捷、再打防御”的启动牌，本身没有格挡。
+     * 如果只看单卡即时格挡，防御永远排在它前面，玩家就会先交防御，
+     * 白白少掉每张防御的敏捷加成。这里把手里能接着打出的格挡牌算进来，
+     * 让“先敏捷、后防御”成为一个明确的出牌顺序。
+     */
+    private BlockSetup blockSetup(AbstractPlayer player, AbstractCard card, int energy) {
+        if (player == null || card == null || card.type != AbstractCard.CardType.POWER) {
+            return null;
+        }
+        String id = CardDatabase.norm(card.cardID);
+        int per;
+        if (id.contains("footwork")) {
+            per = card.upgraded || card.timesUpgraded > 0 ? 3 : 2;
+        } else if (id.contains("fasting")) {
+            per = 3;
+        } else if (id.contains("reprogram")) {
+            per = card.upgraded || card.timesUpgraded > 0 ? 2 : 1;
+        } else {
+            return null;
+        }
+        int remaining = energy - Math.max(0, CostUtil.current(card));
+        if (remaining < 0) {
+            return null;
+        }
+        int count = 0;
+        int total = 0;
+        String follow = null;
+        for (AbstractCard h : player.hand.group) {
+            if (h == null || h == card || h.type == AbstractCard.CardType.CURSE
+                    || h.type == AbstractCard.CardType.STATUS) {
+                continue;
+            }
+            int b = estimateBlock(h);
+            int cost = CostUtil.current(h);
+            if (b <= 0 || CostUtil.isX(h) || cost < 0 || cost > remaining) {
+                continue;
+            }
+            count++;
+            total += b + per;
+            remaining -= cost;
+            if (follow == null) {
+                follow = CardDatabase.shortName(h);
+            }
+        }
+        if (count == 0) {
+            return null;
+        }
+        BlockSetup out = new BlockSetup();
+        out.gain = per * count;
+        out.total = total;
+        out.follow = follow;
+        return out;
     }
 
     public static int hitCount(AbstractCard c, int energy) {
