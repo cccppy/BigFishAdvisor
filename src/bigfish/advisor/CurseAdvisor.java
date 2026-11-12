@@ -58,9 +58,11 @@ public final class CurseAdvisor {
     }
 
     /**
-     * True only when an option ADDS a curse.  hasCurseText() also matches
-     * "移除一张诅咒", which used to make a beneficial removal option look like
-     * a curse bargain and get the full penalty.
+     * True only when an option ADDS a curse.  A blanket "contains 诅咒" check
+     * also matched "移除一张诅咒" and made a beneficial removal look like a
+     * curse bargain.  Match the add verb near the curse instead of excluding
+     * any option that happens to contain "移除" (some events both remove a
+     * card and add a curse).
      */
     public static boolean givesCurse(String text) {
         if (text == null) {
@@ -70,14 +72,12 @@ public final class CurseAdvisor {
         if (!(t.contains("诅咒") || t.contains("curse"))) {
             return false;
         }
-        if (t.contains("移除") || t.contains("删除") || t.contains("消除")
-                || t.contains("净化") || t.contains("remove") || t.contains("清除")) {
-            return false;
-        }
-        return t.contains("获得") || t.contains("加入") || t.contains("放入")
-                || t.contains("塞入") || t.contains("被诅咒") || t.contains("受到诅咒")
-                || t.contains("变成诅咒") || t.contains("替换为诅咒") || t.contains("shuffle")
-                || t.contains("add");
+        boolean add = t.matches("(?s).*(获得|加入|放入|塞入|被|受到|变成|替换为)\\s*"
+                + "(\\d+\\s*张|一张|两张|三张|所有)?\\s*(诅咒|curse).*")
+                || t.matches("(?s).*将[^。；;]{0,8}诅咒[^。；;]{0,8}(加入|放入|塞入).*")
+                || (t.contains("curse") && (t.contains("add") || t.contains("shuffle")
+                || t.contains("obtain")));
+        return add;
     }
 
     public static boolean hasOmamori(AbstractPlayer p) {
