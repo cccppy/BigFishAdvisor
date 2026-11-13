@@ -363,7 +363,8 @@ public final class SynergyAdvisor {
             if (any(id, "accuracy", "afterimage", "infiniteblades")) {
                 return CORE;
             }
-            if (any(id, "accuracy", "afterimage", "envenom", "wristblade")) {
+            if (any(id, "accuracy", "afterimage", "envenom", "wristblade",
+                    "finisher", "athousandcuts", "panache")) {
                 return PAYOFF;
             }
             if (any(id, "bladedance", "cloakanddagger", "infiniteblades",

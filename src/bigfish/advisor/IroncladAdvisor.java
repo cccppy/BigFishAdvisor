@@ -119,15 +119,21 @@ public final class IroncladAdvisor {
                         + "【无痛】把消耗转格挡，【黑暗之拥】把消耗转抽牌，先开它们再烧牌。");
             }
         } else if ("secondwind".equals(id)) {
-            int nonAttack = handNonAttack(p);
+            int nonAttack = handNonAttack(p, c);
             bonus += Math.min(2.0, nonAttack * 0.25);
             note(r, "手里有 " + nonAttack + " 张非攻击牌（技能/能力/状态/诅咒）；"
                     + "【重振精神】只消耗非攻击牌，每张给格挡，先打要留的攻击，再重振。");
         } else if ("fiendfire".equals(id)) {
-            int hand = p.hand == null ? 0 : p.hand.size();
-            bonus += Math.min(2.4, hand * 0.18);
-            note(r, "【恶魔之火】消耗整手牌，每张打一段；手牌 " + hand
-                    + " 张时伤害很高，但会把防御/关键牌一起烧掉，确认这回合能收尾再打。");
+            int other = p.hand == null ? 0 : Math.max(0, p.hand.size() - 1);
+            if (other <= 0) {
+                bonus -= 2.4;
+                note(r, "【恶魔之火】消耗整手牌，每张打一段；现在手里没有别的牌，"
+                        + "打出去就是 0 伤，别空放。");
+            } else {
+                bonus += Math.min(2.4, other * 0.18);
+                note(r, "【恶魔之火】消耗整手牌，每张打一段；手里还有 " + other
+                        + " 张可烧，但会把防御/关键牌一起烧掉，确认这回合能收尾再打。");
+            }
         } else if ("juggernaut".equals(id)) {
             if (countTag(p, "block") >= 4) {
                 bonus += 1.1;
@@ -333,13 +339,13 @@ public final class IroncladAdvisor {
         return n;
     }
 
-    private static int handNonAttack(AbstractPlayer p) {
+    private static int handNonAttack(AbstractPlayer p, AbstractCard exclude) {
         int n = 0;
         if (p.hand == null) {
             return 0;
         }
-        for (AbstractCard c : p.hand.group) {
-            if (c.type != AbstractCard.CardType.ATTACK) {
+        for (AbstractCard h : p.hand.group) {
+            if (h != null && h != exclude && h.type != AbstractCard.CardType.ATTACK) {
                 n++;
             }
         }

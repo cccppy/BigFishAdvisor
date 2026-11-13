@@ -76,14 +76,28 @@ public final class SilentAdvisor {
         if (tag(p, c, "shiv") || id.contains("bladedance") || id.contains("cloakanddagger")
                 || id.contains("stormofsteel") || id.contains("infiniteblades")) {
             int accuracy = countId(p, "accuracy");
+            int shivDamage = 4 + strength(p) + accuracyBonus(p)
+                    + (p.hasRelic("Wrist Blade") ? 4 : 0);
+            int generated = shivsGenerated(c, p);
             bonus += 0.6 + Math.min(1.5, shiv * 0.08);
+            if (generated > 0) {
+                bonus += Math.min(3.2, generated * shivDamage * 0.18);
+                note(r, "这张能生成 " + generated + " 把小刀；按当前力量/精准/袖剑，"
+                        + "每把约 " + shivDamage + " 伤，小刀本身还是 0 费攻击，"
+                        + "能喂【终结技】/【凌迟】/【神气制胜】，也能触发苦无/手里剑。");
+            }
             if (accuracy > 0) {
                 bonus += 0.8;
-                note(r, "你有 " + accuracy + " 张【精准】；每张小刀都加伤害，"
+                note(r, "你有 " + accuracy + " 张【精准】；每把小刀 +4 伤，"
                         + "小刀越多，精准越像一张成长核心。");
             } else if (shiv >= 3) {
                 note(r, "你牌组有 " + shiv + " 张小刀/小刀来源；小刀是 0 费多段，"
                         + "配【余像】/【精准】/【苦无】能把张数变成格挡/伤害。");
+            }
+            if (id.contains("athousandcuts") || id.contains("panache")) {
+                bonus += 0.9;
+                note(r, "这张是“每打出一张牌/每 5 张牌”触发；小刀是 0 费牌，"
+                        + "能快速堆触发次数，和无限刀刃/刀刃之舞一起才是小刀流的输出核心。");
             }
         }
         if ("afterimage".equals(id) || "infiniteblades".equals(id)
@@ -96,9 +110,27 @@ public final class SilentAdvisor {
         }
         if ("finisher".equals(id)) {
             int played = attacksPlayedThisTurn();
-            bonus += Math.min(1.6, played * 0.15);
-            note(r, "【终结技】按这回合已经打出的攻击次数算，不是牌组里的攻击数；"
-                    + "本回合已打 " + played + " 张攻击，先打小刀/低费攻击再收尾。");
+            if (played <= 0) {
+                bonus -= 2.4;
+                note(r, "【终结技】按这回合已经打出的攻击次数算；现在一张攻击都没打，"
+                        + "打出去就是 0 伤。先用小刀/低费攻击铺次数，最后再收尾。");
+            } else {
+                bonus += Math.min(1.6, played * 0.15);
+                note(r, "【终结技】按这回合已经打出的攻击次数算，不是牌组里的攻击数；"
+                        + "本回合已打 " + played + " 张攻击，现在打可以吃到 " + played + " 段。");
+            }
+        }
+        if ("flechettes".equals(id)) {
+            int skills = skillsInHand(p, c);
+            if (skills <= 0) {
+                bonus -= 2.4;
+                note(r, "【飞镖】按手里剩下的技能牌数量打段数；现在手里没有技能牌，"
+                        + "打出去就是 0 伤。先留/抽技能牌，再打它。");
+            } else {
+                bonus += 0.3 + Math.min(1.4, skills * 0.16);
+                note(r, "手里还有 " + skills + " 张技能牌；【飞镖】会按这个数量打 "
+                        + skills + " 段，技能越多越强。");
+            }
         }
 
         if (tag(p, c, "discard") || id.contains("calculatedgamble")
@@ -330,6 +362,54 @@ public final class SilentAdvisor {
     private static int dexterity(AbstractPlayer p) {
         AbstractPower power = p == null ? null : p.getPower("Dexterity");
         return power == null ? 0 : power.amount;
+    }
+
+    private static int strength(AbstractPlayer p) {
+        AbstractPower power = p == null ? null : p.getPower("Strength");
+        return power == null ? 0 : power.amount;
+    }
+
+    private static int accuracyBonus(AbstractPlayer p) {
+        int bonus = 0;
+        if (p == null || p.masterDeck == null) {
+            return 0;
+        }
+        for (AbstractCard c : p.masterDeck.group) {
+            if (c != null && CardDatabase.norm(c.cardID).contains("accuracy")) {
+                bonus += c.upgraded ? 6 : 4;
+            }
+        }
+        return bonus;
+    }
+
+    private static int shivsGenerated(AbstractCard c, AbstractPlayer p) {
+        String id = CardDatabase.norm(c.cardID);
+        if (id.contains("bladedance")) {
+            return c.upgraded ? 4 : 3;
+        }
+        if (id.contains("cloakanddagger")) {
+            return c.upgraded ? 2 : 1;
+        }
+        if (id.contains("stormofsteel")) {
+            return p == null || p.hand == null ? 0 : Math.max(0, p.hand.size() - 1);
+        }
+        if (id.contains("infiniteblades")) {
+            return 1;
+        }
+        return 0;
+    }
+
+    private static int skillsInHand(AbstractPlayer p, AbstractCard exclude) {
+        if (p == null || p.hand == null) {
+            return 0;
+        }
+        int n = 0;
+        for (AbstractCard c : p.hand.group) {
+            if (c != null && c != exclude && c.type == AbstractCard.CardType.SKILL) {
+                n++;
+            }
+        }
+        return n;
     }
 
     private static boolean tag(AbstractPlayer p, AbstractCard c, String tag) {

@@ -173,7 +173,7 @@ public final class CombatAdvisor {
             AbstractMonster highTarget = null;
             int highHp = -1;
             for (AbstractMonster m : alive) {
-                int d = estimateDamage(card, m, effectiveEnergy);
+                int d = damageFor(player, card, m, effectiveEnergy);
                 bestDamage += d;
                 int hp = m.currentHealth + m.currentBlock;
                 if (d >= hp) {
@@ -190,7 +190,7 @@ public final class CombatAdvisor {
                 }
             }
             if (highTarget != null) {
-                int highDamage = estimateDamage(card, highTarget, effectiveEnergy);
+                int highDamage = damageFor(player, card, highTarget, effectiveEnergy);
                 aoeHighHp = highDamage >= highTarget.currentHealth + highTarget.currentBlock;
             }
             bestTarget = mostThreatening(alive);
@@ -199,7 +199,7 @@ public final class CombatAdvisor {
             for (AbstractMonster m : alive) {
                 CharacterAdvisor.Read read = CharacterAdvisor.combatCard(
                         player, card, alive, m, false, effectiveEnergy, r.incoming);
-                int d = read.damage >= 0 ? read.damage : estimateDamage(card, m, effectiveEnergy);
+                int d = read.damage >= 0 ? read.damage : damageFor(player, card, m, effectiveEnergy);
                 boolean kill = d >= m.currentHealth + m.currentBlock;
                 double v = targetValue(m, d, kill, alive) + read.bonus * 0.35;
                 if (kill && FocusAdvisor.endsFightWhenKilled(m)) {
@@ -222,7 +222,7 @@ public final class CombatAdvisor {
             CharacterAdvisor.Read forcedRead = CharacterAdvisor.combatCard(
                     player, card, alive, forced, false, effectiveEnergy, r.incoming);
             int forcedDamage = forcedRead.damage >= 0
-                    ? forcedRead.damage : estimateDamage(card, forced, effectiveEnergy);
+                    ? forcedRead.damage : damageFor(player, card, forced, effectiveEnergy);
             boolean forcedKill = forcedDamage >= forced.currentHealth + forced.currentBlock;
             // The strategic group target wins even if another enemy is
             // killable: Awakened One's cultists keep buffing it, and the
@@ -245,6 +245,14 @@ public final class CombatAdvisor {
             s.damage = characterRead.damage;
             s.lethal = s.damage >= (bestTarget == null ? Integer.MAX_VALUE
                     : bestTarget.currentHealth + bestTarget.currentBlock) && s.damage > 0;
+        }
+        if (!s.aoe) {
+            int conditional = conditionalDamage(player, card, bestTarget, effectiveEnergy);
+            if (conditional >= 0) {
+                s.damage = conditional;
+                s.lethal = s.damage > 0 && s.damage >= (bestTarget == null
+                        ? Integer.MAX_VALUE : bestTarget.currentHealth + bestTarget.currentBlock);
+            }
         }
         // Re-check after character-specific damage (Brilliance, Body Slam,
         // etc.) has overridden the generic estimate.
@@ -486,6 +494,13 @@ public final class CombatAdvisor {
         }
         if (card.type == AbstractCard.CardType.ATTACK) {
             score += 0.3;
+            if (s.damage <= 0) {
+                // Finisher/Flechettes/Fiend Fire/Blizzard/Thunder Strike/Body
+                // Slam can print damage yet produce zero in the current state.
+                // An attack with no damage is not a "small attack"; it is a
+                // wasted card and must not beat an end-turn or a real block.
+                score -= 30.0;
+            }
         }
         if (card.type == AbstractCard.CardType.SKILL && s.block == 0 && !tags.contains("draw")
                 && !tags.contains("energy")) {
@@ -936,6 +951,83 @@ public final class CombatAdvisor {
         return per * hits;
     }
 
+    /**
+     * Some attacks print a number but do not actually use it once:
+     * Finisher deals its damage once per Attack already played this turn,
+     * Flechettes once per Skill in hand, and Fiend Fire once per other card
+     * in hand.  Upgraded/base damage still goes through estimateDamage(), so
+     * Strength/Vulnerable are counted before the repeat multiplier.
+     */
+    private static int damageFor(AbstractPlayer player, AbstractCard card,
+                                 AbstractMonster target, int energy) {
+        int conditional = conditionalDamage(player, card, target, energy);
+        return conditional >= 0 ? conditional : estimateDamage(card, target, energy);
+    }
+
+    /** Returns -1 when this card is not a repeat/conditional damage attack. */
+    private static int conditionalDamage(AbstractPlayer player, AbstractCard card,
+                                         AbstractMonster target, int energy) {
+        if (player == null || card == null) {
+            return -1;
+        }
+        String id = CardDatabase.norm(card.cardID);
+        int per = estimateDamage(card, target, energy);
+        if ("finisher".equals(id)) {
+            return per * attacksPlayedThisTurn();
+        }
+        if ("flechettes".equals(id)) {
+            return per * skillsInHand(player, card);
+        }
+        if ("fiendfire".equals(id)) {
+            return per * otherCardsInHand(player, card);
+        }
+        if ("barrage".equals(id)) {
+            int orbs = player.orbs == null ? 0 : player.orbs.size();
+            return orbs <= 0 ? 0 : per * orbs;
+        }
+        return -1;
+    }
+
+    private static int attacksPlayedThisTurn() {
+        if (AbstractDungeon.actionManager == null
+                || AbstractDungeon.actionManager.cardsPlayedThisTurn == null) {
+            return 0;
+        }
+        int n = 0;
+        for (AbstractCard played : AbstractDungeon.actionManager.cardsPlayedThisTurn) {
+            if (played != null && played.type == AbstractCard.CardType.ATTACK) {
+                n++;
+            }
+        }
+        return n;
+    }
+
+    private static int skillsInHand(AbstractPlayer player, AbstractCard exclude) {
+        if (player == null || player.hand == null) {
+            return 0;
+        }
+        int n = 0;
+        for (AbstractCard h : player.hand.group) {
+            if (h != null && h != exclude && h.type == AbstractCard.CardType.SKILL) {
+                n++;
+            }
+        }
+        return n;
+    }
+
+    private static int otherCardsInHand(AbstractPlayer player, AbstractCard exclude) {
+        if (player == null || player.hand == null) {
+            return 0;
+        }
+        int n = 0;
+        for (AbstractCard h : player.hand.group) {
+            if (h != null && h != exclude) {
+                n++;
+            }
+        }
+        return n;
+    }
+
     public static int estimateBlock(AbstractCard card) {
         if (card == null) {
             return 0;
@@ -1115,7 +1207,7 @@ public final class CombatAdvisor {
                 if (m.hasPower("Vulnerable")) {
                     continue;
                 }
-                int dmg = estimateDamage(c, m, energyLeft);
+                int dmg = damageFor(p, c, m, energyLeft);
                 gain += (int) Math.round(dmg * 0.5);
             }
             if (gain > 0) {
