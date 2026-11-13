@@ -17,6 +17,8 @@ public final class CharacterAdvisor {
     public static final class Read {
         /** -1 means "do not replace the generic damage estimate". */
         public int damage = -1;
+        /** Damage is generated this turn, but not by this card's hit itself. */
+        public boolean delayedDamage;
         public double bonus;
         public String note = "";
     }

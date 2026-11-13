@@ -76,15 +76,24 @@ public final class SilentAdvisor {
         if (tag(p, c, "shiv") || id.contains("bladedance") || id.contains("cloakanddagger")
                 || id.contains("stormofsteel") || id.contains("infiniteblades")) {
             int accuracy = countId(p, "accuracy");
-            int shivDamage = 4 + strength(p) + accuracyBonus(p)
-                    + (p.hasRelic("Wrist Blade") ? 4 : 0);
+            int shivDamage = Math.max(0, 4 + strength(p) + accuracyBonus(p)
+                    + (p.hasRelic("Wrist Blade") ? 4 : 0));
             int generated = shivsGenerated(c, p);
             bonus += 0.6 + Math.min(1.5, shiv * 0.08);
             if (generated > 0) {
                 bonus += Math.min(3.2, generated * shivDamage * 0.18);
+                if (!id.contains("infiniteblades")) {
+                    // Blade Dance/Cloak and Dagger/Storm of Steel create the
+                    // shivs now.  Show their generated damage as a delayed
+                    // line: it needs the 0-cost shivs to be played before it
+                    // becomes real, so it must never be treated as a lethal hit.
+                    r.damage = generated * shivDamage;
+                    r.delayedDamage = true;
+                }
                 note(r, "这张能生成 " + generated + " 把小刀；按当前力量/精准/袖剑，"
                         + "每把约 " + shivDamage + " 伤，小刀本身还是 0 费攻击，"
-                        + "能喂【终结技】/【凌迟】/【神气制胜】，也能触发苦无/手里剑。");
+                        + "能喂【终结技】/【凌迟】/【神气制胜】，也能触发苦无/手里剑。"
+                        + (r.delayedDamage ? " 真正伤害要先把这些 0 费小刀打出去。" : ""));
             }
             if (accuracy > 0) {
                 bonus += 0.8;

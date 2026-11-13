@@ -27,6 +27,8 @@ public final class CombatAdvisor {
         public AbstractMonster target;
         public double score;
         public int damage;
+        /** Damage is produced after playing generated cards, not by this hit. */
+        public boolean delayed;
         public int block;
         public int energyCost;
         public boolean lethal;
@@ -243,8 +245,13 @@ public final class CombatAdvisor {
                 player, card, alive, bestTarget, s.aoe, effectiveEnergy, r.incoming);
         if (!s.aoe && characterRead.damage >= 0) {
             s.damage = characterRead.damage;
-            s.lethal = s.damage >= (bestTarget == null ? Integer.MAX_VALUE
+            s.delayed = characterRead.delayedDamage;
+            s.lethal = !s.delayed && s.damage >= (bestTarget == null ? Integer.MAX_VALUE
                     : bestTarget.currentHealth + bestTarget.currentBlock) && s.damage > 0;
+            if (s.delayed) {
+                s.setup = true;
+                s.setupNote = characterRead.note;
+            }
         }
         if (!s.aoe) {
             int conditional = conditionalDamage(player, card, bestTarget, effectiveEnergy);
