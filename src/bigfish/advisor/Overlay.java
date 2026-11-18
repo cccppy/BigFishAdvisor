@@ -20,6 +20,7 @@ import com.megacrit.cardcrawl.screens.select.HandCardSelectScreen;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.lang.reflect.Field;
 
 /** Owns the in-game fish bubble, the toggle, and the per-screen advice caches. */
 public final class Overlay {
@@ -601,13 +602,57 @@ public final class Overlay {
     }
 
     private void renderShop(SpriteBatch sb) {
-        if (shop.bestCard != null && shop.bestCard.current_x > 0 && shop.bestCard.current_y > 0) {
+        if (shop.best != null && shop.best.purge) {
+            drawPurgeFocus(sb);
+        } else if (shop.bestCard != null && shop.bestCard.current_x > 0 && shop.bestCard.current_y > 0) {
             ui.drawCardCorners(sb, shop.bestCard, Ui.GOLD);
             ui.drawCardTag(sb, shop.bestCard, "买", Ui.INK, Ui.GOLD, Ui.GOLD);
         }
         showAdvice(sb, shop.kicker, shop.title, null, shop.lines, null,
                 "点击 - 收起理由 · 拖动标题移动 · 金框为推荐购买", shop.compact,
                 Settings.WIDTH - 480 * ui.s, Settings.HEIGHT * 0.18f, 480, 360);
+    }
+
+    /**
+     * The purge service has no AbstractCard behind it, so the normal
+     * bestCard highlight cannot reach it.  Draw a small gold frame around the
+     * grey removal card using the coordinates ShopScreen itself renders with.
+     */
+    private void drawPurgeFocus(SpriteBatch sb) {
+        ShopScreen s = AbstractDungeon.shopScreen;
+        if (s == null) {
+            return;
+        }
+        try {
+            Field fx = ShopScreen.class.getDeclaredField("purgeCardX");
+            Field fy = ShopScreen.class.getDeclaredField("purgeCardY");
+            Field fs = ShopScreen.class.getDeclaredField("purgeCardScale");
+            fx.setAccessible(true);
+            fy.setAccessible(true);
+            fs.setAccessible(true);
+            float cx = fx.getFloat(s);
+            float cy = fy.getFloat(s);
+            float scale = fs.getFloat(s);
+            if (cx <= 0 || cy <= 0) {
+                return;
+            }
+            float half = 256 * scale;
+            float left = cx - half;
+            float bottom = cy - half;
+            float size = half * 2;
+            float t = 3 * ui.s;
+            ui.drawGlow(sb, cx, cy, half * 1.15f, Ui.GOLD, 0.12f);
+            sb.setColor(Ui.GOLD);
+            ui.drawLine(sb, left, bottom, left + size, bottom, t, Ui.GOLD);
+            ui.drawLine(sb, left, bottom + size, left + size, bottom + size, t, Ui.GOLD);
+            ui.drawLine(sb, left, bottom, left, bottom + size, t, Ui.GOLD);
+            ui.drawLine(sb, left + size, bottom, left + size, bottom + size, t, Ui.GOLD);
+            ui.drawPill(sb, cx - 40 * ui.s, bottom + size + 6 * ui.s, 80 * ui.s, 24 * ui.s,
+                    Ui.GOLD, "删牌", ui.smallFont, Ui.INK);
+        } catch (Exception ignored) {
+            // Coordinate fields changed in another game build: the text advice
+            // still works, so never let a cosmetic frame break the overlay.
+        }
     }
 
     private void renderCampfire(SpriteBatch sb) {
