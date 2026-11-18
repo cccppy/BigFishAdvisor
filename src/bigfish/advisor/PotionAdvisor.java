@@ -28,6 +28,7 @@ public final class PotionAdvisor {
             return "";
         }
         int hpPct = p.currentHealth * 100 / Math.max(1, p.maxHealth);
+        boolean abundant = RelicGuide.abundantPotions(p);
         boolean emergency = incoming > 0 && incoming >= p.currentHealth + p.currentBlock;
         if (emergency) {
             for (AbstractPotion po : potions(p)) {
@@ -49,6 +50,13 @@ public final class PotionAdvisor {
             for (AbstractPotion po : potions(p)) {
                 if (isHealing(po)) {
                     return "先喝【" + po.name + "】回血";
+                }
+            }
+        }
+        if (!eliteOrBoss && abundant && incoming > 0) {
+            for (AbstractPotion po : potions(p)) {
+                if (isOffensive(po) && !is(po, "fairy") && !is(po, "fruitjuice")) {
+                    return "百兽雕像会补药，先喝【" + po.name + "】换血/节奏";
                 }
             }
         }
@@ -93,6 +101,10 @@ public final class PotionAdvisor {
             return out;
         }
         out.add(summary);
+        String relicLine = RelicGuide.potionLine(p);
+        if (relicLine.length() > 0) {
+            out.add(relicLine);
+        }
         for (AbstractPotion po : potions(p)) {
             out.add("【" + po.name + "】：" + detail(po, p, combat, incoming, eliteOrBoss, recommended));
         }
@@ -114,6 +126,7 @@ public final class PotionAdvisor {
         }
         int hpPct = p.currentHealth * 100 / Math.max(1, p.maxHealth);
         int energy = EnergyPanel.totalCount;
+        boolean abundant = RelicGuide.abundantPotions(p);
 
         if (!combat) {
             for (AbstractPotion po : potions) {
@@ -167,6 +180,14 @@ public final class PotionAdvisor {
                 }
             }
         }
+        if (!eliteOrBoss && abundant && incoming > 0) {
+            for (AbstractPotion po : potions) {
+                if (isOffensive(po) && !is(po, "fairy") && !is(po, "fruitjuice")) {
+                    return "药水：百兽雕像会稳定补药，这瓶【" + po.name
+                            + "】现在可以喝，用它换血量/回合；Boss 前再留高价值的。";
+                }
+            }
+        }
         if (eliteOrBoss) {
             for (AbstractPotion po : potions) {
                 if (isTemporaryStrength(po) || isStrengthPotion(po) || isDuplication(po)) {
@@ -185,7 +206,10 @@ public final class PotionAdvisor {
             }
         }
         String names = names(potions, 3);
-        return "药水：" + names + "先留着；等精英/Boss 或血量危险时再用，普通战斗不要空喝。";
+        String tail = abundant
+                ? " 百兽雕像会补药，普通战斗可以更积极喝普通药水；Boss 前留高价值。"
+                : "";
+        return "药水：" + names + "先留着；等精英/Boss 或血量危险时再用，普通战斗不要空喝。" + tail;
     }
 
     private static List<AbstractPotion> potions(AbstractPlayer p) {
@@ -250,8 +274,13 @@ public final class PotionAdvisor {
             return eliteOrBoss ? "精英/Boss 战可以喝，挡关键回合。" : "留着挡精英/Boss 的大伤害。";
         }
         if (isOffensive(po)) {
-            return eliteOrBoss ? "精英/Boss 现在喝，抢节奏/补斩杀。"
-                    : "普通战斗先留；等精英/Boss 或确认能斩杀再用。";
+            if (eliteOrBoss) {
+                return "精英/Boss 现在喝，抢节奏/补斩杀。";
+            }
+            if (RelicGuide.abundantPotions(p) && combat && incoming > 0) {
+                return "百兽雕像会补药，普通战斗可以现在喝，换血量/节奏；Boss 前再留高价值药水。";
+            }
+            return "普通战斗先留；等精英/Boss 或确认能斩杀再用。";
         }
         if (is(po, "energypotion") || is(po, "liquidmemories")) {
             return combat ? "能量不足/关键回合喝，让你多打一张。"

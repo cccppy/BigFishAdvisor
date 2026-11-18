@@ -73,6 +73,14 @@ public final class RelicAdvisor {
         if (!triggers.isEmpty()) {
             out.add("遗物计数：" + join(triggers));
         }
+        String potionLine = RelicGuide.potionLine(p);
+        if (potionLine.length() > 0) {
+            out.add(potionLine);
+        }
+        String healthLine = RelicGuide.healthLine(p);
+        if (healthLine.length() > 0) {
+            out.add(healthLine);
+        }
         if (p.hasPower("Confusion")) {
             out.add("费用提醒：混乱已生效，我是按手牌当前显示的费用算，不看原费。");
         }
@@ -205,6 +213,15 @@ public final class RelicAdvisor {
         if (has(p, "Tungsten Rod") && CardDatabase.hasTag(c, "selfdmg")) {
             b += 0.35;
         }
+        if (RelicGuide.sustain(p) > 0 && CardDatabase.hasTag(c, "selfdmg")) {
+            b += 0.25;
+        }
+        if (has(p, "Sozu") && CardDatabase.hasTag(c, "potion")) {
+            b -= 0.35;
+        }
+        if (has(p, "Ornamental Fan") && c.type == AbstractCard.CardType.ATTACK) {
+            b += 0.2;
+        }
         if (has(p, "Molten Egg 2") && c.type == AbstractCard.CardType.ATTACK) {
             b += 0.35;
         }
@@ -281,6 +298,15 @@ public final class RelicAdvisor {
         if (has(p, "Tungsten Rod") && CardDatabase.hasTag(c, "selfdmg")) {
             notes.add("钨钢棒减轻自伤");
         }
+        if (RelicGuide.sustain(p) > 0 && CardDatabase.hasTag(c, "selfdmg")) {
+            notes.add("有回血遗物，卖血牌更敢用");
+        }
+        if (has(p, "Sozu") && CardDatabase.hasTag(c, "potion")) {
+            notes.add("添水让你不能拿药水，药水牌会变差");
+        }
+        if (has(p, "Ornamental Fan") && c.type == AbstractCard.CardType.ATTACK) {
+            notes.add("装饰扇吃攻击次数，多段攻击更容易触发格挡");
+        }
         if (has(p, "Molten Egg 2") && c.type == AbstractCard.CardType.ATTACK) {
             notes.add("熔火蛋让攻击牌直接升级");
         }
@@ -311,6 +337,41 @@ public final class RelicAdvisor {
     public static double fitScore(AbstractPlayer p, AbstractRelic r) {
         String id = norm(r.relicId);
         DeckSummary d = DeckSummary.of(p);
+        if (id.contains("whitebeast")) {
+            if (has(p, "Sozu")) {
+                return -0.8;
+            }
+            return p.potions != null && p.potions.size() < p.potionSlots ? 0.65 : 0.4;
+        }
+        if (id.contains("potionbelt")) {
+            return p.potions != null && p.potions.size() >= 2 ? 0.45 : 0.3;
+        }
+        if (id.contains("sacredbark")) {
+            return p.potions != null && p.potions.size() >= 2 ? 0.55 : 0.3;
+        }
+        if (id.contains("burningblood") || id.contains("blackblood") || id.contains("bloodvial")
+                || id.contains("meatonthebone") || id.contains("magicflower")
+                || id.contains("birdfacedurn") || id.contains("regalpillow")) {
+            return p.currentHealth * 100 / Math.max(1, p.maxHealth) < 70 ? 0.5 : 0.2;
+        }
+        if (id.contains("ornamentalfan")) {
+            return d.attacks >= 8 ? 0.5 : 0.2;
+        }
+        if (id.contains("pennib") || id.contains("nunchaku") || id.contains("kunai")
+                || id.contains("shuriken")) {
+            return d.attacks >= 8 ? 0.35 : 0.15;
+        }
+        if (id.contains("membershipcard") || id.contains("courier") || id.contains("mawbank")
+                || id.contains("smilingmask")) {
+            return p.gold >= 150 ? 0.35 : 0.15;
+        }
+        if (id.contains("threadandneedle") || id.contains("orichalcum")) {
+            return d.blockCards < 8 ? 0.4 : 0.15;
+        }
+        if (id.contains("omamori") || id.contains("bluecandle") || id.contains("duvudoll")
+                || id.contains("darkstoneperiapt")) {
+            return curseCount(p) > 0 ? 0.4 : 0.1;
+        }
         if (id.contains("deadbranch") && d.tag("exhaust") >= 3) {
             return 0.8;
         }
@@ -356,6 +417,36 @@ public final class RelicAdvisor {
     public static String fitNote(AbstractPlayer p, AbstractRelic r) {
         String id = norm(r.relicId);
         DeckSummary d = DeckSummary.of(p);
+        if (id.contains("whitebeast")) {
+            return has(p, "Sozu")
+                    ? "添水会让药水掉落失效，别拿"
+                    : "药水会稳定掉落，普通战斗可以更积极喝药，Boss 前留高价值药水";
+        }
+        if (id.contains("potionbelt")) {
+            return "多两个药水格，可以多带一瓶针对 Boss 的药水";
+        }
+        if (id.contains("sacredbark")) {
+            return "药水效果翻倍，药水越强越值得留";
+        }
+        if (id.contains("burningblood") || id.contains("blackblood") || id.contains("bloodvial")
+                || id.contains("meatonthebone") || id.contains("magicflower")
+                || id.contains("birdfacedurn") || id.contains("regalpillow")) {
+            return "有续航，卖血换资源更安全；但 Boss 前仍要留安全垫";
+        }
+        if (id.contains("ornamentalfan")) {
+            return d.attacks >= 8 ? "攻击牌多，每 3 次攻击给格挡很赚" : "攻击频率不高时收益一般";
+        }
+        if (id.contains("membershipcard") || id.contains("courier") || id.contains("mawbank")
+                || id.contains("smilingmask")) {
+            return "商店/金币更自由，可以多删牌或买关键遗物";
+        }
+        if (id.contains("threadandneedle") || id.contains("orichalcum")) {
+            return d.blockCards < 8 ? "格挡牌偏少，这种遗物正好补防御" : "格挡牌已经够多";
+        }
+        if (id.contains("omamori") || id.contains("bluecandle") || id.contains("duvudoll")
+                || id.contains("darkstoneperiapt")) {
+            return curseCount(p) > 0 ? "牌组已有诅咒，能把它变成资源" : "没有诅咒时只是保险，别主动吃";
+        }
         if (id.contains("deadbranch") && d.tag("exhaust") >= 3) {
             return "你有消耗体系，树枝能把消耗变成牌";
         }
@@ -418,6 +509,10 @@ public final class RelicAdvisor {
             }
             if (s.fit.length() > 0) {
                 out.lines.add("和您牌组：" + s.fit);
+            }
+            RelicGuide.Profile profile = RelicGuide.profile(p, s.relic);
+            if (profile.plan.length() > 0) {
+                out.lines.add("拿到后怎么用：" + profile.plan);
             }
         }
         Scored best = out.choices.get(0);
@@ -646,8 +741,20 @@ public final class RelicAdvisor {
                 || id.contains("markofpain");
     }
 
-    private static int highValueCards(AbstractPlayer p) {
+    private static int curseCount(AbstractPlayer p) {
         int n = 0;
+        if (p == null || p.masterDeck == null) {
+            return n;
+        }
+        for (AbstractCard c : p.masterDeck.group) {
+            if (c != null && c.type == AbstractCard.CardType.CURSE) {
+                n++;
+            }
+        }
+        return n;
+    }
+
+    private static int highValueCards(AbstractPlayer p) {        int n = 0;
         if (p == null || p.masterDeck == null) {
             return n;
         }

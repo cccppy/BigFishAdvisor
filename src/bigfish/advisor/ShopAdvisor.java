@@ -161,7 +161,8 @@ public final class ShopAdvisor {
                     + fit * 5.0 - sr.price * 0.12;
             i.note = "遗物是永久提升；" + tierText(sr.relic.tier)
                     + (communityTier.length() > 0 ? "；玩家 Tier " + communityTier : "")
-                    + (fitNote.length() > 0 ? "；" + fitNote : "") + "。";
+                    + (fitNote.length() > 0 ? "；" + fitNote : "")
+                    + "。" + RelicGuide.note(p, sr.relic);
             r.items.add(i);
         }
     }

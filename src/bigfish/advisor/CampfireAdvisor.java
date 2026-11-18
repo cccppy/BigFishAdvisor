@@ -367,6 +367,10 @@ public final class CampfireAdvisor {
             } else if (preBoss) {
                 s += 0.5;
             }
+            int sustain = RelicGuide.sustain(p);
+            if (sustain > 0 && !danger && hpPct >= 60) {
+                s -= Math.min(0.9, sustain * 0.25);
+            }
         } else if (name.equals("锻造")) {
             s = 7.2;
             if (up != null) {

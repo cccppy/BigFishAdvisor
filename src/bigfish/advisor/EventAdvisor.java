@@ -430,6 +430,7 @@ public final class EventAdvisor {
     private double genericScore(String text, AbstractPlayer p, int hpPct) {
         String t = text.toLowerCase(Locale.ROOT);
         double s = 5.0;
+        int sustain = RelicGuide.sustain(p);
         if (has(t, "remove") || has(t, "移除") || has(t, "删除")) {
             s += 3.0;
         }
@@ -453,6 +454,9 @@ public final class EventAdvisor {
         }
         if (has(t, "heal") || has(t, "回复") || has(t, "治疗")) {
             s += hpPct < 35 ? 1.8 : hpPct < 60 ? 1.0 : 0.3;
+            if (sustain > 0) {
+                s -= Math.min(0.5, sustain * 0.15);
+            }
         }
         if (has(t, "gold") || has(t, "金币")) {
             s += p.gold < 100 ? 1.5 : 0.8;
@@ -468,6 +472,9 @@ public final class EventAdvisor {
         }
         if (has(t, "lose hp") || has(t, "失去生命") || has(t, "失去血量")) {
             s -= hpPct < 55 ? 2.2 : 0.8;
+            if (sustain > 0) {
+                s += Math.min(0.8, sustain * 0.25);
+            }
         }
         if (has(t, "lose all gold") || has(t, "失去所有金币")) {
             s -= 2.0;
@@ -570,6 +577,10 @@ public final class EventAdvisor {
         String curseDeck = CurseAdvisor.deckLine(p);
         if (curseDeck.length() > 0) {
             r.lines.add(curseDeck);
+        }
+        String health = RelicGuide.healthLine(p);
+        if (health.length() > 0) {
+            r.lines.add(health);
         }
     }
 
