@@ -127,14 +127,28 @@ public final class StanceAdvisor {
                     + "除非你确实要结束回合，不然它会白白浪费这回合的输出机会。";
         } else if ("miracle".equals(id)) {
             int miracle = handCount(p, "miracle");
+            AbstractCard follow = playableWithOneMore(p, energy, c);
             if (energy <= 0) {
-                bonus = 3.0;
-                r.note = "手里这张【奇迹】是 0 费、保留、给 1 能量。现在能量是 0，"
-                        + "先打它就能多打一张关键牌；如果这 1 点能量能让你进愤怒/补防御，就很值。";
+                if (follow == null) {
+                    bonus = -20.0;
+                    r.note = "现在 0 能量，但打完【奇迹】也没有第二张牌可出；"
+                            + "它是保留牌，先留着，等下回合有费用/关键牌再打，别为了打而打。";
+                } else {
+                    bonus = 3.0;
+                    r.note = "手里这张【奇迹】是 0 费、保留、给 1 能量。现在能量是 0，"
+                            + "先打它就能接【" + CardDatabase.shortName(follow)
+                            + "】；这 1 点能量确实能变成一张牌，才值得打。";
+                }
             } else if (energy < 3) {
-                bonus = 0.8;
-                r.note = "手里有【奇迹】。现在还有 " + energy + " 能量，先打它会把能量留到后面；"
-                        + "如果你正缺 1 点能量进愤怒/神性，就打；否则可以留着下回合再打。";
+                if (follow == null) {
+                    bonus = -8.0;
+                    r.note = "手里有【奇迹】，但现在这 " + energy + " 能量打完也没有额外可出的牌；"
+                            + "它是保留牌，留着下回合再用，不要空打。";
+                } else {
+                    bonus = 0.8;
+                    r.note = "手里有【奇迹】。现在还有 " + energy + " 能量，打完能接【"
+                            + CardDatabase.shortName(follow) + "】；如果这张牌能补防御/进姿态，就先打奇迹。";
+                }
             } else {
                 bonus = -0.15;
                 r.note = "现在能量比较充足，【奇迹】可以留到下一回合进愤怒/神性前再打；"
@@ -581,6 +595,27 @@ public final class StanceAdvisor {
             }
         }
         return n;
+    }
+
+    /**
+     * The first card in hand that is unaffordable now but affordable after
+     * Miracle's +1 energy.  If there is none, playing Miracle is just burning
+     * a retained card; the old advice recommended it anyway at 0 energy.
+     */
+    private static AbstractCard playableWithOneMore(AbstractPlayer p, int energy, AbstractCard self) {
+        if (p == null || p.hand == null) {
+            return null;
+        }
+        for (AbstractCard c : p.hand.group) {
+            if (c == null || c == self || "miracle".equals(CardDatabase.norm(c.cardID))) {
+                continue;
+            }
+            int cost = CostUtil.current(c);
+            if (cost >= 0 && cost > Math.max(0, energy) && CostUtil.canPay(c, energy + 1)) {
+                return c;
+            }
+        }
+        return null;
     }
 
     private static String miracleSource(AbstractPlayer p) {

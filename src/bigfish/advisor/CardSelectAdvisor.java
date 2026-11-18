@@ -111,17 +111,26 @@ public final class CardSelectAdvisor {
             }
         }
         List<AbstractCard> planned = new ArrayList<AbstractCard>();
+        DeckSummary deck = DeckSummary.of(p);
         int basics = 0;
+        int offPackage = 0;
         for (AbstractCard c : all) {
             if (c == null) {
                 continue;
             }
+            double fit = SynergyAdvisor.fit(p, c, deck).bonus;
             if (c.type == AbstractCard.CardType.CURSE || c.type == AbstractCard.CardType.STATUS
                     || isDiscardPayoff(c)) {
                 planned.add(c);
             } else if (isBasic(c) && basics < 2) {
                 planned.add(c);
                 basics++;
+            } else if (fit <= -0.35 && score(c) < 6.8 && offPackage < 2) {
+                // This card does not connect to the current deck.  Do not
+                // throw away a high-quality standalone card just because it
+                // is off-package; only the clearly weak ones are cut.
+                planned.add(c);
+                offPackage++;
             }
         }
         List<AbstractCard> keep = new ArrayList<AbstractCard>();
@@ -133,7 +142,8 @@ public final class CardSelectAdvisor {
         Collections.sort(keep, new Comparator<AbstractCard>() {
             @Override
             public int compare(AbstractCard a, AbstractCard b) {
-                return Double.compare(score(b), score(a));
+                return Double.compare(score(b) + SynergyAdvisor.fit(p, b, deck).bonus * 2.0,
+                        score(a) + SynergyAdvisor.fit(p, a, deck).bonus * 2.0);
             }
         });
 
@@ -183,7 +193,8 @@ public final class CardSelectAdvisor {
         Collections.sort(remaining, new Comparator<AbstractCard>() {
             @Override
             public int compare(AbstractCard a, AbstractCard b) {
-                return Double.compare(value(a, Direction.DISCARD), value(b, Direction.DISCARD));
+                return Double.compare(discardPriority(p, deck, a, Direction.DISCARD),
+                        discardPriority(p, deck, b, Direction.DISCARD));
             }
         });
         AbstractCard pick = remaining.get(0);
@@ -321,12 +332,14 @@ public final class CardSelectAdvisor {
         r.tag = "预见";
 
         List<AbstractCard> bad = new ArrayList<AbstractCard>();
+        DeckSummary deck = DeckSummary.of(p);
         for (AbstractCard c : cards) {
             if (c == null) {
                 continue;
             }
+            double fit = SynergyAdvisor.fit(p, c, deck).bonus;
             if (c.type == AbstractCard.CardType.CURSE || c.type == AbstractCard.CardType.STATUS
-                    || isBasic(c) || score(c) < 4.0) {
+                    || isBasic(c) || scryKeep(p, c, deck) < 4.5 || fit <= -0.35) {
                 bad.add(c);
             }
         }
@@ -339,19 +352,22 @@ public final class CardSelectAdvisor {
         }
         r.lines.add("预见只处理牌堆顶的牌，看 " + cards.size()
                 + " 张： " + top + "。弃牌是可选的，不是必须弃一张。");
+        r.lines.add("判断方式：先看它和当前牌组/手里的配合，再看单卡强度；"
+                + "能接体系或补当前短板的牌留着，完全接不上、只会卡手的才弃。");
         if (bad.isEmpty()) {
             r.stop = true;
             r.best = null;
             r.title = "预见：建议全留";
             r.compact = "预见全留";
-            r.lines.add("这几张都值得留，直接确认/取消即可；不要把好牌为了“必须弃”而丢掉。");
+            r.lines.add("这几张都能和当前牌组配合，或本身就是高质量牌；直接确认/取消即可，"
+                    + "不要为了“必须弃”把好牌丢掉。");
             r.lines.add("如果其中一张你确定这回合用不上，也可以手动弃掉；但这不是必须的。");
             return r;
         }
         Collections.sort(bad, new Comparator<AbstractCard>() {
             @Override
             public int compare(AbstractCard a, AbstractCard b) {
-                return Double.compare(value(a, Direction.DISCARD), value(b, Direction.DISCARD));
+                return Double.compare(scryKeep(p, a, deck), scryKeep(p, b, deck));
             }
         });
         r.best = bad.get(0);
@@ -360,9 +376,39 @@ public final class CardSelectAdvisor {
         r.compact = "可弃 " + name;
         r.lines.add("如果只想优化这次抽牌，可以弃【" + name + "】；其余"
                 + (cards.size() > 1 ? "保留" : "牌") + "。");
-        r.lines.add("为什么是它：" + discardReason(r.best));
-        r.lines.add("注意：预见不强迫你弃牌；如果这张牌你下回合要用，直接全留也可以。");
+        r.lines.add("为什么是它：" + scryReason(p, r.best, deck));
+        r.lines.add("注意：预见不强迫你弃牌；如果这张牌下回合能接上配合，直接全留也可以。");
         return r;
+    }
+
+    /**
+     * Scry is not a tier-list cut.  A low-tier enabler that completes the
+     * current package is worth keeping; a high-tier payoff with no enabler is
+     * a dead card this turn.  The score is only a small part of the decision.
+     */
+    private static double scryKeep(AbstractPlayer p, AbstractCard c, DeckSummary deck) {
+        if (c == null) {
+            return -100;
+        }
+        if (c.type == AbstractCard.CardType.CURSE || c.type == AbstractCard.CardType.STATUS) {
+            return -100;
+        }
+        if (isBasic(c)) {
+            return -20;
+        }
+        double fit = SynergyAdvisor.fit(p, c, deck).bonus;
+        return score(c) + fit * 2.5;
+    }
+
+    private static String scryReason(AbstractPlayer p, AbstractCard c, DeckSummary deck) {
+        String fit = SynergyAdvisor.fit(p, c, deck).note;
+        if (fit != null && fit.length() > 0) {
+            return fit + " 所以这张现在更像卡手牌；如果之后补了配合再留。";
+        }
+        if (score(c) < 4.0) {
+            return "它本身强度低，当前牌组也没有明显配合；先弃掉腾出抽牌位。";
+        }
+        return "它和当前牌组的启动/收益接不上，留着这回合也打不出配合；先弃掉。";
     }
 
     private Result build(AbstractPlayer p, List<AbstractCard> cards, Direction dir, int count, boolean many) {
@@ -382,11 +428,16 @@ public final class CardSelectAdvisor {
                 || dir == Direction.BOTTOM || dir == Direction.TRANSFORM
                 || dir == Direction.REMOVE;
         final boolean retain = dir == Direction.RETAIN;
+        final DeckSummary deck = DeckSummary.of(p);
         Collections.sort(cards, new Comparator<AbstractCard>() {
             @Override
             public int compare(AbstractCard a, AbstractCard b) {
                 if (retain) {
                     return Double.compare(retainValue(p, b), retainValue(p, a));
+                }
+                if (bad) {
+                    return Double.compare(discardPriority(p, deck, b, dir),
+                            discardPriority(p, deck, a, dir));
                 }
                 return Double.compare(value(b, dir), value(a, dir));
             }
@@ -428,8 +479,10 @@ public final class CardSelectAdvisor {
                     r.lines.add("为什么呢：基础打击/防御是牌组里最容易替换的牌；"
                             + "弃它不会拆掉核心 combo，也不会浪费关键能力。");
                 } else {
+                    String fit = SynergyAdvisor.fit(p, r.best, DeckSummary.of(p)).note;
                     r.lines.add("为什么呢：在没有弃牌触发收益时，弃牌要选“现在最不需要、"
                             + "丢了也不心疼”的那张；不要弃核心能力/关键攻击。"
+                            + (fit.length() > 0 ? fit + " " : "")
                             + "如果手里有【战术大师】/【反射】这类弃牌收益牌，优先弃它们。");
                 }
                 break;
@@ -723,6 +776,37 @@ public final class CardSelectAdvisor {
             return Direction.TRANSFORM;
         }
         return Direction.CHOOSE;
+    }
+
+    /**
+     * Discard/exhaust/bottom/remove ordering with deck context.  A card that
+     * is part of the current package is protected even if its raw tier is not
+     * high; an off-package card with no enabler is a better cut.
+     */
+    private static double discardPriority(AbstractPlayer p, DeckSummary deck, AbstractCard c, Direction dir) {
+        if (c == null) {
+            return -999;
+        }
+        if (dir == Direction.REMOVE && CurseAdvisor.isUnremovable(c)) {
+            return -999;
+        }
+        if (c.type == AbstractCard.CardType.CURSE || c.type == AbstractCard.CardType.STATUS) {
+            return 100;
+        }
+        String id = CardDatabase.norm(c.cardID);
+        if (dir == Direction.DISCARD && (id.contains("tactician") || id.contains("reflex"))) {
+            return 120;
+        }
+        if (isBasic(c)) {
+            return 80;
+        }
+        CardDatabase.Entry e = CardDatabase.get(c);
+        double keep = e == null ? 5.0 : e.score;
+        double fit = SynergyAdvisor.fit(p, c, deck).bonus;
+        keep += fit * 2.5;
+        // The returned number is "how good a discard candidate this is":
+        // weaker/less connected cards get the larger number.
+        return 50.0 - keep;
     }
 
     private double value(AbstractCard c, Direction dir) {
