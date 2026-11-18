@@ -28,6 +28,8 @@ public final class MapAdvisor {
         public int event;
         public int monster;
         public int treasure;
+        public boolean planned;
+        public boolean replanned;
     }
 
     private MapRoomNode[][] grid;
@@ -35,10 +37,35 @@ public final class MapAdvisor {
     private MapRoomNode[][] next;
     private int rows;
     private int cols;
+    private int plannedAct = -1;
+    private boolean hasPlan;
+    private List<MapRoomNode> plannedPath = new ArrayList<MapRoomNode>();
 
     public Result analyze(AbstractPlayer p) {
         if (p == null || AbstractDungeon.map == null || AbstractDungeon.map.isEmpty()) {
             return null;
+        }
+        int act = Math.max(1, AbstractDungeon.actNum);
+        boolean replanned = false;
+        if (plannedAct != act) {
+            plannedAct = act;
+            hasPlan = false;
+            plannedPath.clear();
+        }
+        // The map itself is fixed for the act.  Freeze the recommended route
+        // when it is first planned; otherwise every HP/gold change re-ranks
+        // the same branches and the highlighted line appears to "jump".
+        if (hasPlan) {
+            if (!AbstractDungeon.firstRoomChosen) {
+                return resultFromPlan(p, plannedPath, true, false);
+            }
+            MapRoomNode current = AbstractDungeon.currMapNode;
+            int at = current == null ? -1 : plannedPath.indexOf(current);
+            if (at >= 0) {
+                return resultFromPlan(p, plannedPath.subList(at + 1, plannedPath.size()), true, false);
+            }
+            hasPlan = false;
+            replanned = true;
         }
         buildGrid();
         if (rows == 0) {
@@ -126,6 +153,37 @@ public final class MapAdvisor {
         if (start == null) {
             return null;
         }
+        if (AbstractDungeon.firstRoomChosen && AbstractDungeon.currMapNode != null) {
+            plannedPath = new ArrayList<MapRoomNode>();
+            plannedPath.add(AbstractDungeon.currMapNode);
+            plannedPath.addAll(r.path);
+        } else {
+            plannedPath = new ArrayList<MapRoomNode>(r.path);
+        }
+        hasPlan = true;
+        r.planned = true;
+        r.replanned = replanned;
+        count(r);
+        r.kicker = String.format("路线建议 · 第 %d 层 · 第 %d 幕", AbstractDungeon.floorNum,
+                Math.max(1, AbstractDungeon.actNum));
+        r.title = AbstractDungeon.actNum == 1
+                ? (r.monster < 4 ? "这条路战斗偏少，建议换一条"
+                : "第一层先打弱怪，再冲营火/精英")
+                : "走这条线";
+        buildText(p, r);
+        return r;
+    }
+
+    /**
+     * Reuse the act's original path instead of re-running the DP every 220 ms.
+     * The path is only rebuilt when the player actually leaves it.
+     */
+    private Result resultFromPlan(AbstractPlayer p, List<MapRoomNode> path,
+                                  boolean planned, boolean replanned) {
+        Result r = new Result();
+        r.path = new ArrayList<MapRoomNode>(path);
+        r.planned = planned;
+        r.replanned = replanned;
         count(r);
         r.kicker = String.format("路线建议 · 第 %d 层 · 第 %d 幕", AbstractDungeon.floorNum,
                 Math.max(1, AbstractDungeon.actNum));
@@ -261,6 +319,11 @@ public final class MapAdvisor {
             shown++;
         }
         r.lines.add("大肥鱼建议：" + (route.length() == 0 ? "已到 Boss 前" : route.toString()));
+        if (r.planned) {
+            r.lines.add(r.replanned
+                    ? "提醒：你离开了原计划路线，这是按当前位置重新算的一条；之后会重新锁定。"
+                    : "本幕路线在开头已锁定；血量/金币变化不会自动改线，只有你走到别的分支才重算。");
+        }
         r.lines.add(String.format("现在：生命 %d/%d（%d%%）· 金币 %d · 牌组 %d 张 · %s",
                 p.currentHealth, p.maxHealth, hpPct, p.gold, p.masterDeck.size(), DeckSummary.of(p).archetype()));
         r.lines.add("为什么呢：" + routeReason(p, r, hpPct));
