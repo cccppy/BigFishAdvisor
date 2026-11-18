@@ -540,6 +540,7 @@ public final class Overlay {
                 title = "看牌：" + CardDatabase.shortName(h.card);
                 kicker = String.format("选牌建议 · 排名 #%d · %.1f 分", h.rank, h.score);
                 lines = new ArrayList<String>();
+                lines.add(SynergyAdvisor.deckLine(cards.deck));
                 lines.add(cards.deck.countsLine());
                 lines.add("这张：" + h.note);
                 if (h.tier != null && h.tier.length() > 0) {
@@ -553,7 +554,8 @@ public final class Overlay {
             }
         }
         showAdvice(sb, kicker, title, null, lines, null, footer,
-                cards.skip ? "这组牌跳过" : cards.title,
+                cards.compact == null || cards.compact.length() == 0
+                        ? (cards.skip ? "这组牌跳过" : cards.title) : cards.compact,
                 10 * ui.s, Settings.HEIGHT * 0.30f, 450, 420);
     }
 

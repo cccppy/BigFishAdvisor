@@ -16,7 +16,7 @@ import java.util.Locale;
 
 /** Handles "put on top/bottom", discard, exhaust, tutor and copy prompts. */
 public final class CardSelectAdvisor {
-    public enum Direction {TOP, BOTTOM, DISCARD, EXHAUST, HAND, RETAIN, REMOVE, UPGRADE, TRANSFORM, COPY, CHOOSE}
+    public enum Direction {TOP, BOTTOM, DISCARD, EXHAUST, HAND, RETAIN, REMOVE, SCRY, UPGRADE, TRANSFORM, COPY, CHOOSE}
 
     public static final class Result {
         public Direction direction = Direction.CHOOSE;
@@ -278,7 +278,91 @@ public final class CardSelectAdvisor {
         if (n instanceof Integer) {
             count = Math.max(1, ((Integer) n).intValue());
         }
-        return build(p, new ArrayList<AbstractCard>(gs.targetGroup.group), dir, count, gs.anyNumber || count > 1);
+        List<AbstractCard> cards = new ArrayList<AbstractCard>(gs.targetGroup.group);
+        // Scry uses the same GridCardSelectScreen as discard/purge, but its
+        // cards come from the top of the draw pile and discarding is optional.
+        // The localized tip is "choose a card to discard", which used to make
+        // classify() return DISCARD and then always highlight one card.  Detect
+        // the draw-pile source first so a good scry can say "keep everything".
+        if (isScry(p, cards, prompt)) {
+            return scry(p, cards, count);
+        }
+        return build(p, cards, dir, count, gs.anyNumber || count > 1);
+    }
+
+    private static boolean isScry(AbstractPlayer p, List<AbstractCard> cards, String prompt) {
+        if (p == null || p.drawPile == null || cards == null || cards.isEmpty()) {
+            return false;
+        }
+        int fromDraw = 0;
+        for (AbstractCard c : cards) {
+            if (c != null && containsUuid(p.drawPile.group, c)) {
+                fromDraw++;
+            }
+        }
+        if (fromDraw != cards.size()) {
+            return false;
+        }
+        String s = prompt == null ? "" : prompt.toLowerCase(Locale.ROOT);
+        return s.contains("scry") || s.contains("预见")
+                || s.contains("discard") || s.contains("弃");
+    }
+
+    /**
+     * Scry is not a mandatory discard.  It sees the top N cards and lets the
+     * player discard any number (often zero).  Only name a card when it is a
+     * curse/status, a basic Strike/Defend, or clearly low-value; otherwise say
+     * "keep everything" and leave no card highlighted.
+     */
+    private Result scry(AbstractPlayer p, List<AbstractCard> cards, int count) {
+        Result r = new Result();
+        r.direction = Direction.SCRY;
+        r.kicker = "选牌 · 预见";
+        r.tag = "预见";
+
+        List<AbstractCard> bad = new ArrayList<AbstractCard>();
+        for (AbstractCard c : cards) {
+            if (c == null) {
+                continue;
+            }
+            if (c.type == AbstractCard.CardType.CURSE || c.type == AbstractCard.CardType.STATUS
+                    || isBasic(c) || score(c) < 4.0) {
+                bad.add(c);
+            }
+        }
+        StringBuilder top = new StringBuilder();
+        for (AbstractCard c : cards) {
+            if (top.length() > 0) {
+                top.append("、");
+            }
+            top.append("【").append(CardDatabase.shortName(c)).append("】");
+        }
+        r.lines.add("预见只处理牌堆顶的牌，看 " + cards.size()
+                + " 张： " + top + "。弃牌是可选的，不是必须弃一张。");
+        if (bad.isEmpty()) {
+            r.stop = true;
+            r.best = null;
+            r.title = "预见：建议全留";
+            r.compact = "预见全留";
+            r.lines.add("这几张都值得留，直接确认/取消即可；不要把好牌为了“必须弃”而丢掉。");
+            r.lines.add("如果其中一张你确定这回合用不上，也可以手动弃掉；但这不是必须的。");
+            return r;
+        }
+        Collections.sort(bad, new Comparator<AbstractCard>() {
+            @Override
+            public int compare(AbstractCard a, AbstractCard b) {
+                return Double.compare(value(a, Direction.DISCARD), value(b, Direction.DISCARD));
+            }
+        });
+        r.best = bad.get(0);
+        String name = CardDatabase.shortName(r.best);
+        r.title = "预见：可弃【" + name + "】（也可以全留）";
+        r.compact = "可弃 " + name;
+        r.lines.add("如果只想优化这次抽牌，可以弃【" + name + "】；其余"
+                + (cards.size() > 1 ? "保留" : "牌") + "。");
+        r.lines.add("为什么是它：" + discardReason(r.best));
+        r.lines.add("注意：预见不强迫你弃牌；如果这张牌你下回合要用，直接全留也可以。");
+        return r;
     }
 
     private Result build(AbstractPlayer p, List<AbstractCard> cards, Direction dir, int count, boolean many) {

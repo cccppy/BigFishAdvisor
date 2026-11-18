@@ -31,6 +31,7 @@ public final class CardRewardAdvisor {
         public boolean skip;
         public String title;
         public String kicker;
+        public String compact;
         public List<String> lines = new ArrayList<String>();
         public DeckSummary deck;
         public Map<UUID, Scored> byId = new HashMap<UUID, Scored>();
@@ -447,8 +448,13 @@ public final class CardRewardAdvisor {
         } else {
             r.title = "拿【" + CardDatabase.shortName(r.top.card) + "】";
         }
-        r.lines.add(r.deck.countsLine());
+        r.compact = (r.skip ? "跳过" : "拿" + CardDatabase.shortName(r.top.card))
+                + " · " + r.deck.archetype();
+        // Put the deck direction at the very top, not after three lines of
+        // counts.  A new player needs to see "I'm building poison/discard/…"
+        // before reading individual card scores.
         r.lines.add(SynergyAdvisor.deckLine(r.deck));
+        r.lines.add(r.deck.countsLine());
         r.lines.add("当前需要：" + r.deck.needLine(act));
         if (act >= 2 && r.deck.blockCards < 7) {
             r.lines.add("保命提醒：第二幕格挡只有 " + r.deck.blockCards

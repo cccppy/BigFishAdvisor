@@ -208,6 +208,23 @@ public final class StanceAdvisor {
             bonus += 0.3;
             r.note = "你姿态切换多，【连击】会反复回手，是姿态循环的稳定输出。";
         }
+        // Wrath is a normal Watcher mechanic, not a bug: both outgoing and
+        // incoming damage are doubled.  Make that explicit on the card that
+        // enters Wrath, especially when the enemy is attacking this turn.
+        if (move == WRATH && cur != WRATH && incoming > 0) {
+            int after = incoming * 2;
+            String risk = " 注意：进愤怒是观者的正常机制，不是 bug——你造成伤害 ×2，"
+                    + "但受到的伤害也 ×2；对面这回合约 " + incoming + " 伤，进愤怒后会变成约 "
+                    + after + "。";
+            if (after >= p.currentHealth) {
+                risk += "这已经可能致命，除非这回合能斩杀，否则先别进愤怒。";
+                bonus -= 4.0;
+            } else if (after > p.currentBlock + p.currentHealth * 0.45) {
+                risk += "血线/格挡不够，先把格挡或退出姿态准备好，别为了输出硬吃。";
+                bonus -= 1.0;
+            }
+            r.note = (r.note == null || r.note.length() == 0 ? "" : r.note) + risk;
+        }
         r.bonus += bonus;
         return r;
     }
