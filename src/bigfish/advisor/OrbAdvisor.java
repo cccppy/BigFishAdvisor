@@ -188,10 +188,10 @@ public final class OrbAdvisor {
             note(r, "【编译冲击】按场上不同种类的球抽牌；现在有 " + unique
                     + " 种球，种类越多抽得越多，不要只看伤害。");
         } else if ("allforone".equals(id)) {
-            int zero = zeroCostInHand(p, c);
+            int zero = zeroCostInDiscard(p);
             bonus += Math.min(1.2, zero * 0.25);
-            note(r, "【万物归一】把弃牌堆里的 0 费牌拿回手；手里已有 " + zero
-                    + " 张 0 费牌，先打掉它们再回收，别把 0 费牌浪费在弃牌堆。");
+            note(r, "【万物归一】把弃牌堆里的 0 费牌全部拿回手；弃牌堆现在有 " + zero
+                    + " 张 0 费牌，先打/弃一些 0 费牌再回收，别让它空拉。");
         } else if ("claw".equals(id)) {
             int claws = countId(p, "claw");
             bonus += Math.min(0.8, claws * 0.12);
@@ -389,13 +389,13 @@ public final class OrbAdvisor {
         return ids.size();
     }
 
-    private static int zeroCostInHand(AbstractPlayer p, AbstractCard exclude) {
+    private static int zeroCostInDiscard(AbstractPlayer p) {
         int n = 0;
-        if (p == null || p.hand == null) {
+        if (p == null || p.discardPile == null) {
             return 0;
         }
-        for (AbstractCard c : p.hand.group) {
-            if (c != null && c != exclude && CostUtil.current(c) == 0) {
+        for (AbstractCard c : p.discardPile.group) {
+            if (c != null && CostUtil.current(c) == 0) {
                 n++;
             }
         }

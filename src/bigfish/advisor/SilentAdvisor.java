@@ -268,11 +268,20 @@ public final class SilentAdvisor {
                 note(r, "【工具】每回合多抽 1 弃 1，能把弃牌收益/弃牌遗物变成每回合资源；"
                         + "手牌多、弃牌牌多时更值。");
             }
-        } else if ("sneakystrike".equals(id) || "eviscerate".equals(id)) {
-            if (discard >= 2) {
-                bonus += 0.4;
-                note(r, "这张吃“本回合弃过牌”的降费/回能；先弃牌再打它，"
-                        + "不要把它当普通攻击先交。");
+        } else if ("sneakystrike".equals(id)) {
+            if (discardedThisTurn() > 0) {
+                bonus += 0.6;
+                note(r, "本回合已经弃过 " + discardedThisTurn() + " 张牌，【诡计打击】现在打会回 2 能量；"
+                        + "先弃牌再打它，不要先交。");
+            } else {
+                bonus -= 0.5;
+                note(r, "本回合还没弃过牌，【诡计打击】现在打不回能量；先弃牌再打它。");
+            }
+        } else if ("eviscerate".equals(id)) {
+            if (discardedThisTurn() > 0) {
+                bonus += 0.3;
+                note(r, "本回合已弃 " + discardedThisTurn() + " 张牌，【剜割】的费用已经降了；"
+                        + "按当前显示费用打，不要按原费估。");
             }
         }
 
@@ -414,6 +423,10 @@ public final class SilentAdvisor {
             }
         }
         return n;
+    }
+
+    private static int discardedThisTurn() {
+        return com.megacrit.cardcrawl.actions.GameActionManager.totalDiscardedThisTurn;
     }
 
     private static int poisonOn(AbstractMonster m) {
