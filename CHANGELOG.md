@@ -1,5 +1,16 @@
 # Changelog
 
+## 1.2.5
+
+- Relic coaching is now end-to-end: `RelicGuide` explains what each relic does, how to play around it, and what it costs, and the same explanation is reused by shop relics, boss relic choices, combat, potions, events and campfires. White Beast Statue now changes potion economy (drink ordinary potions earlier in normal fights, keep revival/juice/bark-boosted potions for elites and bosses); sustain relics make self-damage cards and HP trades safer; energy/attack/curse relics feed back into card and path advice. Sozu correctly disables the White Beast plan.
+- Scry is optional: it reads the draw-pile cards and the current deck's synergy, keeps cards that fit, and can say "建议全留" instead of forcing a discard. Discard, exhaust, put-on-bottom, transform and removal now all use the same "deck fit + card value" ordering, protecting core cards and preferring cards that do not fit the deck.
+- Miracle is no longer recommended when it creates energy with nothing left to spend it on; it is kept for a later turn unless it unlocks a playable follow-up.
+- Watcher: Wrath is explicitly explained as a normal stance that doubles both damage dealt and damage taken; low-HP Blasphemy and unsafe Wrath entries are penalized, and Eruption+ is prioritized at campfires.
+- Ironclad/Silent/Defect mechanics: status engines (Evolve/Fire Breathing) and Exhume/Sentinel/Sever Soul; Grand Finale, Corpse Explosion, Terror, Piercing Wail, Malaise, Tools of the Trade; Doom and Gloom, Meteor Strike, Compile Driver, All for One, Claw and Stack; orb passive timing is explained.
+- Route lock: the recommended act route is cached on entry and only recalculated after the player actually leaves it, instead of changing whenever HP/gold changes.
+- Shop: colorless cards are still scanned; when a colorless card is the best purchase it gets the normal gold frame, and the purge service now gets a gold frame and "删牌" label instead of only text. The extra "不是漏扫" note was removed per feedback.
+- Kept 1.2.4: removal safety for the three unremovable curses, event curse/HP audit, `#9` text cleanup, boss deck check; and 1.2.3: cross-turn setup, X-cost, boss target ring, finite Gambling Chip discard, retain slots/optional retain, lethal leader priority, special-group focus.
+
 ## 1.2.4
 
 - Removal safety: shop/campfire/card-select removal now uses the game's own purgeability rules and never recommends Ascender's Bane, Necronomicurse, or Curse of the Bell. If no disposable card exists, it says "don't remove anything" instead of sacrificing a core card to fill the slot.

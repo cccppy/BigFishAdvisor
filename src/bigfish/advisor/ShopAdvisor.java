@@ -2,7 +2,6 @@ package bigfish.advisor;
 
 import com.megacrit.cardcrawl.cards.AbstractCard;
 import com.megacrit.cardcrawl.characters.AbstractPlayer;
-import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.relics.AbstractRelic;
 import com.megacrit.cardcrawl.shop.ShopScreen;
 import com.megacrit.cardcrawl.shop.StorePotion;
@@ -23,8 +22,6 @@ public final class ShopAdvisor {
         public String note;
         public AbstractCard card;
         public boolean purge;
-        public boolean colorless;
-        public double score;
     }
 
     public static final class Result {
@@ -33,12 +30,10 @@ public final class ShopAdvisor {
         public String compact;
         public List<String> lines = new ArrayList<String>();
         public List<Item> items = new ArrayList<Item>();
-        public List<Item> colorlessItems = new ArrayList<Item>();
         public Item best;
         public boolean skip;
         public AbstractCard bestCard;
         public String purgeTarget;
-        public String colorlessLine;
     }
 
     private final CardRewardAdvisor cardAdvisor = new CardRewardAdvisor();
@@ -71,7 +66,6 @@ public final class ShopAdvisor {
         if (r.purgeTarget != null && !r.skip && r.best != null && r.best.purge) {
             r.best.name = "删牌";
         }
-        r.colorlessLine = colorlessLine(r, shop, gold);
 
         if (r.skip) {
             r.title = "这间先跳过，攒钱";
@@ -112,9 +106,6 @@ public final class ShopAdvisor {
             r.lines.add("商店大肥鱼的想法：优先核心牌/关键遗物，其次删诅咒或基础牌；药水最后考虑，"
                     + "别为了清空金币买泛用牌。买完首选后剩下的钱，留给后续商店或删牌更稳。");
         }
-        if (r.colorlessLine != null && r.colorlessLine.length() > 0) {
-            r.lines.add(r.colorlessLine);
-        }
         return r;
     }
 
@@ -139,8 +130,6 @@ public final class ShopAdvisor {
             i.card = c;
             i.name = CardDatabase.shortName(c);
             i.price = c.price;
-            i.colorless = c.color == AbstractCard.CardColor.COLORLESS;
-            i.score = cardScore;
             i.priority = cardScore * 10.0 - c.price * 0.12;
             i.note = CardDatabase.note(c);
             String syn = SynergyAdvisor.note(p, c, DeckSummary.of(p));
@@ -152,72 +141,13 @@ public final class ShopAdvisor {
                 i.note = i.note + " " + relicNote;
             }
             r.items.add(i);
-            if (i.colorless) {
-                r.colorlessItems.add(i);
-            }
         }
     }
 
     /**
-     * The grey card in the lower-left of the shop is a colorless card.  It was
-     * already scanned by {@link #addCards}, but a single "best purchase" gold
-     * frame made it look ignored.  Spell out why each colorless card did or
-     * did not make the list instead of silently dropping it.
+     * The purge service has no AbstractCard behind it, so Overlay draws its
+     * gold frame from ShopScreen coordinates instead.
      */
-    private String colorlessLine(Result r, ShopScreen shop, int gold) {
-        if (shop.colorlessCards == null || shop.colorlessCards.isEmpty()) {
-            return "左下无色牌：这次商店没有无色牌。";
-        }
-        StringBuilder sb = new StringBuilder("左下灰色是无色牌，不是漏扫：");
-        int shown = 0;
-        for (AbstractCard c : shop.colorlessCards) {
-            if (c == null || shown >= 3) {
-                continue;
-            }
-            String name = CardDatabase.shortName(c);
-            if (c.price <= 0) {
-                continue;
-            }
-            if (shown > 0) {
-                sb.append("；");
-            }
-            shown++;
-            sb.append("【").append(name).append("】").append(c.price).append(" 金");
-            if (c.price > gold) {
-                sb.append("，买不起（现有 ").append(gold).append(" 金）");
-                continue;
-            }
-            double score = cardAdvisor.scoreForShop(AbstractDungeon.player, c);
-            boolean inList = false;
-            for (Item it : r.colorlessItems) {
-                if (it.card == c) {
-                    inList = true;
-                    break;
-                }
-            }
-            if (score <= 0.5) {
-                sb.append("，当前牌组不缺这类效果（评分 ")
-                        .append(String.format("%.1f", score)).append("）");
-            } else if (r.best != null && r.best.card == c && !r.skip) {
-                sb.append("，就是本次首选（评分 ")
-                        .append(String.format("%.1f", score)).append("）");
-            } else if (inList) {
-                sb.append("，已列入候选（评分 ")
-                        .append(String.format("%.1f", score))
-                        .append("）；没压过首选不等于不能用，缺它的效果时可以点它");
-            } else {
-                sb.append("，评分 ").append(String.format("%.1f", score))
-                        .append("，但价格/优先级没排进首选");
-            }
-        }
-        if (shown == 0) {
-            sb.append("这次没有可买的无色牌。");
-        } else if (shop.colorlessCards.size() > shown) {
-            sb.append("；其余无色牌略。");
-        }
-        return sb.toString();
-    }
-
     private void addRelics(Result r, AbstractPlayer p, ShopScreen shop, int gold) {
         for (StoreRelic sr : relics(shop)) {
             if (sr == null || sr.isPurchased || sr.relic == null || sr.price <= 0 || sr.price > gold) {
