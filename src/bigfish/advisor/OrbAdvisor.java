@@ -172,6 +172,36 @@ public final class OrbAdvisor {
         } else if ("creativeai".equals(id) || "echoform".equals(id)) {
             bonus += 1.0;
             note(r, "这张是长战资源引擎；越早开越赚，但要先确认这回合不会被打穿。");
+        } else if ("doomandgloom".equals(id)) {
+            bonus += free > 0 ? 0.6 : -0.4;
+            note(r, "【厄运降临】充能 1 个黑暗球并打全体；"
+                    + (free > 0 ? "现在还有空槽，先充能再考虑激发。"
+                    : "槽位已满，会先激发最右球；如果那是黑暗/等离子，先手动激发它。"));
+        } else if ("meteorstrike".equals(id)) {
+            bonus += free >= 3 ? 1.0 : -0.6;
+            note(r, "【陨石打击】充能 3 个等离子并造成单体高伤；"
+                    + (free >= 3 ? "现在有 " + free + " 个空槽，等离子能直接换费用。"
+                    : "空槽只有 " + free + " 个，会顶掉最右球；先扩容/激发再打。"));
+        } else if ("compiledriver".equals(id)) {
+            int unique = uniqueOrbTypes(p);
+            bonus += Math.min(1.0, unique * 0.22);
+            note(r, "【编译冲击】按场上不同种类的球抽牌；现在有 " + unique
+                    + " 种球，种类越多抽得越多，不要只看伤害。");
+        } else if ("allforone".equals(id)) {
+            int zero = zeroCostInHand(p, c);
+            bonus += Math.min(1.2, zero * 0.25);
+            note(r, "【万物归一】把弃牌堆里的 0 费牌拿回手；手里已有 " + zero
+                    + " 张 0 费牌，先打掉它们再回收，别把 0 费牌浪费在弃牌堆。");
+        } else if ("claw".equals(id)) {
+            int claws = countId(p, "claw");
+            bonus += Math.min(0.8, claws * 0.12);
+            note(r, "【爪击】每次打出永久 +2 伤；牌组有 " + claws
+                    + " 张爪击，越早开始叠、越能滚成 0 费输出核心。");
+        } else if ("stack".equals(id)) {
+            int discard = p.discardPile == null ? 0 : p.discardPile.size();
+            bonus += Math.min(1.2, discard * 0.08);
+            note(r, "【堆叠】按弃牌堆张数给格挡；现在弃牌堆 " + discard
+                    + " 张，先弃牌/打出牌再叠，别在空弃牌堆时打。");
         }
         r.bonus += bonus;
         return r;
@@ -204,6 +234,8 @@ public final class OrbAdvisor {
         out.add("集中的作用：每点集中让冰球被动/激发格挡 +1、闪电伤害 +1、黑暗爆发 +1；"
                 + "所以【碎片整理】/【偏执认知】这类牌不是直接伤害，"
                 + "而是把整条球体系一起放大。");
+        out.add("球的被动触发时机：闪电/冰霜/黑暗在回合结束，等离子在回合开始；"
+                + "黑暗每回合把 +6+集中存进爆发，等离子每回合开始 +1 能量且不吃集中。");
         out.add("激发的顺序：先看最右边的球。黑暗球适合攒大再激发，等离子球激发给能量，"
                 + "冰球激发给格挡，闪电球激发打伤害；球槽满时，先激发再充能，别让新球顶掉关键球。");
         if (focus > 0) {
@@ -301,6 +333,9 @@ public final class OrbAdvisor {
         if (id.contains("rainbow")) {
             return 3;
         }
+        if (id.contains("meteorstrike")) {
+            return 3;
+        }
         if (id.contains("glacier") || id.contains("electrodynamics")) {
             return 2;
         }
@@ -312,7 +347,7 @@ public final class OrbAdvisor {
         }
         if (id.contains("zap") || id.contains("balllightning") || id.contains("coldsnap")
                 || id.contains("coolheaded") || id.contains("fusion") || id.contains("chaos")
-                || id.contains("darkness")) {
+                || id.contains("darkness") || id.contains("doomandgloom")) {
             return 1;
         }
         return 0;
@@ -339,6 +374,45 @@ public final class OrbAdvisor {
     private static int focus(AbstractPlayer p) {
         AbstractPower power = p == null ? null : p.getPower("Focus");
         return power == null ? 0 : power.amount;
+    }
+
+    private static int uniqueOrbTypes(AbstractPlayer p) {
+        if (p == null || p.orbs == null) {
+            return 0;
+        }
+        java.util.HashSet<String> ids = new java.util.HashSet<String>();
+        for (AbstractOrb orb : p.orbs) {
+            if (orb != null && orb.ID != null && !"Empty".equals(orb.ID)) {
+                ids.add(orb.ID);
+            }
+        }
+        return ids.size();
+    }
+
+    private static int zeroCostInHand(AbstractPlayer p, AbstractCard exclude) {
+        int n = 0;
+        if (p == null || p.hand == null) {
+            return 0;
+        }
+        for (AbstractCard c : p.hand.group) {
+            if (c != null && c != exclude && CostUtil.current(c) == 0) {
+                n++;
+            }
+        }
+        return n;
+    }
+
+    private static int countId(AbstractPlayer p, String part) {
+        int n = 0;
+        if (p == null) {
+            return 0;
+        }
+        for (AbstractCard c : p.masterDeck.group) {
+            if (CardDatabase.norm(c.cardID).contains(part)) {
+                n++;
+            }
+        }
+        return n;
     }
 
     private static int countOrb(AbstractPlayer p, String type) {

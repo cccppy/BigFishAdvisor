@@ -172,6 +172,108 @@ public final class IroncladAdvisor {
             bonus += incoming > 0 ? 0.8 : 0.2;
             note(r, "【狂暴】给能量，但每回合开始获得 1 层易伤；长战赚，但血线/格挡不够时会把风险放大。");
         }
+        // Status engine. Evolve/Fire Breathing only pay off when the deck can
+        // actually put status cards into the draw/hand; Wild Strike et al. are
+        // not "free" without that payoff.
+        int statusGens = statusGenerators(p);
+        boolean statusPayoff = countId(p, "evolve") > 0
+                || countId(p, "firebreathing") > 0;
+        if ("evolve".equals(id)) {
+            if (statusGens >= 2 || p.hasRelic("Mark of Pain")) {
+                bonus += 2.0;
+                note(r, "牌组有 " + statusGens + " 张会塞状态的牌"
+                        + (p.hasRelic("Mark of Pain") ? "，还有痛楚印记" : "")
+                        + "；【进化】把抽到的状态变成抽牌，状态越多越像发动机。");
+            } else {
+                bonus -= 0.6;
+                note(r, "现在没有稳定的塞状态来源，【进化】很容易变成白板；"
+                        + "先拿野性打击/鲁莽冲撞/献祭/强力守护再考虑。");
+            }
+        } else if ("firebreathing".equals(id)) {
+            if (statusGens >= 2 || p.hasRelic("Mark of Pain")) {
+                bonus += 1.8;
+                note(r, "【火焰吐息】在抽到状态时对全体造成伤害；"
+                        + "你有 " + statusGens + " 张塞状态牌，能把副作用转成输出。");
+            } else {
+                bonus -= 0.5;
+                note(r, "没有塞状态来源时，【火焰吐息】很难触发；先补状态引擎。");
+            }
+        } else if ("wildstrike".equals(id) || "recklesscharge".equals(id)
+                || "powerthrough".equals(id) || "immolate".equals(id)) {
+            if (statusPayoff) {
+                bonus += "immolate".equals(id) ? 0.8 : 0.6;
+                note(r, "这张会塞状态，但你有【进化】/【火焰吐息】把状态转成抽牌或伤害；"
+                        + "先开引擎再塞，别让状态卡在手里。");
+            } else if ("immolate".equals(id)) {
+                bonus += 0.3;
+                note(r, "【献祭】本身是强力 AOE，但会塞灼伤；没有进化/火焰吐息时，"
+                        + "确认这回合能收尾再打。");
+            } else {
+                bonus -= 0.4;
+                note(r, "这张会塞状态；当前没有【进化】/【火焰吐息】消化，"
+                        + "状态会卡抽牌，别只看即时伤害。");
+            }
+        }
+
+        if ("exhume".equals(id)) {
+            int exhausted = p.exhaustPile == null ? 0 : p.exhaustPile.size();
+            if (exhausted <= 0) {
+                bonus -= 2.2;
+                note(r, "消耗堆现在是空的，【发掘】打出去没有目标；先烧牌再用。");
+            } else if (exhaustedKey(p)) {
+                bonus += 2.0;
+                note(r, "消耗堆有 " + exhausted + " 张牌，其中有值得取回的核心；"
+                        + "【发掘】能把关键能力/攻击拿回来，别在空堆时打。");
+            } else {
+                bonus += 0.2;
+                note(r, "消耗堆有 " + exhausted + " 张牌，但没明显核心；"
+                        + "发掘的收益一般，优先看这回合是否需要补资源。");
+            }
+        } else if ("sentinel".equals(id)) {
+            if (exhaustDeck >= 3) {
+                bonus += 0.7;
+                note(r, "牌组有 " + exhaustDeck + " 张消耗相关牌；【哨卫】被消耗时给能量，"
+                        + "它是消耗流的燃料，不是直接打出就有收益。");
+            } else {
+                bonus -= 0.3;
+                note(r, "【哨卫】要配合消耗才给能量；现在消耗牌不多，别当普通格挡打。");
+            }
+        } else if ("seversoul".equals(id)) {
+            int statuses = handStatuses(p);
+            int nonAttack = handNonAttack(p, c);
+            if (statuses > 0) {
+                bonus += 1.0;
+                note(r, "手里有 " + statuses + " 张状态/诅咒；【切断灵魂】会烧掉所有非攻击牌，"
+                        + "正好清手，但别把关键技能一起烧了。");
+            } else if (nonAttack > 1) {
+                bonus -= 0.4;
+                note(r, "手里还有 " + nonAttack + " 张非攻击牌；【切断灵魂】会把它们全烧掉，"
+                        + "先确认没有要留的能力/技能。");
+            }
+        } else if ("rage".equals(id)) {
+            int attacks = handType(p, AbstractCard.CardType.ATTACK);
+            bonus += attacks >= 2 ? 0.9 : 0.2;
+            note(r, "【暴怒】让你本回合每打一张攻击就获得格挡；手里有 " + attacks
+                    + " 张攻击，先开它再连续攻击，格挡是白送的。");
+        } else if ("flamebarrier".equals(id)) {
+            if (incoming > 0) {
+                bonus += 0.9;
+                note(r, "对面这回合有 " + incoming + " 伤；【火焰屏障】给格挡并反伤，"
+                        + "多段敌人会吃很多反伤。");
+            } else {
+                bonus += 0.2;
+            }
+        } else if ("perfectedstrike".equals(id)) {
+            int strikes = countStrike(p);
+            bonus += Math.min(1.0, strikes * 0.08);
+            note(r, "牌组里有 " + strikes + " 张带“打击”的牌；【完美打击】按这个数量加伤，"
+                    + "打击越多越值得。");
+        } else if ("searingblow".equals(id) || "rampage".equals(id)) {
+            bonus += c.timesUpgraded > 0 ? 0.5 : 0.1;
+            note(r, "【灼热攻击/暴走】会随着升级/重复打出成长；"
+                    + "它不是一次性爆发，长战/能多次抽到时才强。");
+        }
+
         r.bonus += bonus;
         return r;
     }
@@ -205,6 +307,21 @@ public final class IroncladAdvisor {
                     + (p.currentHealth <= Math.max(12, p.maxHealth / 3)
                     ? "血线偏低，先别卖血；除非这回合能斩杀。"
                     : "有撕裂时自伤会转力量，但先开撕裂再卖。"));
+        }
+        int statusGens = statusGenerators(p);
+        if (statusGens > 0 || countId(p, "evolve") > 0 || countId(p, "firebreathing") > 0) {
+            out.add("状态引擎：牌组 " + statusGens + " 张会塞状态的牌。"
+                    + (countId(p, "evolve") > 0
+                    ? "有【进化】，抽到状态会补抽；先开进化再塞状态。"
+                    : countId(p, "firebreathing") > 0
+                    ? "有【火焰吐息】，抽到状态会打全体；先开它再塞状态。"
+                    : "没有进化/火焰吐息时，状态会卡抽牌，别只看塞状态牌的即时伤害。"));
+        }
+        if (countId(p, "exhume") > 0 || countId(p, "sentinel") > 0) {
+            out.add("消耗回收："
+                    + (countId(p, "exhume") > 0 ? "【发掘】从消耗堆取回关键牌，" : "")
+                    + (countId(p, "sentinel") > 0 ? "【哨卫】被消耗时给能量，" : "")
+                    + "它们不是直接打出就赚，先确认消耗堆/消耗牌够。");
         }
         out.add("这回合对面 " + incoming + " 伤，你有 " + block + " 格挡；"
                 + "如果挡不住，优先补防御/虚弱，别为了力量/消耗把血线打穿。");
@@ -314,6 +431,55 @@ public final class IroncladAdvisor {
             }
         }
         return n;
+    }
+
+    private static int statusGenerators(AbstractPlayer p) {
+        int n = countId(p, "wildstrike") + countId(p, "recklesscharge")
+                + countId(p, "immolate") + countId(p, "powerthrough");
+        if (p.hasRelic("Mark of Pain")) {
+            n++;
+        }
+        return n;
+    }
+
+    private static int handStatuses(AbstractPlayer p) {
+        int n = 0;
+        if (p.hand == null) {
+            return 0;
+        }
+        for (AbstractCard c : p.hand.group) {
+            if (c != null && (c.type == AbstractCard.CardType.STATUS
+                    || c.type == AbstractCard.CardType.CURSE)) {
+                n++;
+            }
+        }
+        return n;
+    }
+
+    private static int countStrike(AbstractPlayer p) {
+        int n = 0;
+        for (AbstractCard c : p.masterDeck.group) {
+            if (CardDatabase.norm(c.cardID).contains("strike")) {
+                n++;
+            }
+        }
+        return n;
+    }
+
+    private static boolean exhaustedKey(AbstractPlayer p) {
+        if (p.exhaustPile == null) {
+            return false;
+        }
+        for (AbstractCard c : p.exhaustPile.group) {
+            String id = CardDatabase.norm(c.cardID);
+            if (id.contains("limitbreak") || id.contains("demonform")
+                    || id.contains("corruption") || id.contains("barricade")
+                    || id.contains("feed") || id.contains("reaper")
+                    || id.contains("impervious")) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private static int countType(AbstractPlayer p, AbstractCard.CardType type) {

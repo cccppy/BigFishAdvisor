@@ -205,6 +205,77 @@ public final class SilentAdvisor {
             note(r, "这是铺垫牌：先花一张牌/能量，后面才回收；"
                     + "确认这回合不会被打穿，再投资。");
         }
+
+        // Grand Finale is a real condition, not a normal attack: it can only
+        // be played with an empty draw pile.  The combat filter already hides
+        // it when unplayable; this branch explains the payoff/ordering when it
+        // is actually available.
+        if ("grandfinale".equals(id)) {
+            int draw = p.drawPile == null ? 0 : p.drawPile.size();
+            if (draw == 0) {
+                bonus += 2.8;
+                note(r, "抽牌堆已经空了，【华丽收场】现在可以打：50/60 伤害打全体；"
+                        + "它吃易伤/力量/袖剑，清场前先确认手牌里还有没有要留的牌。");
+            } else {
+                bonus -= 2.0;
+                note(r, "抽牌堆还有 " + draw + " 张，【华丽收场】现在打不出去；"
+                        + "先用抽牌/弃牌把抽牌堆清空，再把它留到那一回合。");
+            }
+        } else if ("corpseexplosion".equals(id)) {
+            if (poison > 0 && alive.size() >= 2) {
+                bonus += 1.8;
+                note(r, "目标已有 " + poison + " 层毒，场上有 " + alive.size()
+                        + " 个敌人；【尸爆】在目标毒死时会炸全体，多目标战很赚。");
+            } else if (poison > 0) {
+                bonus += 0.8;
+                note(r, "【尸爆】先上毒，目标毒死时炸全体；单目标收益一般，"
+                        + "但可以补一层毒并等它自然死亡。");
+            } else {
+                bonus -= 0.5;
+                note(r, "目标现在没毒；【尸爆】要先有毒源才容易触发爆炸，别裸打。");
+            }
+        } else if ("terror".equals(id)) {
+            if (target != null && !target.hasPower("Vulnerable")) {
+                bonus += 1.0;
+                note(r, "【恐惧】给 99 层易伤，之后所有攻击都吃 1.5 倍；"
+                        + "先上易伤再打输出，别把它当伤害牌。");
+            } else {
+                bonus -= 0.4;
+                note(r, "目标已经有易伤，【恐惧】的收益会打折；先打输出或换目标。");
+            }
+        } else if ("piercingwail".equals(id)) {
+            if (alive.size() >= 2 || incoming >= 12) {
+                bonus += 0.9;
+                note(r, "【尖啸】减全体力量，直接削多段/多目标伤害；"
+                        + "对面这回合 " + incoming + " 伤，先用它再决定要不要硬挡。");
+            } else {
+                bonus += 0.2;
+                note(r, "【尖啸】是减力量，不是格挡；单目标小伤害时收益一般，"
+                        + "但长战/多段敌人很值。");
+            }
+        } else if ("malaise".equals(id)) {
+            if (target != null && (target.getIntentBaseDmg() > 0
+                    || target.hasPower("Strength"))) {
+                bonus += 0.8;
+                note(r, "【萎靡】是 X 费：每点能量给虚弱并减力量；"
+                        + "目标有攻击意图/力量时，先削它的输出，再考虑输出牌。");
+            } else {
+                bonus += 0.2;
+            }
+        } else if ("toolsofthetrade".equals(id)) {
+            if (discard >= 2 || p.hand == null || p.hand.size() >= 4) {
+                bonus += 0.7;
+                note(r, "【工具】每回合多抽 1 弃 1，能把弃牌收益/弃牌遗物变成每回合资源；"
+                        + "手牌多、弃牌牌多时更值。");
+            }
+        } else if ("sneakystrike".equals(id) || "eviscerate".equals(id)) {
+            if (discard >= 2) {
+                bonus += 0.4;
+                note(r, "这张吃“本回合弃过牌”的降费/回能；先弃牌再打它，"
+                        + "不要把它当普通攻击先交。");
+            }
+        }
+
         r.bonus += bonus;
         return r;
     }
@@ -224,6 +295,14 @@ public final class SilentAdvisor {
         out.add("【催化剂】是把目标当前毒量翻倍/三倍，不是加固定毒；"
                 + "目标毒越厚越赚，没毒时打它等于空牌。"
                 + "【灾祸】只对有毒目标打双倍，先上毒再打它。");
+        if (countId(p, "corpseexplosion") > 0) {
+            out.add("【尸爆】先给目标上毒，毒死时炸全体；多目标战先算毒什么时候结算，"
+                    + "不要把它当普通单体伤害。");
+        }
+        if (countId(p, "grandfinale") > 0) {
+            out.add("【华丽收场】只有抽牌堆为空才能打；它打全体 50/60，"
+                    + "要先用抽牌/弃牌把抽牌堆清空，再把它留到那一回合。");
+        }
         int shiv = countTag(p, "shiv");
         int accuracy = countId(p, "accuracy");
         out.add("小刀：牌组 " + shiv + " 张相关牌，精准 " + accuracy + " 张。"
