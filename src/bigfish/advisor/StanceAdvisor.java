@@ -169,12 +169,21 @@ public final class StanceAdvisor {
                     ? "打完会进入神性，本回合输出 ×3，优先把攻击打出去。"
                     : "真言不会直接变成伤害，要到 10 点才进神性；先算离 10 还差多少。");
         } else if ("blasphemy".equals(id)) {
-            bonus += cur == DIVINITY ? -4.0 : 2.0;
-            r.note = cur == DIVINITY
-                    ? "你已经在神性，【渎神】不会再给你新的神性回合，只会让你下回合死亡；"
-                    + "除非你确定这回合能结束战斗，否则绝对不要打。"
-                    : "【渎神】直接进神性，但下回合开始会死亡；"
-                    + "只有这回合能斩杀、或有免死/足够格挡时才拿它收尾，不能当普通姿态牌乱开。";
+            boolean low = p.currentHealth <= Math.max(1, p.maxHealth / 4);
+            if (cur == DIVINITY) {
+                bonus += -5.0;
+                r.note = "你已经在神性，【渎神】不会再给你新的神性回合，只会让你下回合死亡；"
+                        + "除非你确定这回合能结束战斗，否则绝对不要打。";
+            } else if (low) {
+                bonus += -6.0;
+                r.note = "现在只有 " + p.currentHealth + "/" + p.maxHealth
+                        + " 血，【渎神】下回合开始会死亡，而且这张本身不提供格挡/伤害；"
+                        + "除非这回合已经能斩杀，否则别拿它赌。";
+            } else {
+                bonus += 2.0;
+                r.note = "【渎神】直接进神性，但下回合开始会死亡；"
+                        + "只有这回合能斩杀、或有免死/足够格挡时才拿它收尾，不能当普通姿态牌乱开。";
+            }
         } else if ("rushdown".equals(id)) {
             int entries = countId(p, "eruption") + countId(p, "crescendo")
                     + countId(p, "indignation") + countId(p, "tantrum");
@@ -359,7 +368,8 @@ public final class StanceAdvisor {
             b += d.attacks >= 6 ? 0.35 : 0.0;
         }
         if (id.contains("blasphemy")) {
-            b += mantra >= 5 ? 0.45 : -0.2;
+            boolean low = p.currentHealth <= Math.max(1, p.maxHealth / 4);
+            b += low ? -1.6 : (mantra >= 5 ? 0.45 : -0.2);
         }
         if (id.contains("collect")) {
             b += p.hasRelic("Pure Water") ? 0.1 : 0.3;
@@ -401,6 +411,11 @@ public final class StanceAdvisor {
                     + "多段/低费攻击越多越强。";
         }
         if (id.contains("blasphemy")) {
+            if (p.currentHealth <= Math.max(1, p.maxHealth / 4)) {
+                return "你现在只有 " + p.currentHealth + "/" + p.maxHealth
+                        + " 血；渎神下回合开始死亡，低血时拿它等于把容错压到零，"
+                        + "除非你已经有稳定斩杀/免死，否则别选。";
+            }
             return "你有 " + mantra + " 张真言牌；渎神直接进神性，但下回合开始死亡，"
                     + "只适合能在这回合斩杀、或有免死/格挡收尾的牌组。";
         }

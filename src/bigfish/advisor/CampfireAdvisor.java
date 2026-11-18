@@ -58,7 +58,7 @@ public final class CampfireAdvisor {
         int hpPct = p.currentHealth * 100 / Math.max(1, p.maxHealth);
         boolean preBoss = isPreBossCampfire();
         int burst = preBoss ? bossBurst() : 0;
-        boolean danger = preBoss && p.currentHealth <= burst + 8;
+        boolean danger = preBoss && p.currentHealth <= burst + 15;
         r.preBossDanger = danger;
         r.bossBurst = burst;
         r.upgrades = upgradeOptions(p);
@@ -483,7 +483,7 @@ public final class CampfireAdvisor {
             }
             Upgrade u = new Upgrade();
             u.card = c;
-            u.score = upgradeScore(c);
+            u.score = upgradeScore(p, c);
             u.note = upgradeNote(c, u.score);
             out.add(u);
         }
@@ -496,7 +496,7 @@ public final class CampfireAdvisor {
         return out;
     }
 
-    private double upgradeScore(AbstractCard c) {
+    private double upgradeScore(AbstractPlayer p, AbstractCard c) {
         CardDatabase.Entry entry = CardDatabase.get(c);
         double base = entry == null ? 5.4 : entry.score;
         if (CardDatabase.norm(c.cardID).contains("strike")
@@ -520,6 +520,13 @@ public final class CampfireAdvisor {
         if (c.rarity == AbstractCard.CardRarity.RARE) {
             delta += 0.35;
         }
+        // Watcher lives and dies by stance cadence.  Eruption+ costs 1 instead
+        // of 2, so it is a real tempo upgrade, not a small damage increase.
+        String id = CardDatabase.norm(c.cardID);
+        if (p != null && p.chosenClass == AbstractPlayer.PlayerClass.WATCHER
+                && id.contains("eruption") && !c.upgraded) {
+            delta += 4.5;
+        }
         return base + 1.0 + delta;
     }
 
@@ -539,6 +546,9 @@ public final class CampfireAdvisor {
         if (copy.cost >= 0 && copy.cost < c.cost) {
             sb.append(" 费用 ").append(c.cost).append("->").append(copy.cost);
             any = true;
+        }
+        if (CardDatabase.norm(c.cardID).contains("eruption")) {
+            sb.append("；观者姿态入口从 2 费变 1 费，姿态循环质变，优先于普通伤害升级");
         }
         if (!any) {
             sb.append("效果增强");

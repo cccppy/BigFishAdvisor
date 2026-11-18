@@ -122,7 +122,12 @@ public final class ActAdvisor {
         double readiness = eliteReadiness(p);
         String verdict = readiness > 0.35 ? "当前牌组可以打"
                 : readiness < -0.25 ? "当前牌组偏危险" : "看血量和药水决定";
-        return "本幕可能遇到精英：" + join(names) + "；" + verdict + "。";
+        int hpPct = p == null ? 100 : p.currentHealth * 100 / Math.max(1, p.maxHealth);
+        if (hpPct <= 30) {
+            verdict = "血量很低，先绕开精英找营火/药水";
+        }
+        return "本幕可能遇到精英：" + join(names) + "；" + verdict
+                + (hpPct <= 30 ? "（当前 " + hpPct + "% 血，精英战没有容错）" : "") + "。";
     }
 
     public static double eliteReadiness(AbstractPlayer p) {
@@ -131,6 +136,12 @@ public final class ActAdvisor {
         }
         DeckSummary d = DeckSummary.of(p);
         double best = d.blockCards >= 6 ? 0.0 : -0.3;
+        int hpPct = p.currentHealth * 100 / Math.max(1, p.maxHealth);
+        if (hpPct <= 30) {
+            best -= 0.6;
+        } else if (hpPct <= 45) {
+            best -= 0.25;
+        }
         for (String raw : AbstractDungeon.eliteMonsterList) {
             String key = norm(raw);
             double s = 0.0;

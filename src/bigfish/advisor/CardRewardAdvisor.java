@@ -71,6 +71,10 @@ public final class CardRewardAdvisor {
                 s.note = s.note + " 你现在只有 " + r.deck.blockCards
                         + " 张格挡牌，这是保命牌，别连续跳过。";
             }
+            if (act >= 2 && r.deck.aoeCards < 1 && CardDatabase.hasTag(card, "aoe")) {
+                s.note = s.note + " 你现在没有 AOE，下一场三奴隶/召小怪会清不过来；"
+                        + "这张是群体伤害，别为了单卡强度跳过。";
+            }
             s.tier = CardDatabase.tier(card);
             r.cards.add(s);
             r.byId.put(card.uuid, s);
@@ -151,7 +155,13 @@ public final class CardRewardAdvisor {
             }
         }
         if (act >= 2 && deck.aoeCards < 1 && CardDatabase.hasTag(c, "aoe")) {
-            score += 0.65;
+            // Slavers / Gremlin Leader / Collector punish a deck with no
+            // multi-target answer.  A marginal AOE card is still more
+            // valuable than another single-target attack here.
+            score += 1.15;
+        }
+        if (act >= 2 && deck.aoeCards < 2 && deck.size >= 15 && CardDatabase.hasTag(c, "aoe")) {
+            score += 0.45;
         }
         if (deck.drawCards < 1 && deck.size >= 12 && CardDatabase.hasTag(c, "draw")) {
             score += 0.35;

@@ -153,6 +153,10 @@ public final class PotionAdvisor {
                     }
                 }
             }
+            if (abundant) {
+                return "药水：百兽雕像会补药，普通攻击药可以更早喝来换血/节奏；"
+                        + "复活、果汁、树皮强化药留给精英/Boss，别为了补药把好药喝光。";
+            }
             String names = names(potions, 3);
             return "药水：留着" + names + "给精英/Boss；格子满时优先喝普通药水。";
         }
